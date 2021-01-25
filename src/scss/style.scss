@@ -1,0 +1,18 @@
+// If you want to override variables do it here
+@import '~leaflet/dist/leaflet.css';
+@import '~esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css';
+@import 'variables';
+
+// If you want to add something do it here
+@import 'custom';
+
+// Import styles
+@import '~@coreui/coreui/scss/coreui';
+
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto+Slab:700&display=swap');
+
+@import "~bootstrap/dist/css/bootstrap.css";
+
+/* Importing Bootstrap SCSS file. */
+@import '~bootstrap/scss/bootstrap';
+

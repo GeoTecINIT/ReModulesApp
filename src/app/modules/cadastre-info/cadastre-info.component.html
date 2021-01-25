@@ -1,0 +1,61 @@
+<div *ngIf="!propIsSelected" class="information">
+  <div *ngIf="properties.length > 0 " style="text-align: center;">
+    <h5> Provincia: {{ properties[0].province}} </h5>
+    <p><i class="fa fa-map-marker" aria-hidden="true"></i> {{properties[0].address}}
+    </p>
+    <p>{{properties.length}} INMUEBLES</p>
+    <img class="facadeImage" [src]='properties[0].image' />
+  </div>
+  <div  *ngIf="properties.length > 0" class="seeMore">
+    <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
+      <div class="arrowFromLeft">
+        <svg xmlns="http://www.w3.org/2000/svg" width="5.002" height="8.576" viewBox="0 0 5.002 8.576">
+          <path d="M1.06,8.428a.5.5,0,0,1-.71,0l-.2-.2A.49.49,0,0,1,0,7.868V.708A.49.49,0,0,1,.15.348l.2-.2a.5.5,0,0,1,.71,0l3.79,3.79a.48.48,0,0,1,0,.7Z"></path>
+        </svg><span>Ver Inmuebles</span>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="properties.length > 0 "  class="collapse" id="propertiesInfo">
+    <ul class="listBuild">
+      <li  *ngFor="let mk of properties">
+        <h5> {{mk.locInt}} </h5>
+        <p style="padding-left: 0">Referencia catastral: {{mk.rc}}</p>
+        <div style="text-align: right">
+          <button (click)="getDetailFromRC(mk)" > Más información > </button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+<div id="detail"  *ngIf="propIsSelected && propSelected !== null">
+  <div class="row">
+    <button type="button" class="btn btn-info col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> VOLVER</button>
+    <div *ngIf="isUserLogged" class="col-md-5 offset-3" >
+      <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
+        <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
+      </a>
+      <a href="#" (click)="addToFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
+        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+      </a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header row">
+      <div >DATOS DESCRIPTIVOS DEL INMUEBLE</div>
+    </div>
+    <div class="card-body">
+      <img class="facadeImage" [src]='facadeImage' />
+      <p class="card-text"> Referencia catastral: {{ propSelected.rc}}</p>
+      <p class="card-text"> Localización: {{ propSelected.completeAddress}}</p>
+      <p class="card-text"> Uso principal: {{ propSelected.use}}</p>
+      <p class="card-text"> Superficie construida: {{ propSelected.surfaceCons}}</p>
+      <p class="card-text"> Año construcción: {{ propSelected.yearConstruction}}</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">PARCELA CATASTRAL</div>
+    <div class="card-body">
+      <p class="card-text"> Participación del inmueble: {{ propSelected.participation}} %</p>
+    </div>
+  </div>
+</div>
