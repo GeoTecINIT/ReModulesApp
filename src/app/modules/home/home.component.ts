@@ -16,10 +16,12 @@ export class HomeComponent implements OnInit {
 
   active: number;
   properties: Property[];
+  propertySelectedFormMap: string;
   point: any;
   isUserLogged: boolean;
   currentUser: User = new User();
   history: any;
+  itemSelectedFromHistory: string;
   constructor(private modalService: BsModalService, private router: Router,
               public afAuth: AngularFireAuth, public userService: UserService) {
     this.afAuth.onAuthStateChanged(user => {
@@ -42,16 +44,31 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.properties = [];
     this.active = 1;
-  }
-
-  receivePoint($event) {
-    this.properties = [];
-    this.properties = $event;
+    this.itemSelectedFromHistory = '';
+    this.propertySelectedFormMap = '';
   }
 
   refreshFavorites() {
+    this.history = null;
     this.userService.getHistoryByUser(this.currentUser.id).subscribe( hist => {
       this.history = hist;
+      this.properties = [];
+      this.itemSelectedFromHistory = '';
+      this.propertySelectedFormMap = '';
     });
+  }
+  receivePoint($event) {
+    this.properties = [];
+    this.properties = $event;
+    this.active = 1;
+  }
+  receivePropSelected($event) {
+    this.propertySelectedFormMap = '';
+    this.propertySelectedFormMap = $event;
+    this.active = 1;
+  }
+  receivePropFromHistory($event){
+    this.itemSelectedFromHistory = $event;
+    this.active = 1;
   }
 }

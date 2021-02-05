@@ -1,0 +1,29 @@
+<div class="historyList">
+  <div class="filters">
+    <a class="btn btn-primary" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">Filters</a>
+    <div class="collapse" id="filters">
+      <div class="card card-body form">
+          <label for="filterYear"> Year: </label>
+          <ng-select id="filterYear" class="filter" [(ngModel)]="yearSelected"
+                     (change)="filter('year');" (remove)="cleanFilter('year');">
+            <ng-option *ngFor="let year of yearsFilter" [value]="year.value">{{year.label}}</ng-option>
+          </ng-select>
+          <label for="filterYear"> Land use: </label>
+          <ng-select class="filter" [(ngModel)]="useSelected"
+                     (change)="filter('use');" (remove)="cleanFilter('use');">
+            <ng-option *ngFor="let use of usesFilter" [value]="use">{{use}}</ng-option>
+          </ng-select>
+          <label for="filterYear"> Surface: </label>
+        <div class="custom-slider">
+          <ngx-slider [(value)]="surfaceFilter.floor" [(highValue)]="surfaceFilter.ceil" [options]="surfaceFilter" (userChange)="filterSurface($event)"></ngx-slider>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ul>
+    <li *ngFor="let mk of historyFiltered">
+      <a href="#" (click)="getInfoByRC(mk.rc)">{{mk.rc}}</a>
+      <p>{{mk.address}}</p>
+    </li>
+  </ul>
+</div>

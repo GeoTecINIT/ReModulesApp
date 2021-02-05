@@ -1,0 +1,7 @@
+{
+  "/ovcservweb/*": {
+    "target": "https://ovc.catastro.meh.es",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

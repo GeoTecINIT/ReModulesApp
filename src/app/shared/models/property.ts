@@ -2,7 +2,7 @@ export class Property extends Object {
   constructor(
     public rc: string,
     public address: string,
-    public floor:string,
+    public floor: string,
     public locInt: string,
     public surfaceCons: string,
     public postalCode: string,
@@ -14,7 +14,8 @@ export class Property extends Object {
     public use: string,
     public surfaceGraph: string,
     public participation: string,
-    public image: any
+    public image: any,
+    public latlng: []
   ) {
     super();
   }

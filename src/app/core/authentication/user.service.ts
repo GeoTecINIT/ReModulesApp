@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 
 const baseUrl = 'http://localhost:3000/api/user';
+const baseHistoryUserUrl = 'http://localhost:3000/api/history/user';
 const baseHistoryUrl = 'http://localhost:3000/api/history';
+const baseHistoryUsesUrl = 'http://localhost:3000/api/history/uses';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +12,6 @@ const baseHistoryUrl = 'http://localhost:3000/api/history';
 export class UserService {
 
   constructor(private http: HttpClient) { }
-
-  getAll() {
-    return this.http.get(baseUrl);
-  }
 
   getByUid(id) {
     return this.http.get(`${baseUrl}/${id}`);
@@ -27,15 +25,14 @@ export class UserService {
     return this.http.put(`${baseUrl}/${id}`, data);
   }
 
-  delete(id) {
-    return this.http.delete(`${baseUrl}/${id}`);
-  }
-
   getHistoryByUser(id){
-    return this.http.get(`${baseHistoryUrl}/${id}`);
+    return this.http.get(`${baseHistoryUserUrl}/${id}`);
   }
 
   addPropertyToHistory(property) {
     return this.http.post(baseHistoryUrl, property);
+  }
+  getUses(){
+    return this.http.get(`${baseHistoryUsesUrl}`);
   }
 }

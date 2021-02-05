@@ -8,9 +8,9 @@ import {DomSanitizer} from '@angular/platform-browser';
 export class CadastreService {
 
 
-  CATASTRO_SPAIN_BY_COORDINATES = 'https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR';
-  CATASTRO_SPAIN_BY_RC = 'http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';
-  CATASTRO_SPAIN_FACADE_IMAGE = 'http://ovc.catastro.meh.es/OVCServWeb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral=';
+  CATASTRO_SPAIN_BY_COORDINATES = '/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR';
+  CATASTRO_SPAIN_BY_RC = '/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';
+  CATASTRO_SPAIN_FACADE_IMAGE = '/ovcservweb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral=';
 
   constructor(private http: HttpClient) { }
 

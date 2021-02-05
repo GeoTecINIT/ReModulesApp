@@ -17,8 +17,11 @@ import { HeaderComponent } from './core/header/header.component';
 import { HomeComponent } from './modules/home/home.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import {HttpClientModule} from '@angular/common/http';
+import { HttpClientModule} from '@angular/common/http';
 import { CadastreInfoComponent } from './modules/cadastre-info/cadastre-info.component';
+import { HistoryComponent } from './modules/history/history.component';
+import {NgSelectModule} from '@ng-select/ng-select';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 
 @NgModule({
   declarations: [
@@ -27,19 +30,22 @@ import { CadastreInfoComponent } from './modules/cadastre-info/cadastre-info.com
     LoginComponent,
     HeaderComponent,
     HomeComponent,
-    CadastreInfoComponent
+    CadastreInfoComponent,
+    HistoryComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule,
-    ModalModule.forRoot(),
-    HttpClientModule,
-    NgbModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFirestoreModule,
+        AngularFireAuthModule,
+        ModalModule.forRoot(),
+        HttpClientModule,
+        NgbModule,
+        NgSelectModule,
+        NgxSliderModule,
+    ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     AngularFireAuthGuard

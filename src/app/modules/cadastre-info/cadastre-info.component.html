@@ -21,20 +21,25 @@
         <h5> {{mk.locInt}} </h5>
         <p style="padding-left: 0">Referencia catastral: {{mk.rc}}</p>
         <div style="text-align: right">
-          <button (click)="getDetailFromRC(mk)" > Más información > </button>
+          <button (click)="this.searchFromHistory = false; getDetailFromRC(mk.rc);" > Más información > </button>
         </div>
       </li>
     </ul>
   </div>
 </div>
-<div id="detail"  *ngIf="propIsSelected && propSelected !== null">
+<div class="detail"  *ngIf="propIsSelected && propSelected !== null">
   <div class="row">
-    <button type="button" class="btn btn-info col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> VOLVER</button>
-    <div *ngIf="isUserLogged" class="col-md-5 offset-3" >
+    <button *ngIf="!searchFromHistory" type="button" class="btn btn-info col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> VOLVER</button>
+    <div *ngIf="isUserLogged && !searchFromHistory" class="col-md-5 offset-3" >
       <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
         <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
       </a>
       <a href="#" (click)="addToFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
+        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+      </a>
+    </div>
+    <div *ngIf="isUserLogged && searchFromHistory" class="col-md-5 offset-3" >
+      <a href="#" style="text-align: right;" (click)="addToFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
         <span><i class="fa fa-heart" aria-hidden="true"></i></span>
       </a>
     </div>

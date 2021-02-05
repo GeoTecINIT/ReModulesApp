@@ -12,8 +12,6 @@ import {AngularFireAuth} from '@angular/fire/auth';
   styleUrls: ['./cadastre-info.component.scss']
 })
 export class CadastreInfoComponent implements OnInit, OnChanges {
-
-  @Input() properties: Property[];
   propSelected: Property;
   totalArea: number;
   propIsSelected: boolean;
@@ -21,8 +19,12 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   error: any;
   currentUser: User = new User();
   isAFavProperty: boolean;
-  @Input() history: any;
   isUserLogged: boolean;
+  searchFromHistory: boolean;
+  @Input() propSelectFromMap: string;
+  @Input() history: any;
+  @Input() itemSelectedFromHistory: string;
+  @Input() properties: Property[];
   constructor(public cadastreService: CadastreService, private sanitizer: DomSanitizer,
               public afAuth: AngularFireAuth, public userService: UserService) {
     this.afAuth.onAuthStateChanged(user => {
@@ -34,17 +36,34 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.properties && changes.properties.currentValue &&
-      (changes.properties.currentValue[0] !== changes.properties.previousValue )){
+
+    if (changes.properties && changes.properties.currentValue
+      && changes.properties.currentValue.length > 0
+      && ((changes.properties.previousValue && changes.properties.previousValue.length > 0
+          && (changes.propertiescurrentValue !== changes.properties )) || (changes.properties.previousValue.length < 1))
+         ){
+      this.propSelected = null;
       this.propIsSelected = false;
     }
     if (changes.history && changes.history.currentValue &&
       (changes.history.currentValue.length > this.history.length)){
+      this.propSelected = null;
       this.history = changes.history.currentValue;
+    }
+    if (changes.itemSelectedFromHistory && changes.itemSelectedFromHistory.currentValue &&
+      (changes.itemSelectedFromHistory.currentValue !== changes.itemSelectedFromHistory.previousValue)){
+      this.itemSelectedFromHistory = changes.itemSelectedFromHistory.currentValue;
+      this.searchFromHistory = true;
+      this.getDetailFromRC(this.itemSelectedFromHistory);
+    }
+    if (changes.propSelectFromMap && changes.propSelectFromMap.currentValue &&
+      changes.propSelectFromMap.currentValue !== changes.propSelectFromMap.previousValue){
+      this.searchFromHistory = true;
+      this.propSelectFromMap = changes.propSelectFromMap.currentValue;
+      this.getDetailFromRC(this.propSelectFromMap);
     }
   }
 
@@ -57,12 +76,10 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
 
   /**
    * Assign to property selected the entire information from cadastral service
-   * @param prop: Property selected from the list
+   * @param rc: Property selected from the list
    */
-  getDetailFromRC(prop: Property){
+  getDetailFromRC(rc: any){
     this.initialData();
-    console.log('History!!! ', this.isAFavProperty );
-    const rc = prop.rc;
     this.cadastreService.getBuildingDetailsByRC(rc).subscribe(( pro) => {
       const parser2 = new DOMParser();
       const dataXML = parser2.parseFromString(pro, 'text/xml');
@@ -88,7 +105,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       const urlCreator = window.URL;
       this.facadeImage = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
     });
-    return new Property(rc, '', '', '', surfaceCons, '', '', '', year, '', address, use, surfaceGraph, participation, this.facadeImage);
+    return new Property(rc, '', '', '', surfaceCons, '', '', '', year, '', address, use, surfaceGraph, participation, this.facadeImage, []);
   }
 
   /**
@@ -119,6 +136,11 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       rc: propSelected.rc,
       address: propSelected.completeAddress,
       uid: this.currentUser.uid,
+      lat: this.properties[0].latlng['lat'],
+      lng: this.properties[0].latlng['lng'],
+      year: propSelected.yearConstruction,
+      use: propSelected.use,
+      surface: propSelected.surfaceCons
     };
     this.userService.addPropertyToHistory(propToSave).subscribe( res => {
       this.history.push(propToSave);
@@ -128,12 +150,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
 
   isAFavoriteProperty(property: Property){
     this.history.forEach(prop => {
-      console.log('Son igualES!!! ', prop.rc, property.rc , prop.rc === property.rc);
-      if ( prop.rc === property.rc){
-        this.isAFavProperty = true;
-      } else {
-        this.isAFavProperty = false;
-      }
+      this.isAFavProperty = prop.rc === property.rc;
     });
   }
 }
