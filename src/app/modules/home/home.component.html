@@ -13,7 +13,7 @@
         <li [ngbNavItem]="2" *ngIf="isUserLogged">
           <a ngbNavLink (click)="refreshFavorites();">History</a>
           <ng-template ngbNavContent>
-            <app-history [history] = "history" (itemSelectedFromHistoryEmitter)="receivePropFromHistory($event)" ></app-history>
+            <app-history [history] = "history" (itemSelectedFromHistoryEmitter)="receivePropFromHistory($event)" (historyFilteredEmitter)="receiveHistoryFiltered($event)"></app-history>
           </ng-template>
         </li>
       </ul>
@@ -21,10 +21,20 @@
     </div>
     <div class="col-md-9">
       <app-map (propertiesEmitter)="receivePoint($event)" [history] = "history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
-               (propSelectFromMapEmitter)="receivePropSelected($event)"></app-map>
+               (propSelectFromMapEmitter)="receivePropSelected($event)" [historyFilteredFromList]="historyFilteredFromList"></app-map>
     </div>
   </div>
 </main>
-<div style="text-align: right">
-  <h5>ReModules Version: 1.1</h5>
-</div>
+<footer>
+  <!--div>
+    <p>
+      <a href="#">
+        Leave us your Feedback
+      </a>
+    </p>
+  </div-->
+  <div style="text-align: right">
+    <h5>ReModules Version: 1.1</h5>
+  </div>
+</footer>
+

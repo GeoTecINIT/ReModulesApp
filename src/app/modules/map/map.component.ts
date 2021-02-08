@@ -26,6 +26,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() itemSelectedFromHistory: string;
   @Input() properties: Property[];
   @Input() history: any;
+  @Input() historyFilteredFromList: any;
   markersLayer: any;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
@@ -63,6 +64,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           this.marker.bindPopup(textPopup).openPopup();
         }
       });
+    }
+    if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
+      this.history = changes.historyFilteredFromList.currentValue;
+      this.addMarkersHistory();
+      const newBound = this.markerClusterGroup.getBounds();
+      this.map.fitBounds(newBound);
     }
   }
 
@@ -206,7 +213,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
             this.properties[0].latlng = latLng;
-            console.log('entre antes de emitir!!! ', this.properties);
             this.propertiesEmitter.emit(this.properties);
           });
         });
@@ -258,6 +264,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     this.removeGroupMarkers();
     this.map.setView(this.CENTER_POINT, this.ZOOM);
     const markerGroup = [];
+    const latLngs = [];
     if (this.history && this.history.length > 0 ){
       this.history.forEach( propHistory => {
         if (propHistory.lat > 0 ){
@@ -270,11 +277,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           });
           this.markerClusterGroup.addLayer(markers);
           markerGroup.push(markers);
+          latLngs.push([+propHistory.lat, +propHistory.lng]);
         }
       });
     }
-    //this.markersLayer = L.featureGroup(markerGroup);
-    //this.markersLayer.addTo(this.map);
     this.markerClusterGroup.addTo(this.map);
   }
 

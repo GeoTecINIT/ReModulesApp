@@ -22,6 +22,7 @@ export class HomeComponent implements OnInit {
   currentUser: User = new User();
   history: any;
   itemSelectedFromHistory: string;
+  historyFilteredFromList: any;
   constructor(private modalService: BsModalService, private router: Router,
               public afAuth: AngularFireAuth, public userService: UserService) {
     this.afAuth.onAuthStateChanged(user => {
@@ -70,5 +71,8 @@ export class HomeComponent implements OnInit {
   receivePropFromHistory($event){
     this.itemSelectedFromHistory = $event;
     this.active = 1;
+  }
+  receiveHistoryFiltered($event){
+    this.historyFilteredFromList = $event;
   }
 }

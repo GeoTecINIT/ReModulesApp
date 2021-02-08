@@ -1,16 +1,19 @@
 <div class="historyList">
   <div class="filters">
-    <a class="btn btn-primary" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">Filters</a>
+    <a class="btn filterButton" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">
+      <span>
+        <i class="fa fa-filter" aria-hidden="true"></i>
+      </span>Filters</a>
     <div class="collapse" id="filters">
       <div class="card card-body form">
           <label for="filterYear"> Year: </label>
           <ng-select id="filterYear" class="filter" [(ngModel)]="yearSelected"
-                     (change)="filter('year');" (remove)="cleanFilter('year');">
+                     (change)="filter('year');">
             <ng-option *ngFor="let year of yearsFilter" [value]="year.value">{{year.label}}</ng-option>
           </ng-select>
           <label for="filterYear"> Land use: </label>
           <ng-select class="filter" [(ngModel)]="useSelected"
-                     (change)="filter('use');" (remove)="cleanFilter('use');">
+                     (change)="filter('use');">
             <ng-option *ngFor="let use of usesFilter" [value]="use">{{use}}</ng-option>
           </ng-select>
           <label for="filterYear"> Surface: </label>

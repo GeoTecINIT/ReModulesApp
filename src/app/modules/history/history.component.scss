@@ -1,9 +1,10 @@
 .historyList{
-  height: 90vh;
+  height: 85vh;
   overflow: auto;
 }
 .filters {
   padding: 15px;
+  margin-bottom: 10px;
 }
 ::ng-deep {
   .custom-slider .ngx-slider .ngx-slider-bar {
@@ -49,4 +50,12 @@
   .custom-slider .ngx-slider .ngx-slider-tick.ngx-slider-selected {
     background: orange;
   }
+}
+
+.filterButton {
+  color: #2888BA;
+  background: transparent;
+  font-weight: 700;
+  border: 0;
+  text-transform: uppercase;
 }

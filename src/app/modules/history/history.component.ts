@@ -20,10 +20,10 @@ export class HistoryComponent implements OnInit, OnChanges {
   yearSelected: any;
   surfaceFilter: Options;
   surfaceSelected: any;
-  filterForSurface: any;
-  filterApplied: any;
+  filterApplied: string[];
   @Input() history: any;
   @Output() itemSelectedFromHistoryEmitter = new EventEmitter<any>();
+  @Output() historyFilteredEmitter= new EventEmitter<any>();
   constructor(public afAuth: AngularFireAuth, public userService: UserService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -40,6 +40,7 @@ export class HistoryComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.filterApplied = [];
     this.surfaceFilter = {
       floor: 0,
       ceil: 1000,
@@ -54,7 +55,7 @@ export class HistoryComponent implements OnInit, OnChanges {
     if ( changes.history.currentValue ) {
       this.history = changes.history.currentValue;
       this.historyFiltered = this.history;
-      this.filterApplied = [{ filterType: '', lastArray: this.historyFiltered}];
+      //this.filterApplied = [{ filterType: '', lastArray: this.historyFiltered}];
       this.buildFilterBySurface();
     }
   }
@@ -111,74 +112,68 @@ export class HistoryComponent implements OnInit, OnChanges {
   }
 
   cleanFilter(type: string) {
-    let arrayToFilter = null;
-    let index = 0;
-    this.filterApplied.forEach( filt => {
-      if ( filt.filterType === type ){
-        arrayToFilter = filt.lastArray;
-        index = this.filterApplied.indexOf(filt);
-      }
-    });
-    this.filterApplied.splice ( index, 1);
-    this.historyFiltered = arrayToFilter;
-  }
-
-  selectArrayToFilter(type: string) {
-    let arrayToFilter = null;
-    let found = false;
-    let index = 0;
-    this.filterApplied.forEach( filt => {
-      if ( filt.filterType === type ){
-        arrayToFilter = filt.lastArray;
-        found = true;
-        index = this.filterApplied.indexOf(filt);
-      }
-    });
-    if ( found ) {
-      this.filterApplied.splice ( index, 1);
-    } else {
-      arrayToFilter = this.historyFiltered;
+    const indexFilterApplied = this.filterApplied.indexOf(type);
+    if (indexFilterApplied > -1) {
+      this.filterApplied.splice(indexFilterApplied, 1);
     }
-    return arrayToFilter;
   }
 
-  filter(type: string): void{
-    const histTemp = [];
-    if ( ( type === 'use' && this.useSelected === null ) ||
-      ( type === 'year' && this.yearSelected === null ) ||
-      ( type === 'surface' && this.surfaceSelected === null )  ){
+  filter(type: string): void {
+    if ( ( type === 'use' && this.useSelected !== null ) ||
+      ( type === 'year' && this.yearSelected !== null ) ||
+      ( type === 'surface' && this.surfaceSelected !== null )  ){
+
+      const indexFilterApplied = this.filterApplied.indexOf(type);
+      if (indexFilterApplied < 0) {
+        this.filterApplied.push(type);
+      }
+    } else {
       this.cleanFilter(type);
-    } else {
-      const arrayToFilter = this.selectArrayToFilter(type);
-      if (type === 'year') {
-       this.filterByYear(arrayToFilter, histTemp);
-      }
-      else if (type === 'use') {
-        arrayToFilter.forEach( hist => {
-          if ( hist.use === this.useSelected) {
-            histTemp.push(hist);
-          }
-        });
-        const lastFilter = {
-          filterType: 'use',
-          lastArray: arrayToFilter
-        };
-        this.filterApplied.push(lastFilter);
-        this.historyFiltered = histTemp;
-      } else if (type === 'surface') {
-        arrayToFilter.forEach( hist => {
-          if ( hist.surface >= this.surfaceSelected.min && hist.surface <= this.surfaceSelected.max ){
-            histTemp.push(hist);
-          }
-        });
-        const lastFilter = {
-          filterType: 'surface',
-          lastArray: arrayToFilter
-        };
-        this.filterApplied.push(lastFilter);
-        this.historyFiltered = histTemp;
-      }
     }
+    let arrayFiltered = [];
+    this.history.forEach(el => {
+      arrayFiltered.push(el);
+    });
+    this.filterApplied.forEach( filter => {
+      if (filter === 'year') {
+        const filterByYear = this.filterByYear(this.history);
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByYear);
+      }
+      if (filter === 'use') {
+        const filterByUse  = [];
+        this.history.forEach( hist => {
+          if ( hist.use === this.useSelected) {
+            filterByUse.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByUse);
+      }
+      if (filter === 'surface') {
+        const filterBySurface  = [];
+        this.history.forEach( hist => {
+          if ( hist.surface >= this.surfaceSelected.min && hist.surface <= this.surfaceSelected.max ){
+            filterBySurface.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterBySurface);
+      }
+    });
+    this.historyFiltered = arrayFiltered;
+    this.historyFilteredEmitter.emit(arrayFiltered);
+  }
+
+  removeElementsFromArray(arrayInit, element){
+    const indexToRemove = [];
+    arrayInit.forEach( filtered => {
+      const index = element.indexOf(filtered, 0);
+      if (index < 0 ) {
+        indexToRemove.push(arrayInit.indexOf(filtered, 0));
+      }
+    });
+    for (let i = indexToRemove.length - 1 ; i >= 0; i--){
+      arrayInit.splice(indexToRemove[i], 1);
+    }
+    return arrayInit;
   }
 
   filterSurface(changeContext: ChangeContext): void{
@@ -189,8 +184,8 @@ export class HistoryComponent implements OnInit, OnChanges {
     this.filter('surface' );
   }
 
-  filterByYear(arrayToFilter, histTemp){
-    console.log('El año seleccionado!!! ', this.yearSelected, histTemp);
+  filterByYear(arrayToFilter){
+    const histTemp = [];
     switch (this.yearSelected) {
       case 1: { // 0 - 1900
         arrayToFilter.forEach( hist => {
@@ -241,11 +236,6 @@ export class HistoryComponent implements OnInit, OnChanges {
         break;
       }
     }
-    const lastFilter = {
-      filterType: 'year',
-      lastArray: arrayToFilter
-    };
-    this.filterApplied.push(lastFilter);
-    this.historyFiltered = histTemp;
+    return histTemp;
   }
 }
