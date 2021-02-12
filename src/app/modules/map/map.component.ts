@@ -68,8 +68,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
       this.history = changes.historyFilteredFromList.currentValue;
       this.addMarkersHistory();
-      const newBound = this.markerClusterGroup.getBounds();
-      this.map.fitBounds(newBound);
+      if ( this.history.length > 0 ){
+        const newBound = this.markerClusterGroup.getBounds();
+        this.map.fitBounds(newBound);
+      }
     }
   }
 
@@ -207,7 +209,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           }
           let textToShow = '';
           textToShow = '<h6> ' + this.properties[0].address
-            + '</h6>' + '<p> Número de inmuebles: ' + this.properties.length + '</p>';
+            + '</h6>' + '<p> Number of properties: ' + this.properties.length + '</p>';
           this.marker.bindPopup(textToShow).openPopup();
           this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
             const urlCreator = window.URL;

@@ -23,7 +23,7 @@ export class HistoryComponent implements OnInit, OnChanges {
   filterApplied: string[];
   @Input() history: any;
   @Output() itemSelectedFromHistoryEmitter = new EventEmitter<any>();
-  @Output() historyFilteredEmitter= new EventEmitter<any>();
+  @Output() historyFilteredEmitter = new EventEmitter<any>();
   constructor(public afAuth: AngularFireAuth, public userService: UserService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -47,15 +47,14 @@ export class HistoryComponent implements OnInit, OnChanges {
       step: 10,
       showTicks: true
     };
-    this.buildFilterByUses();
-    this.buildFilterByYear();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if ( changes.history.currentValue ) {
       this.history = changes.history.currentValue;
       this.historyFiltered = this.history;
-      //this.filterApplied = [{ filterType: '', lastArray: this.historyFiltered}];
+      this.buildFilterByUses();
+      this.buildFilterByYear();
       this.buildFilterBySurface();
     }
   }
@@ -66,35 +65,56 @@ export class HistoryComponent implements OnInit, OnChanges {
 
   buildFilterByUses(): void {
     this.usesFilter = [''];
-    this.userService.getUses().subscribe( uses => {
-      const allUses = Object.values(uses);
-      allUses.forEach(us => {
-        this.usesFilter.push(us.DISTINCT);
-      });
+    this.historyFiltered.forEach( data => {
+      const index = this.usesFilter.indexOf(data.use);
+      if (index < 0) {
+        this.usesFilter.push(data.use);
+      }
     });
   }
 
   buildFilterByYear(): void {
-    this.yearsFilter = [{
-        label: '0 - 1900',
-        value: 1
-      }, {
-        label: '1901 - 1936',
-        value: 2
-      }, {
-        label: '1937 - 1959',
-        value: 3
-      }, {
-        label: '1960 - 1979',
-        value: 4
-      }, {
-        label: '1980 - 2006',
-        value: 5
-      }, {
-        label: '2007 - ',
-        value: 6
-      }
-    ];
+    this.yearsFilter = null;
+    this.historyFiltered.forEach( data => {
+        let valueYear = 0;
+        let labelYear = '';
+        if ( data.year >= 0 && data.year <= 1900 ) {
+          valueYear = 1;
+          labelYear = '0 - 1900';
+        } else if ( data.year >= 1901 && data.year <= 1936 ) {
+          valueYear = 2;
+          labelYear = '1901 - 1936';
+        } else if ( data.year >= 1937 && data.year <= 1959 ) {
+          valueYear = 3;
+          labelYear = '1937 - 1959';
+        } else if ( data.year >= 1960 && data.year <= 1979 ) {
+          valueYear = 4;
+          labelYear = '1960 - 1979';
+        } else if ( data.year >= 1980 && data.year <= 2006 ) {
+          valueYear = 5;
+          labelYear = '1980 - 2006';
+        } else if ( data.year >= 2007 ) {
+          valueYear = 6;
+          labelYear = '2007 - ';
+        }
+        const valueToAdd = {
+          label: labelYear,
+          value: valueYear
+        };
+        if ( this.yearsFilter === null ) {
+          this.yearsFilter = [valueToAdd];
+        } else {
+          const indexYear = this.yearsFilter.findIndex((item, i) => {
+            return item.value === valueYear;
+          });
+          if ( indexYear < 0 ){
+            this.yearsFilter.push(valueToAdd);
+          }
+        }
+      });
+    if ( this.yearsFilter){
+      this.yearsFilter.sort((a, b) => a.value -  b.value);
+    }
   }
 
   buildFilterBySurface(): void {
@@ -159,6 +179,9 @@ export class HistoryComponent implements OnInit, OnChanges {
       }
     });
     this.historyFiltered = arrayFiltered;
+    this.buildFilterByUses();
+    this.buildFilterByYear();
+     console.log('filter: ', this.filterApplied, arrayFiltered);
     this.historyFilteredEmitter.emit(arrayFiltered);
   }
 

@@ -18,7 +18,7 @@
           </ng-select>
           <label for="filterYear"> Surface: </label>
         <div class="custom-slider">
-          <ngx-slider [(value)]="surfaceFilter.floor" [(highValue)]="surfaceFilter.ceil" [options]="surfaceFilter" (userChange)="filterSurface($event)"></ngx-slider>
+          <ngx-slider [(value)]="surfaceFilter.floor" [(highValue)]="surfaceFilter.ceil" [options]="surfaceFilter" (userChangeEnd)="filterSurface($event)"></ngx-slider>
         </div>
       </div>
     </div>

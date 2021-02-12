@@ -22,6 +22,8 @@ import { CadastreInfoComponent } from './modules/cadastre-info/cadastre-info.com
 import { HistoryComponent } from './modules/history/history.component';
 import {NgSelectModule} from '@ng-select/ng-select';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { FooterComponent } from './core/footer/footer.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
   declarations: [
@@ -31,21 +33,23 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     HeaderComponent,
     HomeComponent,
     CadastreInfoComponent,
-    HistoryComponent
+    HistoryComponent,
+    FooterComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        FormsModule,
-        AngularFireModule.initializeApp(environment.firebase),
-        AngularFirestoreModule,
-        AngularFireAuthModule,
-        ModalModule.forRoot(),
-        HttpClientModule,
-        NgbModule,
-        NgSelectModule,
-        NgxSliderModule,
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    AngularFireAuthModule,
+    ModalModule.forRoot(),
+    HttpClientModule,
+    NgbModule,
+    NgSelectModule,
+    NgxSliderModule,
+    FlexLayoutModule
+  ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     AngularFireAuthGuard
