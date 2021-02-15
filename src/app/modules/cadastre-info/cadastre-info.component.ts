@@ -43,7 +43,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     if (changes.properties && changes.properties.currentValue
       && changes.properties.currentValue.length > 0
       && ((changes.properties.previousValue && changes.properties.previousValue.length > 0
-          && (changes.propertiescurrentValue !== changes.properties )) || (changes.properties.previousValue.length < 1))
+          && (changes.propertiescurrentValue !== changes.properties )) || (!changes.properties.previousValue))
          ){
       this.propSelected = null;
       this.propIsSelected = false;
@@ -145,6 +145,15 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.userService.addPropertyToHistory(propToSave).subscribe( res => {
       this.history.push(propToSave);
       this.isAFavProperty = true;
+    });
+  }
+
+  removeFromFavorites( propSelected: Property ){
+    this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
+      const index = this.history.indexOf(propSelected, 0);
+      if (index > -1) {
+        this.history.splice(index, 1);
+      }
     });
   }
 

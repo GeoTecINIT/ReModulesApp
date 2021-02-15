@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import {LoginComponent} from '../../modules/login/login.component';
+
 import {AngularFireAuth} from '@angular/fire/auth';
-import {User} from '../../shared/models/user';
+
 import { Router } from '@angular/router';
-import {UserService} from '../authentication/user.service';
+import {User} from '../../models/user';
+import {UserService} from '../../../core/authentication/user.service';
+import {LoginComponent} from '../../../modules/login/login.component';
+
 
 @Component({
   selector: 'app-header',

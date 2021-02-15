@@ -25,7 +25,10 @@
   </div>
   <ul>
     <li *ngFor="let mk of historyFiltered">
-      <a href="#" (click)="getInfoByRC(mk.rc)">{{mk.rc}}</a>
+      <div fxLayout="row" fxLayoutAlign="space-between center" >
+        <a href="#" (click)="getInfoByRC(mk.rc)">{{mk.rc}}</a>
+        <button (click)="removeFromFavorites(mk);"><span><i class="fa fa-times" aria-hidden="true"></i></span></button>
+      </div>
       <p>{{mk.address}}</p>
     </li>
   </ul>

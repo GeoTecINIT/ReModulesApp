@@ -3,6 +3,7 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {ChangeContext, Options} from '@angular-slider/ngx-slider';
+import {Property} from '../../shared/models/property';
 
 @Component({
   selector: 'app-history',
@@ -31,7 +32,8 @@ export class HistoryComponent implements OnInit, OnChanges {
         this.currentUser = new User(user);
         this.history = [];
         this.userService.getByUid(user.uid).subscribe(data => {
-          this.currentUser.id = data['id'];
+          console.log('user!!!! ',data);
+          this.currentUser.id = data['uid'];
         });
       } else {
         this.isUserLogged = false;
@@ -260,5 +262,15 @@ export class HistoryComponent implements OnInit, OnChanges {
       }
     }
     return histTemp;
+  }
+  removeFromFavorites( propSelected: Property ){
+    this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
+      const index = this.history.indexOf(propSelected, 0);
+      if (index > -1) {
+        this.history.splice(index, 1);
+      }
+      this.historyFiltered = this.history;
+      this.historyFilteredEmitter.emit(this.history);
+    });
   }
 }

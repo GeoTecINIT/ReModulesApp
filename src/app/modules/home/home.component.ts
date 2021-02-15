@@ -31,7 +31,7 @@ export class HomeComponent implements OnInit {
         this.currentUser = new User(user);
         this.history = [];
         this.userService.getByUid(user.uid).subscribe(data => {
-          this.currentUser.id = data['id'];
+          this.currentUser.id = data['uid'];
           this.userService.getHistoryByUser(this.currentUser.id).subscribe( hist => {
             this.history = hist;
           });

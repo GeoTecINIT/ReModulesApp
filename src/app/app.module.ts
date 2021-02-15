@@ -13,7 +13,7 @@ import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 import {environment} from '../environments/environment';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import { LoginComponent } from './modules/login/login.component';
-import { HeaderComponent } from './core/header/header.component';
+import { HeaderComponent } from './shared/components/header/header.component';
 import { HomeComponent } from './modules/home/home.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -22,7 +22,7 @@ import { CadastreInfoComponent } from './modules/cadastre-info/cadastre-info.com
 import { HistoryComponent } from './modules/history/history.component';
 import {NgSelectModule} from '@ng-select/ng-select';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
-import { FooterComponent } from './core/footer/footer.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({

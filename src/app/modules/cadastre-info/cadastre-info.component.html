@@ -34,12 +34,12 @@
       <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
         <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
       </a>
-      <a href="#" (click)="addToFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
+      <a href="#" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
         <span><i class="fa fa-heart" aria-hidden="true"></i></span>
       </a>
     </div>
     <div *ngIf="isUserLogged && searchFromHistory" class="col-md-5 offset-3" >
-      <a href="#" style="text-align: right;" (click)="addToFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
+      <a href="#" style="text-align: right;" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
         <span><i class="fa fa-heart" aria-hidden="true"></i></span>
       </a>
     </div>
