@@ -16,8 +16,28 @@
     </div>
   </div>
   <div *ngIf="properties.length > 0 "  class="collapse" id="propertiesInfo">
+      <div class="card filtersBuilding" >
+        <div class="card-header"> Filters: </div>
+        <div  fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="space-between center" class="card-body">
+          <div fxLayout="row" fxLayoutAlign="space-evenly center" >
+              <label for="bl">Block</label>
+              <input id="bl" type="text" class="form-control"  [(ngModel)]="filtBl" (keyup)="filterBuilding()" >
+
+              <label for="es">Stairs</label>
+              <input id ="es" type="text" class="form-control"  [(ngModel)]="filtEs" (keyup)="filterBuilding()" >
+          </div>
+
+          <div fxLayout="row" fxLayoutAlign="space-evenly center" >
+              <label for="pt">Plant</label>
+              <input id ="pt" type="text" class="form-control" [(ngModel)]="filtPt" (keyup)="filterBuilding()" >
+
+              <label for="pu">Door</label>
+              <input id ="pu" type="text" class="form-control" [(ngModel)]="filtPu" (keyup)="filterBuilding()" >
+          </div>
+        </div>
+      </div>
     <ul class="listBuild">
-      <li  *ngFor="let mk of properties">
+      <li  *ngFor="let mk of propertiesFilter">
         <h5> {{mk.locInt}} </h5>
         <p style="padding-left: 0">Cadastral reference: {{mk.rc}}</p>
         <div style="text-align: right">

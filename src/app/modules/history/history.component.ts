@@ -183,7 +183,6 @@ export class HistoryComponent implements OnInit, OnChanges {
     this.historyFiltered = arrayFiltered;
     this.buildFilterByUses();
     this.buildFilterByYear();
-     console.log('filter: ', this.filterApplied, arrayFiltered);
     this.historyFilteredEmitter.emit(arrayFiltered);
   }
 

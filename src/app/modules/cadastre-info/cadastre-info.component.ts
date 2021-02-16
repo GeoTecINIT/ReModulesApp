@@ -21,6 +21,11 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   isAFavProperty: boolean;
   isUserLogged: boolean;
   searchFromHistory: boolean;
+  filtBl: string;
+  filtEs: string;
+  filtPt: string;
+  filtPu: string;
+  propertiesFilter: Property[];
   @Input() propSelectFromMap: string;
   @Input() history: any;
   @Input() itemSelectedFromHistory: string;
@@ -33,20 +38,24 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.isUserLogged = true;
       }
     });
+    this.propertiesFilter = this.properties;
   }
 
   ngOnInit(): void {
+    this.filtBl = '';
+    this.filtEs = '';
+    this.filtPt = '';
+    this.filtPu = '';
   }
 
   ngOnChanges(changes: SimpleChanges) {
-
-    if (changes.properties && changes.properties.currentValue
-      && changes.properties.currentValue.length > 0
-      && ((changes.properties.previousValue && changes.properties.previousValue.length > 0
-          && (changes.propertiescurrentValue !== changes.properties )) || (!changes.properties.previousValue))
-         ){
+    if ( changes.properties &&  changes.properties.firstChange) {
+      this.propertiesFilter = changes.properties.currentValue;
+    }
+    if ( changes.properties &&  !changes.properties.firstChange ) {
       this.propSelected = null;
       this.propIsSelected = false;
+      this.propertiesFilter = changes.properties.currentValue;
     }
     if (changes.history && changes.history.currentValue &&
       (changes.history.currentValue.length > this.history.length)){
@@ -105,26 +114,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       const urlCreator = window.URL;
       this.facadeImage = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
     });
-    return new Property(rc, '', '', '', surfaceCons, '', '', '', year, '', address, use, surfaceGraph, participation, this.facadeImage, []);
-  }
-
-  /**
-   * Assign to local attribute totalArea with the building area
-   * @param properties: Array of properties
-   */
-  getBuildingArea( properties: Property[]) {
-    let area = 0;
-    properties.forEach( prop => {
-      this.cadastreService.getBuildingDetailsByRC(prop.rc).subscribe(res => {
-          const parser2 = new DOMParser();
-          const dataXML = parser2.parseFromString(res, 'text/xml');
-          const data = dataXML.getElementsByTagName('bico')[0];
-          const propertyDetail  = this.convertToProperty(data, prop.rc);
-          const surface = +propertyDetail.surfaceCons;
-          area = area + surface;
-          this.totalArea = area;
-      });
-    });
+    return new Property(rc, '', '', '', surfaceCons, '', '', '', year, '', address, use, surfaceGraph, participation, this.facadeImage, [], '', '', '');
   }
 
   /**
@@ -161,5 +151,19 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.history.forEach(prop => {
       this.isAFavProperty = prop.rc === property.rc;
     });
+  }
+  filterBuilding() {
+    console.log(this.propertiesFilter);
+    if ( this.filtBl !== '' ||  this.filtEs !== '' ||  this.filtPt !== '' ||  this.filtPu !== '' ) {
+      console.log( this.filtPt , this.propertiesFilter );
+      this.propertiesFilter = this.properties.filter(
+        it => ( this.filtBl ? it.block.toLowerCase().includes(this.filtBl.toLowerCase()) : false ) ||
+          ( this.filtEs ? it.stair.toLowerCase().includes(this.filtEs.toLowerCase()) : false ) ||
+          ( this.filtPt ? it.floor.toLowerCase().includes(this.filtPt.toLowerCase()) : false ) ||
+          ( this.filtPu ? it.door.toLowerCase().includes(this.filtPu.toLowerCase()) : false )
+      );
+    } else {
+      this.propertiesFilter = this.properties;
+    }
   }
 }
