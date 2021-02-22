@@ -8,6 +8,7 @@ import * as esri_geo from 'esri-leaflet-geocoder';
 import {Property} from '../../shared/models/property';
 import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {DomSanitizer} from '@angular/platform-browser';
+import {add} from 'ngx-bootstrap/chronos';
 
 @Component({
   selector: 'app-map',
@@ -119,7 +120,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     L.control.layers(baseMaps, overlayMaps).addTo(this.map);
 
     const results = L.layerGroup().addTo(this.map);
-    let textToShow = '';
     // event click position in map
     this.map.on('click', (ev) => {
       const geocodeService = esri_geo.geocodeService();
@@ -131,15 +131,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
       this.point = crs.project(ev.latlng);
+      let address = '';
       geocodeService.reverse().latlng(ev.latlng).run((error, result) => {
         if (error) {
           return;
         }
-        console.log('entre!!!! ', result);
-        textToShow = '<h6> ' + result.address.Address + '</h6>';
-        this.marker.bindPopup(textToShow).openPopup();
+        address = result.address.Address;
+        this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
       });
-      this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng);
     });
 
     // search widget
@@ -156,9 +155,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
         this.point = crs.project(data.results[i].latlng);
-        textToShow = '<h6> ' + data.results[i].text + '</h6>';
-        this.marker.bindPopup(textToShow).openPopup();
-        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng);
+        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });
   }
@@ -168,13 +165,17 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
    * @param x: value in x of the point
    * @param y: value in y of the point
    * @param latLng: point as coordinates
+   * @param address: address to add in popup
    */
-  getInfoFromCadastre( x: any, y: any , latLng: any) {
+  getInfoFromCadastre( x: any, y: any , latLng: any, address: string) {
     this.cadastreService.getRCByCoordinates(x, y).subscribe( (data) => {
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
       const err = dataFile.getElementsByTagName('err')[0];
       if ( err ) {
+        let textToShow = '';
+        textToShow = '<h6> ' + address + '</h6>';
+        this.marker.bindPopup(textToShow).openPopup();
         this.propertiesEmitter.emit(this.properties);
       } else {
         const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
@@ -199,6 +200,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
               this.properties.push(property);
             }
           }
+          let textToShow = '';
+          textToShow = '<h6> ' + this.properties[0].address
+            + '</h6>' + '<p> Number of properties: ' + this.properties.length + '</p>';
+          this.marker.bindPopup(textToShow).openPopup();
+
           this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
