@@ -1,4 +1,8 @@
 <div *ngIf="!propIsSelected" class="information">
+
+  <div *ngIf="error && properties.length === 0 ">
+    <h5> Cadastre service not available. Please fill the follow form</h5>
+  </div>
   <div *ngIf="properties.length > 0 " style="text-align: center;">
     <h5> Province: {{ properties[0].province}} </h5>
     <p><i class="fa fa-map-marker" aria-hidden="true"></i> {{properties[0].address}}
@@ -46,7 +50,7 @@
     <ul class="listBuild">
       <li  *ngFor="let mk of propertiesFilter">
         <h5> {{mk.locInt}} </h5>
-        <p style="padding-left: 0">Cadastral reference: {{mk.rc}}</p>
+        <p style="padding-left: 0">Cadastre reference: {{mk.rc}}</p>
         <div style="text-align: right">
           <button (click)="this.searchFromHistory = false; getDetailFromRC(mk.rc);" > More information > </button>
         </div>
@@ -79,7 +83,7 @@
       <img class="card-img-top" [src]='facadeImage' alt="Facade image" />
     </div>
     <div class="card-body">
-      <p class="card-text"> Cadastral Reference: {{ propSelected.rc}}</p>
+      <p class="card-text"> Cadastre Reference: {{ propSelected.rc}}</p>
       <p class="card-text"> Location: {{ propSelected.completeAddress}}</p>
       <p class="card-text"> Uso principal: {{ propSelected.use}}</p>
       <p class="card-text"> Primary use: {{ propSelected.surfaceCons}}</p>

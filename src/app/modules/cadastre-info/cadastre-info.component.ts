@@ -5,7 +5,6 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {TypologyService} from '../../core/typology/typology.service';
 import {Router} from '@angular/router';
 
 @Component({
@@ -18,7 +17,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   totalArea: number;
   propIsSelected: boolean;
   facadeImage: any;
-  error: any;
+  error: boolean;
   currentUser: User = new User();
   isAFavProperty: boolean;
   isUserLogged: boolean;
@@ -52,13 +51,15 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( changes.properties &&  changes.properties.firstChange) {
+    if ( changes.properties ) {
       this.propertiesFilter = changes.properties.currentValue;
-    }
-    if ( changes.properties &&  !changes.properties.firstChange ) {
-      this.propSelected = null;
-      this.propIsSelected = false;
-      this.propertiesFilter = changes.properties.currentValue;
+      if ( !changes.properties.firstChange ) {
+        this.propSelected = null;
+        this.propIsSelected = false;
+      }
+      if ( changes.properties.currentValue === 0) {
+        this.error = true;
+      }
     }
     if (changes.history && changes.history.currentValue &&
       (changes.history.currentValue.length > this.history.length)){
@@ -79,7 +80,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
 
-  initialData(){
+  initialData(): void{
     this.propSelected = null;
     this.totalArea = 0;
     this.propIsSelected = true;
@@ -87,10 +88,10 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Assign to property selected the entire information from cadastral service
+   * Assign to property selected the entire information from Cadastre service
    * @param rc: Property selected from the list
    */
-  getDetailFromRC(rc: any){
+  getDetailFromRC(rc: any): void{
     this.initialData();
     this.cadastreService.getBuildingDetailsByRC(rc).subscribe(( pro) => {
       const parser2 = new DOMParser();
@@ -106,13 +107,12 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
    * @param info: xml information
    * @param rc: cadastre reference
    */
-  convertToProperty(info: any, rc: string) {
+  convertToProperty(info: any, rc: string): Property {
     const address = info.getElementsByTagName('ldt')[0].textContent;
     const use = info.getElementsByTagName('luso')[0].textContent;
     const surfaceCons = info.getElementsByTagName('sfc').length > 0 ? info.getElementsByTagName('sfc')[0].textContent : '';
     const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
-    console.log('Encontre!!! ', info.getElementsByTagName('cpt'));
     const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
     this.cadastreService.getFacadeImage(rc).subscribe( (baseImage: any) => {
       const urlCreator = window.URL;
@@ -125,7 +125,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
    *  Added the property selected as a favorite in user history
    * @param propSelected: Property object selected
    */
-  addToFavorites( propSelected: Property ){
+  addToFavorites( propSelected: Property ): void{
     const propToSave = {
       rc: propSelected.rc,
       address: propSelected.completeAddress,
@@ -142,7 +142,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     });
   }
 
-  removeFromFavorites( propSelected: Property ){
+  removeFromFavorites( propSelected: Property ): void{
     this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
       const index = this.history.indexOf(propSelected, 0);
       if (index > -1) {
@@ -151,14 +151,15 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     });
   }
 
-  isAFavoriteProperty(property: Property){
+  isAFavoriteProperty(property: Property): void {
     if ( this.history ) {
       this.history.forEach(prop => {
         this.isAFavProperty = prop.rc === property.rc;
       });
     }
   }
-  filterBuilding() {
+
+  filterBuilding(): void {
     if ( this.filtBl !== '' ||  this.filtEs !== '' ||  this.filtPt !== '' ||  this.filtPu !== '' ) {
       this.propertiesFilter = this.properties.filter(
         it => ( this.filtBl ? it.block.toLowerCase().includes(this.filtBl.toLowerCase()) : false ) ||
@@ -170,7 +171,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       this.propertiesFilter = this.properties;
     }
   }
-  calculateTypology(){
+
+  calculateTypology(): void{
     this.calculateTypologyEmitter.emit(this.propSelected);
   }
 }

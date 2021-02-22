@@ -3,7 +3,6 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import {ActivatedRoute, Router} from '@angular/router';
 import firebase from 'firebase/app';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {User} from '../../shared/models/user';
 import {UserService} from '../../core/authentication/user.service';
 
 @Component({
@@ -56,11 +55,13 @@ export class LoginComponent implements OnInit {
   login() {
     this.afAuth.signInWithEmailAndPassword(this.email, this.pwd)
       .catch(error => {
-        // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
-        this.errorLogin = errorMessage;
-        console.log(errorCode + ' - ' + errorMessage);
+        if (errorCode === 'auth/wrong-password') {
+          this.errorLogin = 'password or username is invalid';
+        } else {
+          this.errorLogin = errorMessage;
+        }
       });
     this.route.queryParams.subscribe(params => this.return = params.return || '/home');
     if (this.afAuth.currentUser) {
@@ -100,9 +101,7 @@ export class LoginComponent implements OnInit {
             });
         }
       });
-      // ...
     }).catch(error => {
-      // Handle Errors here.
       const errorCode = error.code;
       const errorMessage = error.message;
       this.errorLogin = errorMessage;
@@ -120,9 +119,7 @@ export class LoginComponent implements OnInit {
         .catch(error => {
           // Handle Errors here.
           const errorCode = error.code;
-          const errorMessage = error.message;
-          this.errorRegister = errorMessage;
-          console.log(errorCode + ' - ' + errorMessage);
+          this.errorRegister = error.message;
         });
       this.afAuth.onAuthStateChanged(user => {
         if (user) {
@@ -148,27 +145,6 @@ export class LoginComponent implements OnInit {
     } else {
       this.errorRegister = 'Your passwords are not equal';
     }
-  }
-
-  forgotPwd(){
-    const actionCodeSettings = {
-      url: 'https://eo4geo-cdt.web.app/#/login', // the domain has to be added to firebase console whitelist
-      handleCodeInApp: false
-    };
-
-    this.afAuth.sendPasswordResetEmail(this.email, actionCodeSettings)
-      .then(() => {
-        // Password reset email sent.
-        this.errorLogin = 'Check your email to recover your password.';
-      })
-      .catch(error => {
-        // Error occurred. Inspect error.code.
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        this.errorLogin = errorMessage;
-        console.log(errorCode + ' - ' + errorMessage);
-      });
   }
 
   openRegister() {

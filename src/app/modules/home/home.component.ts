@@ -34,11 +34,8 @@ export class HomeComponent implements OnInit {
         this.isUserLogged = true;
         this.currentUser = new User(user);
         this.history = [];
-        this.userService.getByUid(user.uid).subscribe(data => {
-          this.currentUser.id = data['uid'];
-          this.userService.getHistoryByUser(this.currentUser.id).subscribe( hist => {
-            this.history = hist;
-          });
+        this.userService.getHistoryByUser(user.uid).subscribe( hist => {
+          this.history = hist;
         });
       } else {
         this.isUserLogged = false;

@@ -31,10 +31,7 @@ export class HistoryComponent implements OnInit, OnChanges {
         this.isUserLogged = true;
         this.currentUser = new User(user);
         this.history = [];
-        this.userService.getByUid(user.uid).subscribe(data => {
-          console.log('user!!!! ',data);
-          this.currentUser.id = data['uid'];
-        });
+        this.currentUser.id = user.uid;
       } else {
         this.isUserLogged = false;
       }

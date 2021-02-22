@@ -10,11 +10,11 @@
             </div>
 
             <div class="signin-form col-md-6">
-              <h2 class="form-title">Sign up</h2>
+              <h2 class="form-title">Login</h2>
               <div class="register-form" id="login-form">
                 <div class="form-group">
-                  <label for="email"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                  <input type="email" placeholder="Email" name="email" id="email" [(ngModel)]="email">
+                  <label for="emailSign"><i class="zmdi zmdi-account material-icons-name"></i></label>
+                  <input type="email" placeholder="Email" name="email" id="emailSign" ngModel email [(ngModel)]="email">
                 </div>
                 <div class="form-group">
                   <label for="pwd"><i class="zmdi zmdi-lock"></i></label>
@@ -27,6 +27,10 @@
                 </div-->
                 <div class="form-group form-button">
                   <input type="button" name="signin" class="form-submit" value="Log in" (click)="login();"/>
+                </div>
+                <div>
+                  <p class="text-center text-danger mt-4" [innerText]="errorLogin" [hidden]="!errorLogin">
+                  </p>
                 </div>
               </div>
               <div class="social-login">
@@ -52,7 +56,7 @@
                 </div>
                 <div class="form-group">
                   <label for="email"><i class="zmdi zmdi-email"></i></label>
-                  <input type="email" name="email" id="email" placeholder="Your Email" [(ngModel)]="emailRegister"/>
+                  <input type="email" name="email" id="email" placeholder="Your Email" ngModel email [(ngModel)]="emailRegister"/>
                 </div>
                 <div class="form-group">
                   <label for="pass"><i class="zmdi zmdi-lock"></i></label>
@@ -69,6 +73,10 @@
                 <div class="form-group form-button">
                   <button type="button" class="btn btn-primary active px-4"
                           (click)="register();">Register</button>
+                </div>
+                <div>
+                  <p class="text-center text-danger mt-4" [innerText]="errorRegister" [hidden]="!errorRegister">
+                  </p>
                 </div>
               </div>
             </div>

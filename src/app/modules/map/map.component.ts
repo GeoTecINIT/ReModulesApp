@@ -8,7 +8,6 @@ import * as esri_geo from 'esri-leaflet-geocoder';
 import {Property} from '../../shared/models/property';
 import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {DomSanitizer} from '@angular/platform-browser';
-import {$} from 'protractor';
 
 @Component({
   selector: 'app-map',
@@ -58,7 +57,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.history.forEach( prop => {
         if ( prop.rc === this.itemSelectedFromHistory ) {
           const textPopup = '<h6> ' + prop.address
-            + '</h6>' + '<p> Cadastral reference: ' + prop.rc + '</p>';
+            + '</h6>' + '<p> Cadastre reference: ' + prop.rc + '</p>';
           this.marker = L.marker(L.latLng(prop.lat, prop.lng)).addTo(this.map);
           this.map.setView(L.latLng(prop.lat, prop.lng), 15);
           this.marker.bindPopup(textPopup).openPopup();
@@ -120,9 +119,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     L.control.layers(baseMaps, overlayMaps).addTo(this.map);
 
     const results = L.layerGroup().addTo(this.map);
-
+    let textToShow = '';
     // event click position in map
     this.map.on('click', (ev) => {
+      const geocodeService = esri_geo.geocodeService();
       this.removeGroupMarkers();
       this.properties = [];
       if ( this.marker !== undefined ) {
@@ -131,7 +131,15 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
       this.point = crs.project(ev.latlng);
-      this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, '');
+      geocodeService.reverse().latlng(ev.latlng).run((error, result) => {
+        if (error) {
+          return;
+        }
+        console.log('entre!!!! ', result);
+        textToShow = '<h6> ' + result.address.Address + '</h6>';
+        this.marker.bindPopup(textToShow).openPopup();
+      });
+      this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng);
     });
 
     // search widget
@@ -148,7 +156,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
         this.point = crs.project(data.results[i].latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text);
+        textToShow = '<h6> ' + data.results[i].text + '</h6>';
+        this.marker.bindPopup(textToShow).openPopup();
+        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng);
       }
     });
   }
@@ -158,23 +168,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
    * @param x: value in x of the point
    * @param y: value in y of the point
    * @param latLng: point as coordinates
-   * @param address: address to use in case cadastre is not avaliable
    */
-  getInfoFromCadastre( x: any, y: any , latLng: any, address: string) {
+  getInfoFromCadastre( x: any, y: any , latLng: any) {
     this.cadastreService.getRCByCoordinates(x, y).subscribe( (data) => {
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
       const err = dataFile.getElementsByTagName('err')[0];
-      if (err) {
-        let errorToShow = '';
-        if ( address !== '') {
-          errorToShow = '<h6> ' + address + '</h6>';
-        } else {
-          this.error = err.getElementsByTagName('des')[0].textContent;
-
-          errorToShow = '<h6> ' + latLng.lat + ', ' + latLng.lng + '</h6>' + '<p>' + this.error + '</p>';
-        }
-        this.marker.bindPopup(errorToShow).openPopup();
+      if ( err ) {
+        this.propertiesEmitter.emit(this.properties);
       } else {
         const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
         const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
@@ -198,10 +199,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
               this.properties.push(property);
             }
           }
-          let textToShow = '';
-          textToShow = '<h6> ' + this.properties[0].address
-            + '</h6>' + '<p> Number of properties: ' + this.properties.length + '</p>';
-          this.marker.bindPopup(textToShow).openPopup();
           this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
@@ -272,7 +269,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         if (propHistory.lat > 0 ){
           const latlngToMark = L.latLng(propHistory.lat, propHistory.lng);
           const textPopup = '<h6> ' + propHistory.address
-            + '</h6>' + '<p> Cadastral reference: ' + propHistory.rc + '</p>';
+            + '</h6>' + '<p> Cadastre reference: ' + propHistory.rc + '</p>';
           const markers = L.marker(latlngToMark).bindPopup(textPopup).openPopup();
           markers.on('click', () => {
             this.propSelectFromMapEmitter.emit(propHistory.rc);
