@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import {HomeComponent} from './modules/home/home.component';
+import {TypologyComponent} from './modules/typology/typology.component';
 
 
 const routes: Routes = [
@@ -9,13 +10,19 @@ const routes: Routes = [
       {
         path: 'home',
         component: HomeComponent
+      },
+      {
+        path: 'typology',
+        component: TypologyComponent
       }
     ]
   },
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {scrollPositionRestoration: 'enabled',
+    anchorScrolling: 'enabled',
+    scrollOffset: [0, 64]})],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

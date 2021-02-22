@@ -1,12 +1,12 @@
 <main>
-  <div class="row" style="height: 90vh; overflow:hidden">
-    <div class="col-md-3">
+  <div class="row selectLocation">
+    <div class="col-md-3 tabs">
       <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
         <li [ngbNavItem]="1">
           <a ngbNavLink>Properties</a>
           <ng-template ngbNavContent>
             <app-cadastre-info [properties]="properties" [history] = "history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
-                               [propSelectFromMap]="propertySelectedFormMap"></app-cadastre-info>
+                               [propSelectFromMap]="propertySelectedFormMap" (calculateTypologyEmitter)="calculateTypology($event)"></app-cadastre-info>
           </ng-template>
         </li>
         <li [ngbNavItem]="2" *ngIf="isUserLogged">
@@ -18,10 +18,14 @@
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
     </div>
-    <div class="col-md-9">
+    <div [ngClass]="{'col-md-9': !showTypology, 'col-md-4': showTypology }">
       <app-map (propertiesEmitter)="receivePoint($event)" [history] = "history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
                (propSelectFromMapEmitter)="receivePropSelected($event)" [historyFilteredFromList]="historyFilteredFromList"></app-map>
     </div>
+    <div *ngIf="showTypology" id="typology" class="col-md-5">
+      <app-typology [categories]="categories"></app-typology>
+    </div>
   </div>
+
 </main>
 

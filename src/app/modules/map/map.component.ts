@@ -131,7 +131,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
       this.point = crs.project(ev.latlng);
-      this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng);
+      this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, '');
     });
 
     // search widget
@@ -148,7 +148,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
         this.point = crs.project(data.results[i].latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng);
+        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text);
       }
     });
   }
@@ -158,16 +158,22 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
    * @param x: value in x of the point
    * @param y: value in y of the point
    * @param latLng: point as coordinates
+   * @param address: address to use in case cadastre is not avaliable
    */
-  getInfoFromCadastre( x: any, y: any , latLng: any) {
+  getInfoFromCadastre( x: any, y: any , latLng: any, address: string) {
     this.cadastreService.getRCByCoordinates(x, y).subscribe( (data) => {
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
       const err = dataFile.getElementsByTagName('err')[0];
-      if (err !== undefined) {
-        this.error = err.getElementsByTagName('des')[0].textContent;
-        const errorToShow = '<h6> ' + latLng.lat + ', ' + latLng.lng
-          + '</h6>' + '<p> ' + this.error + '</p>';
+      if (err) {
+        let errorToShow = '';
+        if ( address !== '') {
+          errorToShow = '<h6> ' + address + '</h6>';
+        } else {
+          this.error = err.getElementsByTagName('des')[0].textContent;
+
+          errorToShow = '<h6> ' + latLng.lat + ', ' + latLng.lng + '</h6>' + '<p>' + this.error + '</p>';
+        }
         this.marker.bindPopup(errorToShow).openPopup();
       } else {
         const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
@@ -185,10 +191,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           } else {
             // case: when request are many properties
             const properties = dataXML.getElementsByTagName('rcdnp');
+            // tslint:disable-next-line:prefer-for-of
             for ( let i = 0; i < properties.length ; i++){
               const detail = properties[i];
               const property = this.getInfoPropGeneral(detail);
-              console.log('la propiedad!!! ', property);
               this.properties.push(property);
             }
           }

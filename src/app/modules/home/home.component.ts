@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, OnInit, Output} from '@angular/core';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {Property} from '../../shared/models/property';
@@ -6,6 +6,8 @@ import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {User} from '../../shared/models/user';
 import {Router} from '@angular/router';
 import {UserService} from '../../core/authentication/user.service';
+import {TypologyService} from '../../core/typology/typology.service';
+import {Typology} from '../../shared/models/typology';
 
 @Component({
   selector: 'app-home',
@@ -23,8 +25,10 @@ export class HomeComponent implements OnInit {
   history: any;
   itemSelectedFromHistory: string;
   historyFilteredFromList: any;
-  constructor(private modalService: BsModalService, private router: Router,
-              public afAuth: AngularFireAuth, public userService: UserService) {
+  showTypology: boolean;
+  propertyToGetTypology: Property;
+  categories: Typology[];
+  constructor( public afAuth: AngularFireAuth, public userService: UserService, public typologyService: TypologyService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.isUserLogged = true;
@@ -74,5 +78,16 @@ export class HomeComponent implements OnInit {
   }
   receiveHistoryFiltered($event){
     this.historyFilteredFromList = $event;
+  }
+  calculateTypology($event){
+    this.showTypology = true;
+    this.propertyToGetTypology = $event;
+    this.categories = [];
+    this.typologyService.getTypologyPics(this.propertyToGetTypology.yearConstruction, 'ES', 'ME').subscribe( res => {
+      Object.values(res).forEach( cat => {
+        const category = new Typology(cat.category.category_code, cat.category.name, cat.year.year_code, cat.name, 'ME', 'ES', null);
+        this.categories.push(category);
+      });
+    });
   }
 }

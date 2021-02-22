@@ -4,7 +4,7 @@
     <p><i class="fa fa-map-marker" aria-hidden="true"></i> {{properties[0].address}}
     </p>
     <p>{{properties.length}} PROPERTIES</p>
-    <img class="facadeImage" [src]='properties[0].image' />
+    <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
   </div>
   <div  *ngIf="properties.length > 0" class="seeMore">
     <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
@@ -16,7 +16,14 @@
     </div>
   </div>
   <div *ngIf="properties.length > 0 "  class="collapse" id="propertiesInfo">
-      <div class="card filtersBuilding" >
+    <div style="text-align: right">
+      <a class="btn filterButton" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">
+      <span>
+        <i class="fa fa-filter" aria-hidden="true"></i>
+      </span>Filters</a>
+    </div>
+
+    <div class="collapse card filtersBuilding" id="filters">
         <div class="card-header"> Filters: </div>
         <div  fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="space-between center" class="card-body">
           <div fxLayout="row" fxLayoutAlign="space-evenly center" >
@@ -49,7 +56,7 @@
 </div>
 <div class="detail"  *ngIf="propIsSelected && propSelected !== null">
   <div class="row">
-      <button *ngIf="!searchFromHistory" type="button" class="btn btn-info col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
+      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
     <div *ngIf="isUserLogged && !searchFromHistory" class="col-md-5 offset-3" >
       <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
         <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
@@ -65,11 +72,13 @@
     </div>
   </div>
   <div class="card">
-    <div class="card-header row">
-      <div >DESCRIPTIVE DATA OF THE PROPERTY</div>
+    <div class="card-header">
+      <h5>DESCRIPTIVE DATA OF THE PROPERTY</h5>
+    </div>
+    <div style="text-align: center">
+      <img class="card-img-top" [src]='facadeImage' alt="Facade image" />
     </div>
     <div class="card-body">
-      <img class="facadeImage" [src]='facadeImage' />
       <p class="card-text"> Cadastral Reference: {{ propSelected.rc}}</p>
       <p class="card-text"> Location: {{ propSelected.completeAddress}}</p>
       <p class="card-text"> Uso principal: {{ propSelected.use}}</p>
@@ -83,4 +92,5 @@
       <p class="card-text"> Property participation: {{ propSelected.participation}} %</p>
     </div>
   </div>
+  <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">Calculate Typology</a>
 </div>

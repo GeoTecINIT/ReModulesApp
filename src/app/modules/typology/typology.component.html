@@ -1,0 +1,88 @@
+<div class="container" fxLayout="column"
+     fxLayoutAlign="center ">
+  <ul  ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
+    <li [ngbNavItem]="1" class="nav-item">
+      <a ngbNavLink (click)="refreshStyles('typology');">Typology</a>
+      <ng-template ngbNavContent>
+        <div *ngIf="categoryIsSelected">
+          <p><b>Building:</b> {{categorySelected.categoryName}}</p>
+          <hr>
+        </div>
+        <div>
+          <h3>
+            Building
+          </h3>
+          <p>
+            1. Choose the building most similar to the one you are looking for
+          </p>
+          <hr>
+        </div>
+        <div fxLayout="row"
+             fxLayout.lt-sm="column"
+             fxLayoutGap="5px"
+             fxLayoutAlign="space-between ">
+          <ng-container *ngFor="let cat of categories " >
+            <div class="card" fxFlex="0 1 calc(100% - 5px)"
+                 fxFlex.lt-md="0 1 calc(100% - 5px)"
+                 fxFlex.lt-sm="100%" id="{{cat.categoryCode}}" >
+              <div class="card-header">
+                <h4>{{cat.categoryName}}</h4>
+              </div>
+                <a  (click)="selectCategory(cat);">
+                  <img class="card-img-top" alt="Building image"  src="./assets/img/typology/{{cat.picName}}">
+                </a>
+              </div>
+          </ng-container>
+        </div>
+      </ng-template>
+    </li>
+    <li [ngbNavItem]="2" class="nav-item" [disabled]="!categoryIsSelected">
+      <a ngbNavLink (click)="refreshStyles('envelope');">Envelope</a>
+      <ng-template ngbNavContent>
+        <div *ngIf="categoryIsSelected">
+          <p><b>Building:</b> {{categorySelected.categoryName}}</p>
+          <hr>
+        </div>
+        <div>
+          <h3>
+            Building Data
+          </h3>
+          <p>
+            2.
+          </p>
+          <hr>
+        </div>
+        <div fxLayout="row"
+             fxLayout.lt-sm="column"
+             fxLayoutGap="5px"
+             fxLayoutAlign="space-between ">
+          <ng-container *ngFor="let env of categorySelected.enveloped ">
+            <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
+                 fxFlex.lt-md="0 1 calc(33.3% - 5px)"
+                 fxFlex.lt-sm="100%">
+              <div class="card-header">
+                <h4>{{env.componentType}}</h4>
+              </div>
+              <a>
+                <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{env.picture}}">
+              </a>
+              <div class="card-body">
+                <p>{{env.description}}</p>
+                <p>{{env.typeConstruction}}</p>
+                <p>{{env.uValue}}</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-template>
+    </li>
+    <li [ngbNavItem]="3" class="nav-item" [disabled]="!categoryIsSelected">
+      <a ngbNavLink>System Measure</a>
+    </li>
+  </ul>
+
+  <div class="typologyInfo container" [ngbNavOutlet]="nav"
+       fxLayout="column"
+       fxLayoutGap="30px" > </div>
+</div>
+

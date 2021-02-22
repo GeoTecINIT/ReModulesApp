@@ -5,6 +5,8 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {TypologyService} from '../../core/typology/typology.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -30,8 +32,9 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   @Input() history: any;
   @Input() itemSelectedFromHistory: string;
   @Input() properties: Property[];
+  @Output() calculateTypologyEmitter = new EventEmitter<any>();
   constructor(public cadastreService: CadastreService, private sanitizer: DomSanitizer,
-              public afAuth: AngularFireAuth, public userService: UserService) {
+              public afAuth: AngularFireAuth, public userService: UserService, private router: Router) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.currentUser = new User(user);
@@ -106,10 +109,11 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   convertToProperty(info: any, rc: string) {
     const address = info.getElementsByTagName('ldt')[0].textContent;
     const use = info.getElementsByTagName('luso')[0].textContent;
-    const surfaceCons = info.getElementsByTagName('sfc')[0].textContent;
-    const year = info.getElementsByTagName('ant')[0].textContent;
+    const surfaceCons = info.getElementsByTagName('sfc').length > 0 ? info.getElementsByTagName('sfc')[0].textContent : '';
+    const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
-    const participation = info.getElementsByTagName('cpt')[0].textContent;
+    console.log('Encontre!!! ', info.getElementsByTagName('cpt'));
+    const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
     this.cadastreService.getFacadeImage(rc).subscribe( (baseImage: any) => {
       const urlCreator = window.URL;
       this.facadeImage = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
@@ -148,14 +152,14 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   isAFavoriteProperty(property: Property){
-    this.history.forEach(prop => {
-      this.isAFavProperty = prop.rc === property.rc;
-    });
+    if ( this.history ) {
+      this.history.forEach(prop => {
+        this.isAFavProperty = prop.rc === property.rc;
+      });
+    }
   }
   filterBuilding() {
-    console.log(this.propertiesFilter);
     if ( this.filtBl !== '' ||  this.filtEs !== '' ||  this.filtPt !== '' ||  this.filtPu !== '' ) {
-      console.log( this.filtPt , this.propertiesFilter );
       this.propertiesFilter = this.properties.filter(
         it => ( this.filtBl ? it.block.toLowerCase().includes(this.filtBl.toLowerCase()) : false ) ||
           ( this.filtEs ? it.stair.toLowerCase().includes(this.filtEs.toLowerCase()) : false ) ||
@@ -165,5 +169,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     } else {
       this.propertiesFilter = this.properties;
     }
+  }
+  calculateTypology(){
+    this.calculateTypologyEmitter.emit(this.propSelected);
   }
 }
