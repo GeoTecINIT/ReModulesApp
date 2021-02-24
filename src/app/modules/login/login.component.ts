@@ -12,15 +12,11 @@ import {UserService} from '../../core/authentication/user.service';
 })
 export class LoginComponent implements OnInit {
 
-  public email: string;
-  public pwd: string;
-  public nameRegister: string;
-  public errorLogin: string;
-  public errorRegister: string;
-  public emailRegister: string;
-  public pwdRegister: string;
-  public pwdRepRegister: string;
-  public isRegistering = false;
+  userLogin = {email: '', pwd: ''};
+  newUser = { name: '', email: '', pwd: '', repPwd: ''};
+  errorLogin: string;
+  errorRegister: string;
+  isRegistering = false;
   submitted = false;
   return = '';
 
@@ -32,8 +28,6 @@ export class LoginComponent implements OnInit {
     private modalService: BsModalService,
     private userService: UserService
   ) {
-    this.email = '';
-    this.pwd = '';
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
@@ -53,7 +47,7 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    this.afAuth.signInWithEmailAndPassword(this.email, this.pwd)
+    this.afAuth.signInWithEmailAndPassword(this.userLogin.email, this.userLogin.pwd)
       .catch(error => {
         const errorCode = error.code;
         const errorMessage = error.message;
@@ -114,8 +108,8 @@ export class LoginComponent implements OnInit {
   }
 
   register() {
-    if (this.pwdRegister === this.pwdRepRegister) {
-      this.afAuth.createUserWithEmailAndPassword(this.emailRegister, this.pwdRegister)
+    if (this.newUser.pwd === this.newUser.repPwd) {
+      this.afAuth.createUserWithEmailAndPassword(this.newUser.email, this.newUser.pwd)
         .catch(error => {
           // Handle Errors here.
           const errorCode = error.code;
@@ -126,7 +120,7 @@ export class LoginComponent implements OnInit {
          const newUser = {
            uid: user.uid != null ? user.uid : user.uid != null ? user.uid : '',
            email: user.email != null ? user.email : '',
-           name: this.nameRegister ? this.nameRegister : user.displayName,
+           name: this.newUser.name ? this.newUser.name : user.displayName,
          };
          this.userService.getByUid(newUser.uid).subscribe( data => {
             if (!data) {

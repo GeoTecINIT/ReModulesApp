@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 const baseUrl = 'http://localhost:3000/api/user';
 const baseHistoryUserUrl = 'http://localhost:3000/api/history/user';
@@ -26,7 +27,7 @@ export class UserService {
   }
 
   getHistoryByUser(uid){
-    return this.http.get(`${baseHistoryUserUrl}/${uid}`);
+    return this.http.get<PropertySaved>(`${baseHistoryUserUrl}/${uid}`);
   }
 
   addPropertyToHistory(property) {

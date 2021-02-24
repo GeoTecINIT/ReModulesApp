@@ -1,20 +1,16 @@
-// If you want to override variables do it here
-@import '~leaflet/dist/leaflet.css';
-@import '~esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css';
 @import 'variables';
-@import '../../node_modules/font-awesome/scss/font-awesome.scss';
-
-// If you want to add something do it here
 @import 'custom';
 
-// Import styles
+@import '~leaflet/dist/leaflet.css';
+@import '~esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css';
+@import '../../node_modules/font-awesome/scss/font-awesome.scss';
+
 @import '~@coreui/coreui/scss/coreui';
 
 @import url('https://fonts.googleapis.com/css?family=Open+Sans|Roboto+Slab:700&display=swap');
 
 @import "~bootstrap/dist/css/bootstrap.css";
-
-/* Importing Bootstrap SCSS file. */
+@import '~bootstrap/scss/mixins';
 @import '~bootstrap/scss/bootstrap';
 
 @import '~leaflet.markercluster/dist/MarkerCluster.css';

@@ -9,6 +9,7 @@ import {Property} from '../../shared/models/property';
 import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import {add} from 'ngx-bootstrap/chronos';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 @Component({
   selector: 'app-map',
@@ -25,7 +26,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() propSelectFromMapEmitter = new EventEmitter<any>();
   @Input() itemSelectedFromHistory: string;
   @Input() properties: Property[];
-  @Input() history: any;
+  @Input() history: PropertySaved[];
   @Input() historyFilteredFromList: any;
   markersLayer: any;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
@@ -103,9 +104,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       zoom: this.ZOOM,
     });
     L.esri = esri;
-    const basemapTopo = L.esri.basemapLayer('Topographic').addTo(this.map);
+    const basemapTopo = L.esri.basemapLayer('Topographic');
+    const basemapOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.map);
 
     const baseMaps = {
+      OpenStreetMap: basemapOSM,
       Topographic: basemapTopo,
       Streets: L.esri.basemapLayer('Streets'),
     };
@@ -272,7 +278,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const latLngs = [];
     if (this.history && this.history.length > 0 ){
       this.history.forEach( propHistory => {
-        if (propHistory.lat > 0 ){
+        if ( +propHistory.lat > 0 ){
           const latlngToMark = L.latLng(propHistory.lat, propHistory.lng);
           const textPopup = '<h6> ' + propHistory.address
             + '</h6>' + '<p> Cadastre reference: ' + propHistory.rc + '</p>';

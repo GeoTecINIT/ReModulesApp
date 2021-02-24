@@ -6,6 +6,7 @@ import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {Router} from '@angular/router';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -28,7 +29,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   filtPu: string;
   propertiesFilter: Property[];
   @Input() propSelectFromMap: string;
-  @Input() history: any;
+  @Input() history: PropertySaved[];
   @Input() itemSelectedFromHistory: string;
   @Input() properties: Property[];
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
@@ -137,17 +138,22 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       surface: propSelected.surfaceCons
     };
     this.userService.addPropertyToHistory(propToSave).subscribe( res => {
-      this.history.push(propToSave);
+      this.history.push( new PropertySaved(propToSave.address, propToSave.lat, propToSave.lng,
+        propToSave.rc, propToSave.surface, propToSave.use, propToSave.year, null));
       this.isAFavProperty = true;
     });
   }
 
   removeFromFavorites( propSelected: Property ): void{
     this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
-      const index = this.history.indexOf(propSelected, 0);
-      if (index > -1) {
-        this.history.splice(index, 1);
-      }
+      this.history.forEach( prop => {
+        if ( prop.rc === propSelected.rc ) {
+          const index = this.history.indexOf(prop, 0);
+          this.history.splice(index, 1);
+          this.isAFavProperty = false;
+          return;
+        }
+      });
     });
   }
 

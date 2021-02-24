@@ -8,6 +8,7 @@ import {Router} from '@angular/router';
 import {UserService} from '../../core/authentication/user.service';
 import {TypologyService} from '../../core/typology/typology.service';
 import {Typology} from '../../shared/models/typology';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +23,7 @@ export class HomeComponent implements OnInit {
   point: any;
   isUserLogged: boolean;
   currentUser: User = new User();
-  history: any;
+  history: PropertySaved[];
   itemSelectedFromHistory: string;
   historyFilteredFromList: any;
   showTypology: boolean;
@@ -33,50 +34,55 @@ export class HomeComponent implements OnInit {
       if (user) {
         this.isUserLogged = true;
         this.currentUser = new User(user);
-        this.history = [];
-        this.userService.getHistoryByUser(user.uid).subscribe( hist => {
-          this.history = hist;
+        this.userService.getHistoryByUser(user.uid).subscribe( (hist: PropertySaved) => {
+          this.history = [];
+          Object.entries(hist).forEach( ([key, value]) => {
+            this.history.push(value);
+          });
         });
       } else {
         this.isUserLogged = false;
+        this.history = [];
       }
     });
   }
 
   ngOnInit(): void {
-    this.properties = [];
-    this.active = 1;
-    this.itemSelectedFromHistory = '';
-    this.propertySelectedFormMap = '';
+    this.cleanVariables();
   }
 
-  refreshFavorites() {
+  refreshFavorites(): void {
     this.history = null;
-    this.userService.getHistoryByUser(this.currentUser.id).subscribe( hist => {
-      this.history = hist;
+    this.showTypology = false;
+    this.userService.getHistoryByUser(this.currentUser.uid).subscribe( (hist: PropertySaved ) => {
+      this.history = [];
+      Object.entries(hist).forEach( ([key, value]) => {
+        this.history.push(value);
+      });
       this.properties = [];
       this.itemSelectedFromHistory = '';
       this.propertySelectedFormMap = '';
     });
   }
-  receivePoint($event) {
+  receivePoint($event): void {
     this.properties = [];
     this.properties = $event;
     this.active = 1;
   }
-  receivePropSelected($event) {
-    this.propertySelectedFormMap = '';
+  receivePropSelected($event): void {
     this.propertySelectedFormMap = $event;
+    this.showTypology = false;
     this.active = 1;
   }
-  receivePropFromHistory($event){
+  receivePropFromHistory($event): void{
     this.itemSelectedFromHistory = $event;
+    this.showTypology = false;
     this.active = 1;
   }
-  receiveHistoryFiltered($event){
+  receiveHistoryFiltered($event): void{
     this.historyFilteredFromList = $event;
   }
-  calculateTypology($event){
+  calculateTypology($event): void{
     this.showTypology = true;
     this.propertyToGetTypology = $event;
     this.categories = [];
@@ -86,5 +92,12 @@ export class HomeComponent implements OnInit {
         this.categories.push(category);
       });
     });
+  }
+  cleanVariables(): void {
+    this.properties = [];
+    this.active = 1;
+    this.itemSelectedFromHistory = '';
+    this.propertySelectedFormMap = '';
+    this.showTypology = false;
   }
 }

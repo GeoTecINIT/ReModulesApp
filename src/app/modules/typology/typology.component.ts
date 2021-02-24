@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Typology} from '../../shared/models/typology';
 import {TypologyService} from '../../core/typology/typology.service';
 import {Envelope} from '../../shared/models/envelope';
@@ -8,7 +8,7 @@ import {Envelope} from '../../shared/models/envelope';
   templateUrl: './typology.component.html',
   styleUrls: ['./typology.component.scss']
 })
-export class TypologyComponent implements OnInit {
+export class TypologyComponent implements OnInit, OnChanges {
 
   URL_IMAGES_TYPOLOGY = './assets/img/typology/';
   categorySelected: Typology;
@@ -22,11 +22,18 @@ export class TypologyComponent implements OnInit {
     this.active = 1;
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if ( changes.categories.currentValue ) {
+      this.categories = changes.categories.currentValue;
+      this.categorySelected = null;
+      this.categoryIsSelected  = false;
+      this.active = 1;
+    }
+  }
+
   refreshStyles(type: string ) {
-    console.log('ENTRE!!! ', type);
     if ( type === 'typology') {
       const elementToChange = document.getElementById( this.categorySelected.categoryCode);
-      console.log('EY!!! ', this.categorySelected.categoryCode);
       elementToChange.style.backgroundColor = '#ececec';
       const element2 = document.querySelector('#' +  this.categorySelected.categoryCode + ' .card-body');
       element2.append('<p>Selected</p>');
