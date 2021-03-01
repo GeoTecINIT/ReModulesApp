@@ -22,22 +22,13 @@ export class HeaderComponent implements OnInit {
 
   constructor(private modalService: BsModalService, private router: Router, public afAuth: AngularFireAuth,
               public userService: UserService) {
-    this.afAuth.onAuthStateChanged(user => {
-      if (user) {
-        this.isUserLogged = true;
-        this.userService.getByUid(user.uid).subscribe( userFromDB => {
-          if ( userFromDB ) {
-            this.currentUser = new User(user);
-            this.currentUser.name = userFromDB['name'];
-          }
-        });
-      } else {
-        this.isUserLogged = false;
-      }
-    });
+    this.checkLogin();
   }
 
   ngOnInit(): void {
+    this.modalService.onHide.subscribe((e) => {
+      this.checkLogin();
+    });
   }
 
   openModal() {
@@ -45,8 +36,23 @@ export class HeaderComponent implements OnInit {
   }
   logOut() {
     this.afAuth.signOut();
-    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => {
       return false;
     };
   }
+  checkLogin(): void {
+    this.afAuth.onAuthStateChanged(user => {
+      if (user) {
+        this.isUserLogged = true;
+        this.userService.getByUid(user.uid).subscribe(userFromDB => {
+          if (userFromDB) {
+            this.currentUser = new User(user);
+            this.currentUser.name = userFromDB['name'];
+          }
+        });
+      } else {
+        this.isUserLogged = false;
+      }
+    })
+   }
 }

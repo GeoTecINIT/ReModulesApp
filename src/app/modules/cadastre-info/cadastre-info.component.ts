@@ -5,6 +5,8 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {Router} from '@angular/router';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -13,25 +15,25 @@ import {AngularFireAuth} from '@angular/fire/auth';
 })
 export class CadastreInfoComponent implements OnInit, OnChanges {
   propSelected: Property;
-  totalArea: number;
   propIsSelected: boolean;
   facadeImage: any;
-  error: any;
+  hasError: boolean;
+  error: string;
   currentUser: User = new User();
   isAFavProperty: boolean;
   isUserLogged: boolean;
   searchFromHistory: boolean;
-  filtBl: string;
-  filtEs: string;
-  filtPt: string;
-  filtPu: string;
+  modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
   propertiesFilter: Property[];
+  RURAL_TYPE = 'rural';
+  URBAN_TYPE = 'urban';
   @Input() propSelectFromMap: string;
-  @Input() history: any;
+  @Input() history: PropertySaved[];
   @Input() itemSelectedFromHistory: string;
   @Input() properties: Property[];
+  @Output() calculateTypologyEmitter = new EventEmitter<any>();
   constructor(public cadastreService: CadastreService, private sanitizer: DomSanitizer,
-              public afAuth: AngularFireAuth, public userService: UserService) {
+              public afAuth: AngularFireAuth, public userService: UserService, private router: Router) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.currentUser = new User(user);
@@ -41,21 +43,23 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.propertiesFilter = this.properties;
   }
 
-  ngOnInit(): void {
-    this.filtBl = '';
-    this.filtEs = '';
-    this.filtPt = '';
-    this.filtPu = '';
+  ngOnInit(){
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( changes.properties &&  changes.properties.firstChange) {
-      this.propertiesFilter = changes.properties.currentValue;
-    }
-    if ( changes.properties &&  !changes.properties.firstChange ) {
-      this.propSelected = null;
-      this.propIsSelected = false;
-      this.propertiesFilter = changes.properties.currentValue;
+    if ( changes.properties ) {
+      if ( changes.properties.currentValue.length > 0 && ( changes.properties.currentValue[0].error ||
+        changes.properties.currentValue[0].error_service )) {
+        this.hasError = true;
+        this.error = changes.properties.currentValue[0].error_service ? changes.properties.currentValue[0].error_service : 'Cadastre Service is not available' ;
+      } else {
+        this.propertiesFilter = changes.properties.currentValue;
+        this.hasError = false;
+        if ( !changes.properties.firstChange ) {
+          this.propSelected = null;
+          this.propIsSelected = false;
+        }
+      }
     }
     if (changes.history && changes.history.currentValue &&
       (changes.history.currentValue.length > this.history.length)){
@@ -76,18 +80,17 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
 
-  initialData(){
+  initialData(): void{
     this.propSelected = null;
-    this.totalArea = 0;
     this.propIsSelected = true;
     this.isAFavProperty = false;
   }
 
   /**
-   * Assign to property selected the entire information from cadastral service
+   * Assign to property selected the entire information from Cadastre service
    * @param rc: Property selected from the list
    */
-  getDetailFromRC(rc: any){
+  getDetailFromRC(rc: any): void{
     this.initialData();
     this.cadastreService.getBuildingDetailsByRC(rc).subscribe(( pro) => {
       const parser2 = new DOMParser();
@@ -103,13 +106,13 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
    * @param info: xml information
    * @param rc: cadastre reference
    */
-  convertToProperty(info: any, rc: string) {
+  convertToProperty(info: any, rc: string): Property {
     const address = info.getElementsByTagName('ldt')[0].textContent;
     const use = info.getElementsByTagName('luso')[0].textContent;
-    const surfaceCons = info.getElementsByTagName('sfc')[0].textContent;
-    const year = info.getElementsByTagName('ant')[0].textContent;
+    const surfaceCons = info.getElementsByTagName('sfc').length > 0 ? info.getElementsByTagName('sfc')[0].textContent : '';
+    const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
-    const participation = info.getElementsByTagName('cpt')[0].textContent;
+    const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
     this.cadastreService.getFacadeImage(rc).subscribe( (baseImage: any) => {
       const urlCreator = window.URL;
       this.facadeImage = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
@@ -121,7 +124,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
    *  Added the property selected as a favorite in user history
    * @param propSelected: Property object selected
    */
-  addToFavorites( propSelected: Property ){
+  addToFavorites( propSelected: Property ): void{
     const propToSave = {
       rc: propSelected.rc,
       address: propSelected.completeAddress,
@@ -133,37 +136,68 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       surface: propSelected.surfaceCons
     };
     this.userService.addPropertyToHistory(propToSave).subscribe( res => {
-      this.history.push(propToSave);
+      this.history.push( new PropertySaved(propToSave.address, propToSave.lat, propToSave.lng,
+        propToSave.rc, propToSave.surface, propToSave.use, propToSave.year, null));
       this.isAFavProperty = true;
     });
   }
 
-  removeFromFavorites( propSelected: Property ){
+  removeFromFavorites( propSelected: Property ): void{
     this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
-      const index = this.history.indexOf(propSelected, 0);
-      if (index > -1) {
-        this.history.splice(index, 1);
-      }
+      this.history.forEach( prop => {
+        if ( prop.rc === propSelected.rc ) {
+          const index = this.history.indexOf(prop, 0);
+          this.history.splice(index, 1);
+          this.isAFavProperty = false;
+          return;
+        }
+      });
     });
   }
 
-  isAFavoriteProperty(property: Property){
-    this.history.forEach(prop => {
-      this.isAFavProperty = prop.rc === property.rc;
-    });
+  isAFavoriteProperty(property: Property): void {
+    if ( this.history ) {
+      this.history.forEach(prop => {
+        this.isAFavProperty = prop.rc === property.rc;
+      });
+    }
   }
-  filterBuilding() {
-    console.log(this.propertiesFilter);
-    if ( this.filtBl !== '' ||  this.filtEs !== '' ||  this.filtPt !== '' ||  this.filtPu !== '' ) {
-      console.log( this.filtPt , this.propertiesFilter );
-      this.propertiesFilter = this.properties.filter(
-        it => ( this.filtBl ? it.block.toLowerCase().includes(this.filtBl.toLowerCase()) : false ) ||
-          ( this.filtEs ? it.stair.toLowerCase().includes(this.filtEs.toLowerCase()) : false ) ||
-          ( this.filtPt ? it.floor.toLowerCase().includes(this.filtPt.toLowerCase()) : false ) ||
-          ( this.filtPu ? it.door.toLowerCase().includes(this.filtPu.toLowerCase()) : false )
-      );
+
+  filterBuilding(): void {
+    if ( this.modelFilters.filtBl !== '' ||  this.modelFilters.filtEs !== '' ||
+      this.modelFilters.filtPt !== '' ||  this.modelFilters.filtPu !== '' ) {
+      let propTempToFilter = this.properties;
+      Object.entries(this.modelFilters).forEach( ([key, value]) => {
+        if ( key === 'filtBl' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.block.toLowerCase().includes(value.toLowerCase())
+          );
+        } else if ( key === 'filtEs' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.stair.toLowerCase().includes(value.toLowerCase())
+          );
+        } else if ( key === 'filtPt' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.floor.toLowerCase().includes(value.toLowerCase())
+          );
+        } else if ( key === 'filtPu' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.door.toLowerCase().includes(value.toLowerCase())
+          );
+        }
+      });
+      this.propertiesFilter = propTempToFilter;
     } else {
       this.propertiesFilter = this.properties;
     }
+  }
+
+  calculateTypology(): void{
+    this.calculateTypologyEmitter.emit(this.propSelected);
+  }
+
+  clearFilters(): void {
+    this.modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
+    this.filterBuilding();
   }
 }

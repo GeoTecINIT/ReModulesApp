@@ -24,6 +24,12 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { TypologyComponent } from './modules/typology/typology.component';
+
+import { UserService} from './core/authentication/user.service';
+import { CadastreService} from './core/cadastre/cadastre.service';
+import { TypologyService } from './core/typology/typology.service';
+import {AuthenticationService} from './core/authentication/authentication.service';
 
 @NgModule({
   declarations: [
@@ -34,7 +40,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     HomeComponent,
     CadastreInfoComponent,
     HistoryComponent,
-    FooterComponent
+    FooterComponent,
+    TypologyComponent
   ],
   imports: [
     BrowserModule,
@@ -52,7 +59,11 @@ import { FlexLayoutModule } from '@angular/flex-layout';
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    AngularFireAuthGuard
+    AngularFireAuthGuard,
+    AuthenticationService,
+    UserService,
+    CadastreService,
+    TypologyService
   ],
   bootstrap: [AppComponent]
 })

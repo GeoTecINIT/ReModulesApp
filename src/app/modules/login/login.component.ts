@@ -3,7 +3,6 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import {ActivatedRoute, Router} from '@angular/router';
 import firebase from 'firebase/app';
 import {BsModalService} from 'ngx-bootstrap/modal';
-import {User} from '../../shared/models/user';
 import {UserService} from '../../core/authentication/user.service';
 
 @Component({
@@ -13,15 +12,11 @@ import {UserService} from '../../core/authentication/user.service';
 })
 export class LoginComponent implements OnInit {
 
-  public email: string;
-  public pwd: string;
-  public nameRegister: string;
-  public errorLogin: string;
-  public errorRegister: string;
-  public emailRegister: string;
-  public pwdRegister: string;
-  public pwdRepRegister: string;
-  public isRegistering = false;
+  userLogin = {email: '', pwd: ''};
+  newUser = { name: '', email: '', pwd: '', repPwd: ''};
+  errorLogin: string;
+  errorRegister: string;
+  isRegistering = false;
   submitted = false;
   return = '';
 
@@ -33,8 +28,6 @@ export class LoginComponent implements OnInit {
     private modalService: BsModalService,
     private userService: UserService
   ) {
-    this.email = '';
-    this.pwd = '';
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
@@ -54,13 +47,15 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    this.afAuth.signInWithEmailAndPassword(this.email, this.pwd)
+    this.afAuth.signInWithEmailAndPassword(this.userLogin.email, this.userLogin.pwd)
       .catch(error => {
-        // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
-        this.errorLogin = errorMessage;
-        console.log(errorCode + ' - ' + errorMessage);
+        if (errorCode === 'auth/wrong-password') {
+          this.errorLogin = 'password or username is invalid';
+        } else {
+          this.errorLogin = errorMessage;
+        }
       });
     this.route.queryParams.subscribe(params => this.return = params.return || '/home');
     if (this.afAuth.currentUser) {
@@ -100,9 +95,7 @@ export class LoginComponent implements OnInit {
             });
         }
       });
-      // ...
     }).catch(error => {
-      // Handle Errors here.
       const errorCode = error.code;
       const errorMessage = error.message;
       this.errorLogin = errorMessage;
@@ -115,21 +108,19 @@ export class LoginComponent implements OnInit {
   }
 
   register() {
-    if (this.pwdRegister === this.pwdRepRegister) {
-      this.afAuth.createUserWithEmailAndPassword(this.emailRegister, this.pwdRegister)
+    if (this.newUser.pwd === this.newUser.repPwd) {
+      this.afAuth.createUserWithEmailAndPassword(this.newUser.email, this.newUser.pwd)
         .catch(error => {
           // Handle Errors here.
           const errorCode = error.code;
-          const errorMessage = error.message;
-          this.errorRegister = errorMessage;
-          console.log(errorCode + ' - ' + errorMessage);
+          this.errorRegister = error.message;
         });
       this.afAuth.onAuthStateChanged(user => {
         if (user) {
          const newUser = {
            uid: user.uid != null ? user.uid : user.uid != null ? user.uid : '',
            email: user.email != null ? user.email : '',
-           name: this.nameRegister ? this.nameRegister : user.displayName,
+           name: this.newUser.name ? this.newUser.name : user.displayName,
          };
          this.userService.getByUid(newUser.uid).subscribe( data => {
             if (!data) {
@@ -148,27 +139,6 @@ export class LoginComponent implements OnInit {
     } else {
       this.errorRegister = 'Your passwords are not equal';
     }
-  }
-
-  forgotPwd(){
-    const actionCodeSettings = {
-      url: 'https://eo4geo-cdt.web.app/#/login', // the domain has to be added to firebase console whitelist
-      handleCodeInApp: false
-    };
-
-    this.afAuth.sendPasswordResetEmail(this.email, actionCodeSettings)
-      .then(() => {
-        // Password reset email sent.
-        this.errorLogin = 'Check your email to recover your password.';
-      })
-      .catch(error => {
-        // Error occurred. Inspect error.code.
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        this.errorLogin = errorMessage;
-        console.log(errorCode + ' - ' + errorMessage);
-      });
   }
 
   openRegister() {

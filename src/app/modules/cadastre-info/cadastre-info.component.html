@@ -1,86 +1,110 @@
-<div *ngIf="!propIsSelected" class="information">
-  <div *ngIf="properties.length > 0 " style="text-align: center;">
-    <h5> Province: {{ properties[0].province}} </h5>
-    <p><i class="fa fa-map-marker" aria-hidden="true"></i> {{properties[0].address}}
-    </p>
-    <p>{{properties.length}} PROPERTIES</p>
-    <img class="facadeImage" [src]='properties[0].image' />
-  </div>
-  <div  *ngIf="properties.length > 0" class="seeMore">
-    <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
-      <div class="arrowFromLeft">
-        <svg xmlns="http://www.w3.org/2000/svg" width="5.002" height="8.576" viewBox="0 0 5.002 8.576">
-          <path d="M1.06,8.428a.5.5,0,0,1-.71,0l-.2-.2A.49.49,0,0,1,0,7.868V.708A.49.49,0,0,1,.15.348l.2-.2a.5.5,0,0,1,.71,0l3.79,3.79a.48.48,0,0,1,0,.7Z"></path>
-        </svg><span>See Properties</span>
+<div *ngIf="!hasError">
+  <div *ngIf="!propIsSelected && properties.length > 0" class="information">
+      <div *ngIf="properties[0].type === RURAL_TYPE" style="text-align: center;">
+        <h4>Rural property. Please try with another location</h4>
       </div>
-    </div>
-  </div>
-  <div *ngIf="properties.length > 0 "  class="collapse" id="propertiesInfo">
-      <div class="card filtersBuilding" >
-        <div class="card-header"> Filters: </div>
-        <div  fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="space-between center" class="card-body">
-          <div fxLayout="row" fxLayoutAlign="space-evenly center" >
+    <div *ngIf="properties[0].type === URBAN_TYPE">
+      <div  style="text-align: center;">
+        <h5> Province: {{ properties[0].province}} </h5>
+        <p><i class="fa fa-map-marker" aria-hidden="true"></i> {{properties[0].address}}
+        </p>
+        <p>{{properties.length}} PROPERTIES</p>
+        <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
+      </div>
+      <div  class="seeMore">
+        <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
+          <div class="arrowFromLeft">
+            <svg xmlns="http://www.w3.org/2000/svg" width="5.002" height="8.576" viewBox="0 0 5.002 8.576">
+              <path d="M1.06,8.428a.5.5,0,0,1-.71,0l-.2-.2A.49.49,0,0,1,0,7.868V.708A.49.49,0,0,1,.15.348l.2-.2a.5.5,0,0,1,.71,0l3.79,3.79a.48.48,0,0,1,0,.7Z"></path>
+            </svg><span>See Properties</span>
+          </div>
+        </div>
+      </div>
+      <div class="collapse" id="propertiesInfo">
+        <div style="text-align: right">
+          <a class="btn filterButton" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">
+      <span>
+        <i class="fa fa-filter" aria-hidden="true"></i>
+      </span>Filters</a>
+        </div>
+
+        <div class="collapse card filtersBuilding" id="filters">
+          <div class="card-header"> <h4>Filters </h4> </div>
+          <div  fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="space-between center" class="card-body">
+            <div fxLayout="row" fxLayoutAlign="space-evenly center" >
               <label for="bl">Block</label>
-              <input id="bl" type="text" class="form-control"  [(ngModel)]="filtBl" (keyup)="filterBuilding()" >
+              <input id="bl" type="text" class="form-control"  [(ngModel)]="modelFilters.filtBl" (keyup)="filterBuilding()" >
 
               <label for="es">Stairs</label>
-              <input id ="es" type="text" class="form-control"  [(ngModel)]="filtEs" (keyup)="filterBuilding()" >
-          </div>
+              <input id ="es" type="text" class="form-control"  [(ngModel)]="modelFilters.filtEs" (keyup)="filterBuilding()" >
+            </div>
 
-          <div fxLayout="row" fxLayoutAlign="space-evenly center" >
+            <div fxLayout="row" fxLayoutAlign="space-evenly center" >
               <label for="pt">Plant</label>
-              <input id ="pt" type="text" class="form-control" [(ngModel)]="filtPt" (keyup)="filterBuilding()" >
+              <input id ="pt" type="text" class="form-control" [(ngModel)]="modelFilters.filtPt" (keyup)="filterBuilding()" >
 
               <label for="pu">Door</label>
-              <input id ="pu" type="text" class="form-control" [(ngModel)]="filtPu" (keyup)="filterBuilding()" >
+              <input id ="pu" type="text" class="form-control" [(ngModel)]="modelFilters.filtPu" (keyup)="filterBuilding()" >
+            </div>
+            <button (click)="clearFilters();">Clear filters</button>
           </div>
         </div>
+        <ul class="listBuild">
+          <li  *ngFor="let mk of propertiesFilter">
+            <h5> {{mk.locInt}} </h5>
+            <p style="padding-left: 0">Cadastre reference: {{mk.rc}}</p>
+            <div style="text-align: right">
+              <button (click)="this.searchFromHistory = false; getDetailFromRC(mk.rc);" > More information > </button>
+            </div>
+          </li>
+        </ul>
       </div>
-    <ul class="listBuild">
-      <li  *ngFor="let mk of propertiesFilter">
-        <h5> {{mk.locInt}} </h5>
-        <p style="padding-left: 0">Cadastral reference: {{mk.rc}}</p>
-        <div style="text-align: right">
-          <button (click)="this.searchFromHistory = false; getDetailFromRC(mk.rc);" > More information > </button>
-        </div>
-      </li>
-    </ul>
+    </div>
+
+  </div>
+  <div class="detail"  *ngIf="propIsSelected && propSelected !== null">
+    <div class="row">
+      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
+      <div *ngIf="isUserLogged && !searchFromHistory" class="col-md-5 offset-3" >
+        <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
+          <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
+        </a>
+        <a href="#" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
+          <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+        </a>
+      </div>
+      <div *ngIf="isUserLogged && searchFromHistory" class="col-md-5 offset-3" >
+        <a href="#" style="text-align: right;" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
+          <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+        </a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h5>DESCRIPTIVE DATA OF THE PROPERTY</h5>
+      </div>
+      <div style="text-align: center">
+        <img class="card-img-top" [src]='facadeImage' alt="Facade image" />
+      </div>
+      <div class="card-body">
+        <p class="card-text"> Cadastre Reference: {{ propSelected.rc}}</p>
+        <p class="card-text"> Location: {{ propSelected.completeAddress}}</p>
+        <p class="card-text"> Primary use: {{ propSelected.use}}</p>
+        <p class="card-text"> Surface: {{ propSelected.surfaceCons}} &#13217;</p>
+        <p class="card-text"> Construction year: {{ propSelected.yearConstruction}}</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">CATASTRAL PLOT</div>
+      <div class="card-body">
+        <p class="card-text"> Property participation: {{ propSelected.participation}} %</p>
+      </div>
+    </div>
+    <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">Calculate Typology</a>
   </div>
 </div>
-<div class="detail"  *ngIf="propIsSelected && propSelected !== null">
-  <div class="row">
-      <button *ngIf="!searchFromHistory" type="button" class="btn btn-info col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
-    <div *ngIf="isUserLogged && !searchFromHistory" class="col-md-5 offset-3" >
-      <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
-        <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
-      </a>
-      <a href="#" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
-        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-      </a>
-    </div>
-    <div *ngIf="isUserLogged && searchFromHistory" class="col-md-5 offset-3" >
-      <a href="#" style="text-align: right;" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
-        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-      </a>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header row">
-      <div >DESCRIPTIVE DATA OF THE PROPERTY</div>
-    </div>
-    <div class="card-body">
-      <img class="facadeImage" [src]='facadeImage' />
-      <p class="card-text"> Cadastral Reference: {{ propSelected.rc}}</p>
-      <p class="card-text"> Location: {{ propSelected.completeAddress}}</p>
-      <p class="card-text"> Uso principal: {{ propSelected.use}}</p>
-      <p class="card-text"> Primary use: {{ propSelected.surfaceCons}}</p>
-      <p class="card-text"> Construction year: {{ propSelected.yearConstruction}}</p>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-header">CATASTRAL PLOT</div>
-    <div class="card-body">
-      <p class="card-text"> Property participation: {{ propSelected.participation}} %</p>
-    </div>
+<div *ngIf="hasError">
+  <div class="container">
+    <h6> {{error}}</h6>
   </div>
 </div>

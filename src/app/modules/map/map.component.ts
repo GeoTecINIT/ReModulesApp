@@ -8,7 +8,8 @@ import * as esri_geo from 'esri-leaflet-geocoder';
 import {Property} from '../../shared/models/property';
 import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {DomSanitizer} from '@angular/platform-browser';
-import {$} from 'protractor';
+import {add} from 'ngx-bootstrap/chronos';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 @Component({
   selector: 'app-map',
@@ -25,7 +26,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() propSelectFromMapEmitter = new EventEmitter<any>();
   @Input() itemSelectedFromHistory: string;
   @Input() properties: Property[];
-  @Input() history: any;
+  @Input() history: PropertySaved[];
   @Input() historyFilteredFromList: any;
   markersLayer: any;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
@@ -58,7 +59,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.history.forEach( prop => {
         if ( prop.rc === this.itemSelectedFromHistory ) {
           const textPopup = '<h6> ' + prop.address
-            + '</h6>' + '<p> Cadastral reference: ' + prop.rc + '</p>';
+            + '</h6>' + '<p> Cadastre reference: ' + prop.rc + '</p>';
           this.marker = L.marker(L.latLng(prop.lat, prop.lng)).addTo(this.map);
           this.map.setView(L.latLng(prop.lat, prop.lng), 15);
           this.marker.bindPopup(textPopup).openPopup();
@@ -103,9 +104,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       zoom: this.ZOOM,
     });
     L.esri = esri;
-    const basemapTopo = L.esri.basemapLayer('Topographic').addTo(this.map);
+    const basemapTopo = L.esri.basemapLayer('Topographic');
+    const basemapOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.map);
 
     const baseMaps = {
+      OpenStreetMap: basemapOSM,
       Topographic: basemapTopo,
       Streets: L.esri.basemapLayer('Streets'),
     };
@@ -120,9 +126,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     L.control.layers(baseMaps, overlayMaps).addTo(this.map);
 
     const results = L.layerGroup().addTo(this.map);
-
     // event click position in map
     this.map.on('click', (ev) => {
+      const geocodeService = esri_geo.geocodeService();
       this.removeGroupMarkers();
       this.properties = [];
       if ( this.marker !== undefined ) {
@@ -131,11 +137,19 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
       this.point = crs.project(ev.latlng);
-      this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng);
+      let address = '';
+      geocodeService.reverse().latlng(ev.latlng).run((error, result) => {
+        if (error) {
+          return;
+        }
+        address = result.address.Address;
+        this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
+      });
     });
 
     // search widget
-    const searchControl = new esri_geo.Geosearch({ useMapBounds: false}).addTo(this.map);
+    const searchControl = new esri_geo.Geosearch({ useMapBounds: false, expanded: true,
+      placeholder: 'Search your address'}).addTo(this.map);
 
     searchControl.on('results',  (data) => {
       this.removeGroupMarkers();
@@ -148,7 +162,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
         this.point = crs.project(data.results[i].latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng);
+        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });
   }
@@ -158,37 +172,40 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
    * @param x: value in x of the point
    * @param y: value in y of the point
    * @param latLng: point as coordinates
+   * @param address: address to add in popup
    */
-  getInfoFromCadastre( x: any, y: any , latLng: any) {
-    this.cadastreService.getRCByCoordinates(x, y).subscribe( (data) => {
+  getInfoFromCadastre( x: any, y: any , latLng: any, address: string) {
+    this.cadastreService.getRCByCoordinates(x, y).then( (data) => {
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
       const err = dataFile.getElementsByTagName('err')[0];
-      if (err !== undefined) {
-        this.error = err.getElementsByTagName('des')[0].textContent;
-        const errorToShow = '<h6> ' + latLng.lat + ', ' + latLng.lng
-          + '</h6>' + '<p> ' + this.error + '</p>';
-        this.marker.bindPopup(errorToShow).openPopup();
+      if ( err ) {
+        let textToShow = '';
+        textToShow = '<h6> ' + address + '</h6>';
+        this.marker.bindPopup(textToShow).openPopup();
+        const desError = dataFile.getElementsByTagName('des')[0].textContent;
+        this.propertiesEmitter.emit([{error_service: desError}]);
       } else {
         const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
         const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
         const rcGeneral = rc1.concat(rc2);
+        const addressMain = dataFile.getElementsByTagName('ldt')[0].textContent;
         this.cadastreService.getBuildingDetailsByRC(rcGeneral).subscribe((prop) => {
           const parser2 = new DOMParser();
           const dataXML = parser2.parseFromString(prop, 'text/xml');
-
           // case: when request is only one property
           const propertyOnly = dataXML.getElementsByTagName('bico')[0];
+          this.properties = [];
           if ( propertyOnly !== undefined ){
-            const property = this.getInfoPropGeneral(propertyOnly);
+            const property = this.getInfoPropGeneral(propertyOnly, addressMain);
             this.properties.push(property);
           } else {
             // case: when request are many properties
             const properties = dataXML.getElementsByTagName('rcdnp');
+            // tslint:disable-next-line:prefer-for-of
             for ( let i = 0; i < properties.length ; i++){
               const detail = properties[i];
-              const property = this.getInfoPropGeneral(detail);
-              console.log('la propiedad!!! ', property);
+              const property = this.getInfoPropGeneral(detail, addressMain);
               this.properties.push(property);
             }
           }
@@ -196,6 +213,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           textToShow = '<h6> ' + this.properties[0].address
             + '</h6>' + '<p> Number of properties: ' + this.properties.length + '</p>';
           this.marker.bindPopup(textToShow).openPopup();
+
           this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
@@ -204,14 +222,18 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           });
         });
       }
-    });
+    })
+      .catch((error) => {
+        this.propertiesEmitter.emit([ { error} ]);
+      });
   }
 
   /**
    * Convert info from xml format to Property object
    * @param prop: property information in xml format
+   * @param addressMain
    */
-  getInfoPropGeneral(prop: any) {
+  getInfoPropGeneral(prop: any, addressMain: string) {
     const rc1 = prop.getElementsByTagName('pc1')[0].textContent;
     const rc2 = prop.getElementsByTagName('pc2')[0].textContent;
     const rc3 = prop.getElementsByTagName('car')[0].textContent;
@@ -219,32 +241,34 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const rc5 = prop.getElementsByTagName('cc2')[0].textContent;
     let rc = '';
     rc = rc.concat( rc1, rc2, rc3, rc4, rc5);
-    const tagAddr = prop.getElementsByTagName('dir')[0];
-    const tagLocInt = prop.getElementsByTagName('loint')[0];
-    const viaType = tagAddr.getElementsByTagName('tv')[0].textContent;
-    const viaName = tagAddr.getElementsByTagName('nv')[0].textContent;
-    const addNumber = tagAddr.getElementsByTagName('pnp')[0].textContent;
-    const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
-      tagLocInt.getElementsByTagName('bq')[0].textContent.split(': ')[0] : '';
-    const stair = tagLocInt.getElementsByTagName('es').length > 0 ?
-      tagLocInt.getElementsByTagName('es')[0].textContent.split(': ')[0] : '';
-    const plant = tagLocInt.getElementsByTagName('pt').length > 0 ?
-      tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
-    const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
-      tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
-    let address = '';
-    address = address.concat( viaType, ' ' ,  viaName, ' ', addNumber);
-    const postalCode = prop.getElementsByTagName('dp')[0].textContent;
-    const prov = prop.getElementsByTagName('np')[0].textContent;
-    const town = prop.getElementsByTagName('nm')[0].textContent;
-    let logInt = '';
-    const textBlock = block !== '' ? 'Bloque: ' + block : '';
-    const textStair = stair !== '' ? 'Escalera: ' + stair : '';
-    const textPlant = plant !== '' ? 'Planta: ' + plant : '';
-    const textDoor = door !== '' ? 'Puerta: ' + door : '';
-    logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
-    return new Property(rc, address, plant, logInt, '', postalCode, prov, town, '', '',
-      '', '', '', '', '', [], block, stair, door);
+    const propType = prop.getElementsByTagName('cn').length > 0 ? prop.getElementsByTagName('cn')[0].textContent : 'urban';
+
+    if ( propType === 'RU') {
+      return new Property(rc, addressMain, '', '', '', '', '', '', '', 'rural',
+        '', '', '', '', '', [], '', '', '');
+    } else {
+      const tagLocInt = prop.getElementsByTagName('loint')[0];
+      const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
+        tagLocInt.getElementsByTagName('bq')[0].textContent.split(': ')[0] : '';
+      const stair = tagLocInt.getElementsByTagName('es').length > 0 ?
+        tagLocInt.getElementsByTagName('es')[0].textContent.split(': ')[0] : '';
+      const plant = tagLocInt.getElementsByTagName('pt').length > 0 ?
+        tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
+      const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
+        tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
+      const postalCode = prop.getElementsByTagName('dp')[0].textContent;
+      const prov = prop.getElementsByTagName('np')[0].textContent;
+      const town = prop.getElementsByTagName('nm')[0].textContent;
+      let logInt = '';
+      const textBlock = block !== '' ? 'Bloque: ' + block : '';
+      const textStair = stair !== '' ? 'Escalera: ' + stair : '';
+      const textPlant = plant !== '' ? 'Planta: ' + plant : '';
+      const textDoor = door !== '' ? 'Puerta: ' + door : '';
+      logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
+      return new Property(rc, addressMain, plant, logInt, '', postalCode, prov, town, '', 'urban',
+        '', '', '', '', '', [], block, stair, door);
+    }
+
   }
 
   removeGroupMarkers(){
@@ -263,10 +287,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const latLngs = [];
     if (this.history && this.history.length > 0 ){
       this.history.forEach( propHistory => {
-        if (propHistory.lat > 0 ){
+        if ( +propHistory.lat > 0 ){
           const latlngToMark = L.latLng(propHistory.lat, propHistory.lng);
           const textPopup = '<h6> ' + propHistory.address
-            + '</h6>' + '<p> Cadastral reference: ' + propHistory.rc + '</p>';
+            + '</h6>' + '<p> Cadastre reference: ' + propHistory.rc + '</p>';
           const markers = L.marker(latlngToMark).bindPopup(textPopup).openPopup();
           markers.on('click', () => {
             this.propSelectFromMapEmitter.emit(propHistory.rc);

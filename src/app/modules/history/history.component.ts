@@ -4,6 +4,7 @@ import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {ChangeContext, Options} from '@angular-slider/ngx-slider';
 import {Property} from '../../shared/models/property';
+import {PropertySaved} from '../../shared/models/PropertySaved';
 
 @Component({
   selector: 'app-history',
@@ -22,7 +23,7 @@ export class HistoryComponent implements OnInit, OnChanges {
   surfaceFilter: Options;
   surfaceSelected: any;
   filterApplied: string[];
-  @Input() history: any;
+  @Input() history: PropertySaved[];
   @Output() itemSelectedFromHistoryEmitter = new EventEmitter<any>();
   @Output() historyFilteredEmitter = new EventEmitter<any>();
   constructor(public afAuth: AngularFireAuth, public userService: UserService) {
@@ -31,10 +32,7 @@ export class HistoryComponent implements OnInit, OnChanges {
         this.isUserLogged = true;
         this.currentUser = new User(user);
         this.history = [];
-        this.userService.getByUid(user.uid).subscribe(data => {
-          console.log('user!!!! ',data);
-          this.currentUser.id = data['uid'];
-        });
+        this.currentUser.id = user.uid;
       } else {
         this.isUserLogged = false;
       }
@@ -264,12 +262,15 @@ export class HistoryComponent implements OnInit, OnChanges {
   }
   removeFromFavorites( propSelected: Property ){
     this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
-      const index = this.history.indexOf(propSelected, 0);
-      if (index > -1) {
-        this.history.splice(index, 1);
-      }
-      this.historyFiltered = this.history;
-      this.historyFilteredEmitter.emit(this.history);
+      this.history.forEach( prop => {
+        if (prop.rc === propSelected.rc) {
+          const index = this.history.indexOf(prop, 0);
+          this.history.splice(index, 1);
+          this.historyFiltered = this.history;
+          this.historyFilteredEmitter.emit(this.history);
+          return;
+        }
+      });
     });
   }
 }
