@@ -148,7 +148,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     });
 
     // search widget
-    const searchControl = new esri_geo.Geosearch({ useMapBounds: false}).addTo(this.map);
+    const searchControl = new esri_geo.Geosearch({ useMapBounds: false, expanded: true,
+      placeholder: 'Search your address'}).addTo(this.map);
 
     searchControl.on('results',  (data) => {
       this.removeGroupMarkers();
@@ -174,7 +175,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
    * @param address: address to add in popup
    */
   getInfoFromCadastre( x: any, y: any , latLng: any, address: string) {
-    this.cadastreService.getRCByCoordinates(x, y).subscribe( (data) => {
+    this.cadastreService.getRCByCoordinates(x, y).then( (data) => {
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
       const err = dataFile.getElementsByTagName('err')[0];
@@ -182,19 +183,21 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         let textToShow = '';
         textToShow = '<h6> ' + address + '</h6>';
         this.marker.bindPopup(textToShow).openPopup();
-        this.propertiesEmitter.emit(this.properties);
+        const desError = dataFile.getElementsByTagName('des')[0].textContent;
+        this.propertiesEmitter.emit([{error_service: desError}]);
       } else {
         const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
         const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
         const rcGeneral = rc1.concat(rc2);
+        const addressMain = dataFile.getElementsByTagName('ldt')[0].textContent;
         this.cadastreService.getBuildingDetailsByRC(rcGeneral).subscribe((prop) => {
           const parser2 = new DOMParser();
           const dataXML = parser2.parseFromString(prop, 'text/xml');
-
           // case: when request is only one property
           const propertyOnly = dataXML.getElementsByTagName('bico')[0];
+          this.properties = [];
           if ( propertyOnly !== undefined ){
-            const property = this.getInfoPropGeneral(propertyOnly);
+            const property = this.getInfoPropGeneral(propertyOnly, addressMain);
             this.properties.push(property);
           } else {
             // case: when request are many properties
@@ -202,7 +205,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             // tslint:disable-next-line:prefer-for-of
             for ( let i = 0; i < properties.length ; i++){
               const detail = properties[i];
-              const property = this.getInfoPropGeneral(detail);
+              const property = this.getInfoPropGeneral(detail, addressMain);
               this.properties.push(property);
             }
           }
@@ -219,14 +222,18 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           });
         });
       }
-    });
+    })
+      .catch((error) => {
+        this.propertiesEmitter.emit([ { error} ]);
+      });
   }
 
   /**
    * Convert info from xml format to Property object
    * @param prop: property information in xml format
+   * @param addressMain
    */
-  getInfoPropGeneral(prop: any) {
+  getInfoPropGeneral(prop: any, addressMain: string) {
     const rc1 = prop.getElementsByTagName('pc1')[0].textContent;
     const rc2 = prop.getElementsByTagName('pc2')[0].textContent;
     const rc3 = prop.getElementsByTagName('car')[0].textContent;
@@ -234,32 +241,34 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const rc5 = prop.getElementsByTagName('cc2')[0].textContent;
     let rc = '';
     rc = rc.concat( rc1, rc2, rc3, rc4, rc5);
-    const tagAddr = prop.getElementsByTagName('dir')[0];
-    const tagLocInt = prop.getElementsByTagName('loint')[0];
-    const viaType = tagAddr.getElementsByTagName('tv')[0].textContent;
-    const viaName = tagAddr.getElementsByTagName('nv')[0].textContent;
-    const addNumber = tagAddr.getElementsByTagName('pnp')[0].textContent;
-    const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
-      tagLocInt.getElementsByTagName('bq')[0].textContent.split(': ')[0] : '';
-    const stair = tagLocInt.getElementsByTagName('es').length > 0 ?
-      tagLocInt.getElementsByTagName('es')[0].textContent.split(': ')[0] : '';
-    const plant = tagLocInt.getElementsByTagName('pt').length > 0 ?
-      tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
-    const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
-      tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
-    let address = '';
-    address = address.concat( viaType, ' ' ,  viaName, ' ', addNumber);
-    const postalCode = prop.getElementsByTagName('dp')[0].textContent;
-    const prov = prop.getElementsByTagName('np')[0].textContent;
-    const town = prop.getElementsByTagName('nm')[0].textContent;
-    let logInt = '';
-    const textBlock = block !== '' ? 'Bloque: ' + block : '';
-    const textStair = stair !== '' ? 'Escalera: ' + stair : '';
-    const textPlant = plant !== '' ? 'Planta: ' + plant : '';
-    const textDoor = door !== '' ? 'Puerta: ' + door : '';
-    logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
-    return new Property(rc, address, plant, logInt, '', postalCode, prov, town, '', '',
-      '', '', '', '', '', [], block, stair, door);
+    const propType = prop.getElementsByTagName('cn').length > 0 ? prop.getElementsByTagName('cn')[0].textContent : 'urban';
+
+    if ( propType === 'RU') {
+      return new Property(rc, addressMain, '', '', '', '', '', '', '', 'rural',
+        '', '', '', '', '', [], '', '', '');
+    } else {
+      const tagLocInt = prop.getElementsByTagName('loint')[0];
+      const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
+        tagLocInt.getElementsByTagName('bq')[0].textContent.split(': ')[0] : '';
+      const stair = tagLocInt.getElementsByTagName('es').length > 0 ?
+        tagLocInt.getElementsByTagName('es')[0].textContent.split(': ')[0] : '';
+      const plant = tagLocInt.getElementsByTagName('pt').length > 0 ?
+        tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
+      const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
+        tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
+      const postalCode = prop.getElementsByTagName('dp')[0].textContent;
+      const prov = prop.getElementsByTagName('np')[0].textContent;
+      const town = prop.getElementsByTagName('nm')[0].textContent;
+      let logInt = '';
+      const textBlock = block !== '' ? 'Bloque: ' + block : '';
+      const textStair = stair !== '' ? 'Escalera: ' + stair : '';
+      const textPlant = plant !== '' ? 'Planta: ' + plant : '';
+      const textDoor = door !== '' ? 'Puerta: ' + door : '';
+      logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
+      return new Property(rc, addressMain, plant, logInt, '', postalCode, prov, town, '', 'urban',
+        '', '', '', '', '', [], block, stair, door);
+    }
+
   }
 
   removeGroupMarkers(){

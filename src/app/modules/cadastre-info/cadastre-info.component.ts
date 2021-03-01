@@ -15,19 +15,18 @@ import {PropertySaved} from '../../shared/models/PropertySaved';
 })
 export class CadastreInfoComponent implements OnInit, OnChanges {
   propSelected: Property;
-  totalArea: number;
   propIsSelected: boolean;
   facadeImage: any;
-  error: boolean;
+  hasError: boolean;
+  error: string;
   currentUser: User = new User();
   isAFavProperty: boolean;
   isUserLogged: boolean;
   searchFromHistory: boolean;
-  filtBl: string;
-  filtEs: string;
-  filtPt: string;
-  filtPu: string;
+  modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
   propertiesFilter: Property[];
+  RURAL_TYPE = 'rural';
+  URBAN_TYPE = 'urban';
   @Input() propSelectFromMap: string;
   @Input() history: PropertySaved[];
   @Input() itemSelectedFromHistory: string;
@@ -44,22 +43,22 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.propertiesFilter = this.properties;
   }
 
-  ngOnInit(): void {
-    this.filtBl = '';
-    this.filtEs = '';
-    this.filtPt = '';
-    this.filtPu = '';
+  ngOnInit(){
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ( changes.properties ) {
-      this.propertiesFilter = changes.properties.currentValue;
-      if ( !changes.properties.firstChange ) {
-        this.propSelected = null;
-        this.propIsSelected = false;
-      }
-      if ( changes.properties.currentValue === 0) {
-        this.error = true;
+      if ( changes.properties.currentValue.length > 0 && ( changes.properties.currentValue[0].error ||
+        changes.properties.currentValue[0].error_service )) {
+        this.hasError = true;
+        this.error = changes.properties.currentValue[0].error_service ? changes.properties.currentValue[0].error_service : 'Cadastre Service is not available' ;
+      } else {
+        this.propertiesFilter = changes.properties.currentValue;
+        this.hasError = false;
+        if ( !changes.properties.firstChange ) {
+          this.propSelected = null;
+          this.propIsSelected = false;
+        }
       }
     }
     if (changes.history && changes.history.currentValue &&
@@ -83,7 +82,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
 
   initialData(): void{
     this.propSelected = null;
-    this.totalArea = 0;
     this.propIsSelected = true;
     this.isAFavProperty = false;
   }
@@ -166,13 +164,29 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   filterBuilding(): void {
-    if ( this.filtBl !== '' ||  this.filtEs !== '' ||  this.filtPt !== '' ||  this.filtPu !== '' ) {
-      this.propertiesFilter = this.properties.filter(
-        it => ( this.filtBl ? it.block.toLowerCase().includes(this.filtBl.toLowerCase()) : false ) ||
-          ( this.filtEs ? it.stair.toLowerCase().includes(this.filtEs.toLowerCase()) : false ) ||
-          ( this.filtPt ? it.floor.toLowerCase().includes(this.filtPt.toLowerCase()) : false ) ||
-          ( this.filtPu ? it.door.toLowerCase().includes(this.filtPu.toLowerCase()) : false )
-      );
+    if ( this.modelFilters.filtBl !== '' ||  this.modelFilters.filtEs !== '' ||
+      this.modelFilters.filtPt !== '' ||  this.modelFilters.filtPu !== '' ) {
+      let propTempToFilter = this.properties;
+      Object.entries(this.modelFilters).forEach( ([key, value]) => {
+        if ( key === 'filtBl' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.block.toLowerCase().includes(value.toLowerCase())
+          );
+        } else if ( key === 'filtEs' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.stair.toLowerCase().includes(value.toLowerCase())
+          );
+        } else if ( key === 'filtPt' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.floor.toLowerCase().includes(value.toLowerCase())
+          );
+        } else if ( key === 'filtPu' && value.length > 0) {
+          propTempToFilter = propTempToFilter.filter(
+            it => it.door.toLowerCase().includes(value.toLowerCase())
+          );
+        }
+      });
+      this.propertiesFilter = propTempToFilter;
     } else {
       this.propertiesFilter = this.properties;
     }
@@ -180,5 +194,10 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
 
   calculateTypology(): void{
     this.calculateTypologyEmitter.emit(this.propSelected);
+  }
+
+  clearFilters(): void {
+    this.modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
+    this.filterBuilding();
   }
 }

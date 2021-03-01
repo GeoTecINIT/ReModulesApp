@@ -25,7 +25,7 @@ export class CadastreService {
       params: params,
       responseType: 'text' as 'text'
     };
-    return this.http.request('GET', this.CATASTRO_SPAIN_BY_COORDINATES, options);
+    return this.http.request('GET', this.CATASTRO_SPAIN_BY_COORDINATES, options).toPromise();
   }
 
   getBuildingDetailsByRC(rc: string) {

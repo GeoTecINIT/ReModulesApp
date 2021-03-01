@@ -17,18 +17,27 @@ import {PropertySaved} from '../../shared/models/PropertySaved';
 })
 export class HomeComponent implements OnInit {
 
-  active: number;
-  properties: Property[];
-  propertySelectedFormMap: string;
-  point: any;
-  isUserLogged: boolean;
-  currentUser: User = new User();
+  // general variables
   history: PropertySaved[];
   itemSelectedFromHistory: string;
+
+  // map variables
   historyFilteredFromList: any;
-  showTypology: boolean;
-  propertyToGetTypology: Property;
+
+  // cadastre-info variables
+  properties: Property[];
+  propertySelectedFormMap: string;
+
+  // typology variables
   categories: Typology[];
+  propertyToGetTypology: Property;
+
+  // control variables
+  active: number;
+  isUserLogged: boolean;
+  currentUser: User = new User();
+  showTypology: boolean;
+
   constructor( public afAuth: AngularFireAuth, public userService: UserService, public typologyService: TypologyService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -59,15 +68,15 @@ export class HomeComponent implements OnInit {
       Object.entries(hist).forEach( ([key, value]) => {
         this.history.push(value);
       });
-      this.properties = [];
+      //this.properties = [];
       this.itemSelectedFromHistory = '';
       this.propertySelectedFormMap = '';
     });
   }
   receivePoint($event): void {
-    this.properties = [];
     this.properties = $event;
     this.active = 1;
+    this.showTypology = false;
   }
   receivePropSelected($event): void {
     this.propertySelectedFormMap = $event;
@@ -95,9 +104,9 @@ export class HomeComponent implements OnInit {
   }
   cleanVariables(): void {
     this.properties = [];
-    this.active = 1;
     this.itemSelectedFromHistory = '';
     this.propertySelectedFormMap = '';
+    this.active = 1;
     this.showTypology = false;
   }
 }
