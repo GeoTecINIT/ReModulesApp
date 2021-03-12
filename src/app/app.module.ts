@@ -17,7 +17,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { HomeComponent } from './modules/home/home.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule} from '@angular/common/http';
+import {HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
 import { CadastreInfoComponent } from './modules/cadastre-info/cadastre-info.component';
 import { HistoryComponent } from './modules/history/history.component';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -30,6 +30,7 @@ import { UserService} from './core/authentication/user.service';
 import { CadastreService} from './core/cadastre/cadastre.service';
 import { TypologyService } from './core/typology/typology.service';
 import {AuthenticationService} from './core/authentication/authentication.service';
+import {GeodataService} from './core/wfs/geodata.service';
 
 @NgModule({
   declarations: [
@@ -52,10 +53,11 @@ import {AuthenticationService} from './core/authentication/authentication.servic
     AngularFireAuthModule,
     ModalModule.forRoot(),
     HttpClientModule,
+    HttpClientJsonpModule,
     NgbModule,
     NgSelectModule,
     NgxSliderModule,
-    FlexLayoutModule
+    FlexLayoutModule,
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
@@ -63,7 +65,8 @@ import {AuthenticationService} from './core/authentication/authentication.servic
     AuthenticationService,
     UserService,
     CadastreService,
-    TypologyService
+    TypologyService,
+    GeodataService
   ],
   bootstrap: [AppComponent]
 })

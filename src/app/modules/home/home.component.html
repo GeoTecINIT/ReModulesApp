@@ -5,8 +5,8 @@
         <li [ngbNavItem]="1">
           <a ngbNavLink>Properties</a>
           <ng-template ngbNavContent>
-            <app-cadastre-info [properties]="properties" [history]="history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
-                               [propSelectFromMap]="propertySelectedFormMap" (calculateTypologyEmitter)="calculateTypology($event)"></app-cadastre-info>
+            <app-cadastre-info [properties]="properties" [history]="history"  [building]="building" [itemSelectedFromHistory] ="itemSelectedFromHistory"
+                               [propSelectFromMap]="propertySelectedFormMap" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);"></app-cadastre-info>
           </ng-template>
         </li>
         <li [ngbNavItem]="2" *ngIf="isUserLogged">
@@ -18,12 +18,12 @@
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
     </div>
-    <div [ngClass]="{'col-md-9': !showTypology, 'col-md-4': showTypology }">
-      <app-map (propertiesEmitter)="receivePoint($event)" (propSelectFromMapEmitter)="receivePropSelected($event)" [history]="history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
+    <div *ngIf="showMap" class="col-md-9">
+      <app-map (propertiesEmitter)="receivePoint($event)" (propSelectFromMapEmitter)="receivePropSelected($event)"  (coordinatesEmitter)="receiveCoordinates($event)" [history]="history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
                 [historyFilteredFromList]="historyFilteredFromList"></app-map>
     </div>
-    <div *ngIf="showTypology" id="typology" class="col-md-5">
-      <app-typology [categories]="categories"></app-typology>
+    <div *ngIf="showTypology && !showMap" id="typology" class="col-md-9" >
+      <app-typology [typologies]="typologies"></app-typology>
     </div>
   </div>
 

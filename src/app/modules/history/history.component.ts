@@ -1,10 +1,8 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {ChangeContext, Options} from '@angular-slider/ngx-slider';
-import {Property} from '../../shared/models/property';
-import {PropertySaved} from '../../shared/models/PropertySaved';
+import {Building} from '../../shared/models/building';
 
 @Component({
   selector: 'app-history',
@@ -15,18 +13,25 @@ export class HistoryComponent implements OnInit, OnChanges {
 
   isUserLogged: boolean;
   currentUser: User = new User();
-  historyFiltered: any;
-  usesFilter: any;
-  useSelected: any;
-  yearsFilter: any;
+  historyFiltered: Building[];
+
+  useControl: boolean;
+  usesFilter: string[];
+  useSelected: string;
+
+  yearControl: boolean;
+  yearsFilter: [{ label: any,
+    value: any}];
   yearSelected: any;
+
   surfaceFilter: Options;
   surfaceSelected: any;
+
   filterApplied: string[];
-  @Input() history: PropertySaved[];
+  @Input() history: Building[];
   @Output() itemSelectedFromHistoryEmitter = new EventEmitter<any>();
   @Output() historyFilteredEmitter = new EventEmitter<any>();
-  constructor(public afAuth: AngularFireAuth, public userService: UserService) {
+  constructor(public afAuth: AngularFireAuth) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.isUserLogged = true;
@@ -59,41 +64,47 @@ export class HistoryComponent implements OnInit, OnChanges {
     }
   }
 
-  getInfoByRC(rc: string): void {
-    this.itemSelectedFromHistoryEmitter.emit(rc);
+  getInfoByRC(building: Building): void {
+    this.itemSelectedFromHistoryEmitter.emit(building);
   }
 
   buildFilterByUses(): void {
-    this.usesFilter = [''];
-    this.historyFiltered.forEach( data => {
-      const index = this.usesFilter.indexOf(data.use);
-      if (index < 0) {
-        this.usesFilter.push(data.use);
+    this.usesFilter = null;
+    this.historyFiltered.forEach( (data: Building) => {
+      if ( data.use ){
+        const index = this.usesFilter.indexOf(data.use);
+        if (index < 0) {
+          this.usesFilter.push(data.use);
+        }
       }
     });
+    if ( this.usesFilter && this.usesFilter.length > 0 ) {
+      this.useControl = true;
+    }
   }
 
   buildFilterByYear(): void {
     this.yearsFilter = null;
     this.historyFiltered.forEach( data => {
+      if ( data.year ) {
         let valueYear = 0;
         let labelYear = '';
-        if ( data.year >= 0 && data.year <= 1900 ) {
+        if ( +data.year >= 0 && +data.year <= 1900 ) {
           valueYear = 1;
           labelYear = '0 - 1900';
-        } else if ( data.year >= 1901 && data.year <= 1936 ) {
+        } else if ( +data.year >= 1901 && +data.year <= 1936 ) {
           valueYear = 2;
           labelYear = '1901 - 1936';
-        } else if ( data.year >= 1937 && data.year <= 1959 ) {
+        } else if ( +data.year >= 1937 && +data.year <= 1959 ) {
           valueYear = 3;
           labelYear = '1937 - 1959';
-        } else if ( data.year >= 1960 && data.year <= 1979 ) {
+        } else if ( +data.year >= 1960 && +data.year <= 1979 ) {
           valueYear = 4;
           labelYear = '1960 - 1979';
-        } else if ( data.year >= 1980 && data.year <= 2006 ) {
+        } else if ( +data.year >= 1980 && +data.year <= 2006 ) {
           valueYear = 5;
           labelYear = '1980 - 2006';
-        } else if ( data.year >= 2007 ) {
+        } else if ( +data.year >= 2007 ) {
           valueYear = 6;
           labelYear = '2007 - ';
         }
@@ -111,23 +122,38 @@ export class HistoryComponent implements OnInit, OnChanges {
             this.yearsFilter.push(valueToAdd);
           }
         }
+      }
       });
-    if ( this.yearsFilter){
+    if ( this.yearsFilter) {
       this.yearsFilter.sort((a, b) => a.value -  b.value);
+      if ( this.yearsFilter.length > 0 ) {
+        this.yearControl = true;
+      }
     }
   }
 
   buildFilterBySurface(): void {
     const surfaces = [];
+    let disable = true;
+    let floor = 0;
+    let ceil = 10000;
     this.history.forEach(data => {
-      surfaces.push(data.surface);
+      if ( data.surface ) {
+        surfaces.push(data.surface);
+      }
     });
     surfaces.sort((a, b) => a - b);
+    if ( surfaces.length > 0 ){
+      disable = false;
+      floor = surfaces[0];
+      ceil = surfaces[surfaces.length - 1 ];
+    }
     this.surfaceFilter = {
-      floor: surfaces[0],
-      ceil: surfaces[surfaces.length - 1 ],
+      floor,
+      ceil,
       step: 10,
-      showTicks: true
+      showTicks: true,
+      disabled: disable,
     };
   }
 
@@ -259,18 +285,5 @@ export class HistoryComponent implements OnInit, OnChanges {
       }
     }
     return histTemp;
-  }
-  removeFromFavorites( propSelected: Property ){
-    this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
-      this.history.forEach( prop => {
-        if (prop.rc === propSelected.rc) {
-          const index = this.history.indexOf(prop, 0);
-          this.history.splice(index, 1);
-          this.historyFiltered = this.history;
-          this.historyFilteredEmitter.emit(this.history);
-          return;
-        }
-      });
-    });
   }
 }

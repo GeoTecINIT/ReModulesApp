@@ -3,7 +3,6 @@ button {
   background: transparent;
   font-weight: 700;
   border: 0;
-  text-transform: uppercase;
 }
 img {
   width: 40%;
@@ -14,10 +13,14 @@ input {
 .calculateTyp {
   color: #2888BA;
   background: transparent;
-  font-weight: 700;
   border: 0;
-  text-transform: uppercase;
+  font-weight: 400;
+  border-radius: 6px;
 }
+.calculateTyp:hover{
+  background-color: #f7f7f7;
+}
+
 .information {
   height: 100vh;
   overflow: auto;

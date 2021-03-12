@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import {DomSanitizer} from '@angular/platform-browser';
+import { GlobalConstants} from '../../shared/GlobalConstants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CadastreService {
 
-
-  CATASTRO_SPAIN_BY_COORDINATES = '/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR';
-  CATASTRO_SPAIN_BY_RC = '/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';
-  CATASTRO_SPAIN_FACADE_IMAGE = '/ovcservweb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral=';
+  private cadastreByCoordinateURL  = '/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR';
+  private cadastreByRcURL = '/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';
+  private cadastreGetFacadeURL = '/ovcservweb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral=';
 
   constructor(private http: HttpClient) { }
 
@@ -25,7 +25,7 @@ export class CadastreService {
       params: params,
       responseType: 'text' as 'text'
     };
-    return this.http.request('GET', this.CATASTRO_SPAIN_BY_COORDINATES, options).toPromise();
+    return this.http.request('GET', this.cadastreByCoordinateURL, options).toPromise();
   }
 
   getBuildingDetailsByRC(rc: string) {
@@ -39,11 +39,11 @@ export class CadastreService {
       params: params,
       responseType: 'text' as 'text'
     };
-    return this.http.request('GET', this.CATASTRO_SPAIN_BY_RC, options);
+    return this.http.request('GET', this.cadastreByRcURL, options);
   }
 
   getFacadeImage( rc: string) {
-    return this.http.get(this.CATASTRO_SPAIN_FACADE_IMAGE + rc, {
+    return this.http.get(this.cadastreGetFacadeURL + rc, {
       responseType: 'blob'});
   }
 }
