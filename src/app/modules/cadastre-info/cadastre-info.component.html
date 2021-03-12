@@ -3,13 +3,43 @@
       <div *ngIf="properties[0].type === RURAL_TYPE" style="text-align: center;">
         <h4>Rural property. Please try with another location</h4>
       </div>
-    <div *ngIf="properties[0].type === URBAN_TYPE">
-      <div  style="text-align: center;">
-        <h5> Province: {{ properties[0].province}} </h5>
-        <p><i class="fa fa-map-marker" aria-hidden="true"></i> {{properties[0].address}}
-        </p>
-        <p>{{properties.length}} PROPERTIES</p>
-        <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
+    <div *ngIf="properties[0].type === URBAN_TYPE && building" >
+      <div *ngIf="building && building.country" fxLayoutAlign="end">
+        <button *ngIf="mapControl" class="btn calculateTyp" (click)="showMap();">
+          <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
+        </button>
+        <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">
+          <span>Calculate energy efficiency</span>
+        </a>
+      </div>
+      <div >
+        <div class="card">
+          <div class="card-body">
+            <h5> Province: {{ building.region }} </h5>
+            <p>Address: <i class="fa fa-map-marker" aria-hidden="true"></i> {{building.address}}
+            </p>
+            <p>Year of construction: {{building.year}}</p>
+            <p>{{properties.length}} PROPERTIES</p>
+            <div style="text-align: center">
+              <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
+            </div>
+            <div style="text-align: right">
+              <div *ngIf="isUserLogged && !searchFromHistory" >
+                <a href="#" (click)="addToFavorites(building);" *ngIf="!isAFavProperty"> Save to history
+                  <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
+                </a>
+                <a href="#" (click)="removeFromFavorites(building);" *ngIf="isAFavProperty"> Saved to history
+                  <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+                </a>
+              </div>
+              <div *ngIf="isUserLogged && searchFromHistory" >
+                <a href="#" style="text-align: right;" (click)="removeFromFavorites(building);" *ngIf="isAFavProperty"> Saved to history
+                  <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div  class="seeMore">
         <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
@@ -65,19 +95,6 @@
   <div class="detail"  *ngIf="propIsSelected && propSelected !== null">
     <div class="row">
       <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
-      <div *ngIf="isUserLogged && !searchFromHistory" class="col-md-5 offset-3" >
-        <a href="#" (click)="addToFavorites(propSelected);" *ngIf="!isAFavProperty"> Add to favorites
-          <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
-        </a>
-        <a href="#" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
-          <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-        </a>
-      </div>
-      <div *ngIf="isUserLogged && searchFromHistory" class="col-md-5 offset-3" >
-        <a href="#" style="text-align: right;" (click)="removeFromFavorites(propSelected);" *ngIf="isAFavProperty"> Added to favorites
-          <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-        </a>
-      </div>
     </div>
     <div class="card">
       <div class="card-header">
@@ -100,7 +117,6 @@
         <p class="card-text"> Property participation: {{ propSelected.participation}} %</p>
       </div>
     </div>
-    <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">Calculate Typology</a>
   </div>
 </div>
 <div *ngIf="hasError">

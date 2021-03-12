@@ -8,8 +8,7 @@ import * as esri_geo from 'esri-leaflet-geocoder';
 import {Property} from '../../shared/models/property';
 import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {DomSanitizer} from '@angular/platform-browser';
-import {add} from 'ngx-bootstrap/chronos';
-import {PropertySaved} from '../../shared/models/PropertySaved';
+import {Building} from '../../shared/models/building';
 
 @Component({
   selector: 'app-map',
@@ -24,11 +23,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   markerClusterGroup: L.MarkerClusterGroup;
   @Output() propertiesEmitter = new EventEmitter<any>();
   @Output() propSelectFromMapEmitter = new EventEmitter<any>();
-  @Input() itemSelectedFromHistory: string;
+  @Output() coordinatesEmitter = new EventEmitter<any>();
+  @Input() itemSelectedFromHistory: Building;
   @Input() properties: Property[];
-  @Input() history: PropertySaved[];
+  @Input() history: Building[];
   @Input() historyFilteredFromList: any;
-  markersLayer: any;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
   ZOOM = 8;
@@ -56,12 +55,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       (changes.itemSelectedFromHistory.currentValue !== changes.itemSelectedFromHistory.previousValue)){
       this.itemSelectedFromHistory = changes.itemSelectedFromHistory.currentValue;
       this.removeGroupMarkers();
-      this.history.forEach( prop => {
-        if ( prop.rc === this.itemSelectedFromHistory ) {
+      this.history.forEach( (prop: Building) => {
+        if ( prop.rc === this.itemSelectedFromHistory.rc ) {
           const textPopup = '<h6> ' + prop.address
             + '</h6>' + '<p> Cadastre reference: ' + prop.rc + '</p>';
-          this.marker = L.marker(L.latLng(prop.lat, prop.lng)).addTo(this.map);
-          this.map.setView(L.latLng(prop.lat, prop.lng), 15);
+          this.marker = L.marker(L.latLng(prop.coordinates.lat, prop.coordinates.lng)).addTo(this.map);
+          this.map.setView(L.latLng(prop.coordinates.lat, prop.coordinates.lng), 15);
           this.marker.bindPopup(textPopup).openPopup();
         }
       });
@@ -143,6 +142,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           return;
         }
         address = result.address.Address;
+        this.coordinatesEmitter.emit(ev.latlng);
         this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
       });
     });
@@ -162,6 +162,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
         this.point = crs.project(data.results[i].latlng);
+        this.coordinatesEmitter.emit(data.results[i].latlng);
         this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });
@@ -174,7 +175,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
    * @param latLng: point as coordinates
    * @param address: address to add in popup
    */
-  getInfoFromCadastre( x: any, y: any , latLng: any, address: string) {
+  getInfoFromCadastre( x: string, y: string , latLng: [], address: string) {
     this.cadastreService.getRCByCoordinates(x, y).then( (data) => {
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
@@ -231,7 +232,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   /**
    * Convert info from xml format to Property object
    * @param prop: property information in xml format
-   * @param addressMain
+   * @param addressMain: complete Address with detail of indoor location
    */
   getInfoPropGeneral(prop: any, addressMain: string) {
     const rc1 = prop.getElementsByTagName('pc1')[0].textContent;
@@ -287,17 +288,17 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const latLngs = [];
     if (this.history && this.history.length > 0 ){
       this.history.forEach( propHistory => {
-        if ( +propHistory.lat > 0 ){
-          const latlngToMark = L.latLng(propHistory.lat, propHistory.lng);
+        if ( +propHistory.coordinates.lat > 0 ){
+          const latlngToMark = L.latLng(propHistory.coordinates.lat, propHistory.coordinates.lng);
           const textPopup = '<h6> ' + propHistory.address
             + '</h6>' + '<p> Cadastre reference: ' + propHistory.rc + '</p>';
           const markers = L.marker(latlngToMark).bindPopup(textPopup).openPopup();
           markers.on('click', () => {
-            this.propSelectFromMapEmitter.emit(propHistory.rc);
+            this.propSelectFromMapEmitter.emit(propHistory);
           });
           this.markerClusterGroup.addLayer(markers);
           markerGroup.push(markers);
-          latLngs.push([+propHistory.lat, +propHistory.lng]);
+          latLngs.push([+propHistory.coordinates.lat, +propHistory.coordinates.lng]);
         }
       });
     }

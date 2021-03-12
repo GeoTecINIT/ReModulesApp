@@ -1,48 +1,47 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {PropertySaved} from '../../shared/models/PropertySaved';
+import { GlobalConstants} from '../../shared/GlobalConstants';
+import {Building} from '../../shared/models/building';
 
-const baseUrl = 'http://localhost:3000/api/user';
-const baseHistoryUserUrl = 'http://localhost:3000/api/history/user';
-const baseHistoryUrl = 'http://localhost:3000/api/history';
-const baseHistoryUsesUrl = 'http://localhost:3000/api/history/uses';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
+  private baseUrl = GlobalConstants.backendURL + '/api/user';
+  private baseHistoryUserUrl = GlobalConstants.backendURL + '/api/history/user';
+  private baseHistoryUrl = GlobalConstants.backendURL + '/api/history';
+  private baseHistoryUsesUrl = GlobalConstants.backendURL + '/api/history/uses';
+
   constructor(private http: HttpClient) { }
 
   getByUid(uid) {
-    return this.http.get(`${baseUrl}/${uid}`);
+    return this.http.get(`${this.baseUrl}/${uid}`);
   }
 
   create(data) {
-    return this.http.post(baseUrl, data);
+    return this.http.post(this.baseUrl, data);
   }
 
   update(uid, data) {
-    return this.http.put(`${baseUrl}/${uid}`, data);
+    return this.http.put(`${this.baseUrl}/${uid}`, data);
   }
 
   getHistoryByUser(uid){
-    return this.http.get<PropertySaved>(`${baseHistoryUserUrl}/${uid}`);
+    return this.http.get(`${this.baseHistoryUserUrl}/${uid}`);
   }
 
-  addPropertyToHistory(property) {
-    return this.http.post(baseHistoryUrl, property);
-  }
-  getUses(){
-    return this.http.get(`${baseHistoryUsesUrl}`);
+  addPropertyToHistory(building) {
+    return this.http.post(this.baseHistoryUrl, building);
   }
 
   removePropertyFromHistory( rc, user ) {
     const header = new HttpHeaders({Accept: 'text/plain'});
     const options = {
-      header: header,
+      header,
       responseType: 'text' as 'text'
     };
-    return this.http.request('delete', `${baseHistoryUrl}/prop/${rc}/user/${user}`, options);
+    return this.http.request('delete', `${this.baseHistoryUrl}/prop/${rc}/user/${user}`, options);
   }
 }

@@ -5,8 +5,7 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {AngularFireAuth} from '@angular/fire/auth';
-import {Router} from '@angular/router';
-import {PropertySaved} from '../../shared/models/PropertySaved';
+import {Building} from '../../shared/models/building';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -27,18 +26,22 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   propertiesFilter: Property[];
   RURAL_TYPE = 'rural';
   URBAN_TYPE = 'urban';
-  @Input() propSelectFromMap: string;
-  @Input() history: PropertySaved[];
-  @Input() itemSelectedFromHistory: string;
+  mapControl: boolean;
+  @Input() propSelectFromMap: Building;
+  @Input() history: Building[];
+  @Input() itemSelectedFromHistory: Building;
   @Input() properties: Property[];
+  @Input() building: Building;
+  @Output() showMapEmitter = new EventEmitter<boolean>();
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
-  constructor(public cadastreService: CadastreService, private sanitizer: DomSanitizer,
-              public afAuth: AngularFireAuth, public userService: UserService, private router: Router) {
+  constructor(private cadastreService: CadastreService, private sanitizer: DomSanitizer,
+              public afAuth: AngularFireAuth, private userService: UserService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.currentUser = new User(user);
         this.isUserLogged = true;
       }
+      else { this.isUserLogged = false; }
     });
     this.propertiesFilter = this.properties;
   }
@@ -54,12 +57,25 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.error = changes.properties.currentValue[0].error_service ? changes.properties.currentValue[0].error_service : 'Cadastre Service is not available' ;
       } else {
         this.propertiesFilter = changes.properties.currentValue;
+        this.properties = changes.properties.currentValue;
         this.hasError = false;
         if ( !changes.properties.firstChange ) {
           this.propSelected = null;
           this.propIsSelected = false;
         }
+        if ( this.properties.length > 0 ) {
+          this.cadastreService.getBuildingDetailsByRC(this.properties[0].rc).subscribe(( pro) => {
+            const parser2 = new DOMParser();
+            const dataXML = parser2.parseFromString(pro, 'text/xml');
+            const data = dataXML.getElementsByTagName('bico')[0];
+            this.building.year  = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
+            this.building.rc = this.properties[0].rc.slice(0, -6);
+          });
+        }
       }
+    }
+    if ( changes.building ){
+      this.building = changes.building.currentValue;
     }
     if (changes.history && changes.history.currentValue &&
       (changes.history.currentValue.length > this.history.length)){
@@ -70,13 +86,13 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       (changes.itemSelectedFromHistory.currentValue !== changes.itemSelectedFromHistory.previousValue)){
       this.itemSelectedFromHistory = changes.itemSelectedFromHistory.currentValue;
       this.searchFromHistory = true;
-      this.getDetailFromRC(this.itemSelectedFromHistory);
+      this.getInfoBuilding(this.itemSelectedFromHistory);
     }
     if (changes.propSelectFromMap && changes.propSelectFromMap.currentValue &&
       changes.propSelectFromMap.currentValue !== changes.propSelectFromMap.previousValue){
       this.searchFromHistory = true;
       this.propSelectFromMap = changes.propSelectFromMap.currentValue;
-      this.getDetailFromRC(this.propSelectFromMap);
+      this.getInfoBuilding(this.propSelectFromMap);
     }
   }
 
@@ -86,6 +102,41 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.isAFavProperty = false;
   }
 
+  getInfoBuilding( building: Building) {
+    this.cadastreService.getBuildingDetailsByRC(building.rc).subscribe((prop) => {
+      this.propSelected = null;
+      this.propIsSelected = false;
+      const parser2 = new DOMParser();
+      const dataXML = parser2.parseFromString(prop, 'text/xml');
+      // case: when request is only one property
+      const propertyOnly = dataXML.getElementsByTagName('bico')[0];
+      this.properties = [];
+      if ( propertyOnly !== undefined ){
+        const property = this.getInfoPropGeneral(propertyOnly, building.address);
+        this.properties.push(property);
+      } else {
+        // case: when request are many properties
+        const properties = dataXML.getElementsByTagName('rcdnp');
+        // tslint:disable-next-line:prefer-for-of
+        for ( let i = 0; i < properties.length ; i++){
+          const detail = properties[i];
+          const property = this.getInfoPropGeneral(detail, building.address);
+          this.properties.push(property);
+        }
+      }
+      this.propertiesFilter = this.properties;
+      this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
+        const urlCreator = window.URL;
+        this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
+        // @ts-ignore
+        this.properties[0].latlng = { lat: building.lat, lng: building.lng};
+        this.properties[0].type = this.URBAN_TYPE;
+        this.isAFavoriteProperty(building);
+        this.building = building;
+        this.building.region = this.properties[0].province;
+      });
+    });
+  }
   /**
    * Assign to property selected the entire information from Cadastre service
    * @param rc: Property selected from the list
@@ -97,7 +148,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       const dataXML = parser2.parseFromString(pro, 'text/xml');
       const data = dataXML.getElementsByTagName('bico')[0];
       this.propSelected  = this.convertToProperty(data, rc);
-      this.isAFavoriteProperty(this.propSelected);
     });
   }
 
@@ -122,40 +172,44 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
 
   /**
    *  Added the property selected as a favorite in user history
-   * @param propSelected: Property object selected
+   * @param building
    */
-  addToFavorites( propSelected: Property ): void{
+  addToFavorites( building: Building ): void{
     const propToSave = {
-      rc: propSelected.rc,
-      address: propSelected.completeAddress,
+      country: building.country,
+      climate_zone: building.climateZone,
+      year: building.year,
+      rc: building.rc,
+      address: building.address,
       uid: this.currentUser.uid,
-      lat: this.properties[0].latlng['lat'],
-      lng: this.properties[0].latlng['lng'],
-      year: propSelected.yearConstruction,
-      use: propSelected.use,
-      surface: propSelected.surfaceCons
+      lat: +building.coordinates.lat,
+      lng: +building.coordinates.lng,
     };
-    this.userService.addPropertyToHistory(propToSave).subscribe( res => {
-      this.history.push( new PropertySaved(propToSave.address, propToSave.lat, propToSave.lng,
-        propToSave.rc, propToSave.surface, propToSave.use, propToSave.year, null));
-      this.isAFavProperty = true;
-    });
-  }
-
-  removeFromFavorites( propSelected: Property ): void{
-    this.userService.removePropertyFromHistory( propSelected.rc,  this.currentUser.uid).subscribe( res => {
-      this.history.forEach( prop => {
-        if ( prop.rc === propSelected.rc ) {
-          const index = this.history.indexOf(prop, 0);
-          this.history.splice(index, 1);
-          this.isAFavProperty = false;
-          return;
-        }
+    if ( this.isUserLogged ) {
+      this.userService.addPropertyToHistory(propToSave).subscribe( res => {
+        this.history.push( new Building(building.country, building.climateZone, building.year,
+          building.region, building.address, building.coordinates, [], building.rc, building.use, ''));
+        this.isAFavProperty = true;
       });
-    });
+    }
   }
 
-  isAFavoriteProperty(property: Property): void {
+  removeFromFavorites( building: Building): void{
+    if ( this.isUserLogged ) {
+      this.userService.removePropertyFromHistory( building.rc,  this.currentUser.uid).subscribe( res => {
+        this.history.forEach( prop => {
+          if ( prop.rc === building.rc ) {
+            const index = this.history.indexOf(prop, 0);
+            this.history.splice(index, 1);
+            this.isAFavProperty = false;
+            return;
+          }
+        });
+      });
+    }
+  }
+
+  isAFavoriteProperty(property: Building): void {
     if ( this.history ) {
       this.history.forEach(prop => {
         this.isAFavProperty = prop.rc === property.rc;
@@ -192,12 +246,61 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
 
-  calculateTypology(): void{
-    this.calculateTypologyEmitter.emit(this.propSelected);
+  calculateTypology(): void {
+    this.mapControl = true;
+    this.showMapEmitter.emit(false);
+    this.calculateTypologyEmitter.emit(this.building);
   }
 
   clearFilters(): void {
     this.modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
     this.filterBuilding();
+  }
+
+  /**
+   * Convert info from xml format to Property object
+   * @param prop: property information in xml format
+   * @param addressMain
+   */
+  getInfoPropGeneral(prop: any, addressMain: string) {
+    const rc1 = prop.getElementsByTagName('pc1')[0].textContent;
+    const rc2 = prop.getElementsByTagName('pc2')[0].textContent;
+    const rc3 = prop.getElementsByTagName('car')[0].textContent;
+    const rc4 = prop.getElementsByTagName('cc1')[0].textContent;
+    const rc5 = prop.getElementsByTagName('cc2')[0].textContent;
+    let rc = '';
+    rc = rc.concat( rc1, rc2, rc3, rc4, rc5);
+    const propType = prop.getElementsByTagName('cn').length > 0 ? prop.getElementsByTagName('cn')[0].textContent : 'urban';
+
+    if ( propType === 'RU') {
+      return new Property(rc, addressMain, '', '', '', '', '', '', '', 'rural',
+        '', '', '', '', '', [], '', '', '');
+    } else {
+      const tagLocInt = prop.getElementsByTagName('loint')[0];
+      const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
+        tagLocInt.getElementsByTagName('bq')[0].textContent.split(': ')[0] : '';
+      const stair = tagLocInt.getElementsByTagName('es').length > 0 ?
+        tagLocInt.getElementsByTagName('es')[0].textContent.split(': ')[0] : '';
+      const plant = tagLocInt.getElementsByTagName('pt').length > 0 ?
+        tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
+      const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
+        tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
+      const postalCode = prop.getElementsByTagName('dp')[0].textContent;
+      const prov = prop.getElementsByTagName('np')[0].textContent;
+      const town = prop.getElementsByTagName('nm')[0].textContent;
+      let logInt = '';
+      const textBlock = block !== '' ? 'Bl: ' + block : '';
+      const textStair = stair !== '' ? 'Es: ' + stair : '';
+      const textPlant = plant !== '' ? 'Pl: ' + plant : '';
+      const textDoor = door !== '' ? 'Pt: ' + door : '';
+      logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
+      return new Property(rc, addressMain, plant, logInt, '', postalCode, prov, town, '', 'urban',
+        '', '', '', '', '', [], block, stair, door);
+    }
+  }
+
+  showMap(): void{
+    this.mapControl = false;
+    this.showMapEmitter.emit(true);
   }
 }

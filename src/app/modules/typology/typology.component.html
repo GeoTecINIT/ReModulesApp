@@ -1,11 +1,10 @@
-<div class="container" fxLayout="column"
-     fxLayoutAlign="center ">
+<div>
   <ul  ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
     <li [ngbNavItem]="1" class="nav-item">
       <a ngbNavLink (click)="refreshStyles('typology');">Typology</a>
       <ng-template ngbNavContent>
         <div *ngIf="categoryIsSelected">
-          <p><b>Building:</b> {{categorySelected.categoryName}}</p>
+          <p><b>Building:</b> {{typologyCur.categoryName}}</p>
           <hr>
         </div>
         <div>
@@ -21,7 +20,7 @@
              fxLayout.lt-sm="column"
              fxLayoutGap="5px"
              fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let cat of categories " >
+          <ng-container *ngFor="let cat of typologies " >
             <div class="card" fxFlex="0 1 calc(100% - 5px)"
                  fxFlex.lt-md="0 1 calc(100% - 5px)"
                  fxFlex.lt-sm="100%" id="{{cat.categoryCode}}" >
@@ -29,7 +28,7 @@
                 <h4>{{cat.categoryName}}</h4>
               </div>
                 <a href="#" (click)="selectCategory(cat);">
-                  <img class="card-img-top" alt="Building image"  src="./assets/img/typology/{{cat.picName}}">
+                  <img class="card-img-top" alt="Building image"  src="./assets/img/typology/{{cat.country}}/{{cat.picName}}">
                 </a>
               </div>
           </ng-container>
@@ -37,10 +36,10 @@
       </ng-template>
     </li>
     <li [ngbNavItem]="2" class="nav-item" [disabled]="!categoryIsSelected">
-      <a ngbNavLink (click)="refreshStyles('envelope');">Envelope</a>
+      <a ngbNavLink (click)="refreshStyles('envelope');">Building Data</a>
       <ng-template ngbNavContent>
         <div *ngIf="categoryIsSelected">
-          <p><b>Building:</b> {{categorySelected.categoryName}}</p>
+          <p><b>Building:</b> {{typologyCur.categoryName}}</p>
           <hr>
         </div>
         <div>
@@ -56,7 +55,7 @@
              fxLayout.lt-sm="column"
              fxLayoutGap="5px"
              fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let env of categorySelected.enveloped ">
+          <ng-container *ngFor="let env of typologyCur.enveloped ">
             <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-md="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-sm="100%">
@@ -64,7 +63,7 @@
                 <h4>{{env.componentType}}</h4>
               </div>
               <a>
-                <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{env.picture}}">
+                <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{typologyCur.country}}/{{env.picture}}">
               </a>
               <div class="card-body">
                 <p>{{env.description}}</p>
@@ -77,7 +76,42 @@
       </ng-template>
     </li>
     <li [ngbNavItem]="3" class="nav-item" [disabled]="!categoryIsSelected">
-      <a ngbNavLink>System Measure</a>
+      <a ngbNavLink>System Type</a>
+      <ng-template ngbNavContent>
+        <div *ngIf="categoryIsSelected">
+          <p><b>Building:</b> {{typologyCur.categoryName}}</p>
+          <hr>
+        </div>
+        <div>
+          <h3>
+            System Type
+          </h3>
+          <p>
+            3.
+          </p>
+          <hr>
+        </div>
+        <div fxLayout="row"
+             fxLayout.lt-sm="column"
+             fxLayoutGap="5px"
+             fxLayoutAlign="space-between ">
+          <ng-container *ngFor="let st of typologyCur.system ">
+            <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
+                 fxFlex.lt-md="0 1 calc(33.3% - 5px)"
+                 fxFlex.lt-sm="100%">
+              <div class="card-header">
+                <h4>{{st.sysType}}</h4>
+              </div>
+              <a>
+                <img class="card-img-top" alt="Envelope image"  src="./assets/img/system/{{typologyCur.country}}/{{st.picture}}">
+              </a>
+              <div class="card-body">
+                <p>{{st.description}}</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-template>
     </li>
   </ul>
 
