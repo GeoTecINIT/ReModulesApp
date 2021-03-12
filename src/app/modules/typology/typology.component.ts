@@ -24,8 +24,8 @@ export class TypologyComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ( changes.categories.currentValue ) {
-      this.typologies = changes.categories.currentValue;
+    if ( changes.typologies.currentValue ) {
+      this.typologies = changes.typologies.currentValue;
       this.typologyCur = null;
       this.categoryIsSelected  = false;
       this.active = 1;
