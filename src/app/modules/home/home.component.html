@@ -18,9 +18,9 @@
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
     </div>
-    <div *ngIf="showMap" class="col-md-9">
-      <app-map (propertiesEmitter)="receivePoint($event)" (propSelectFromMapEmitter)="receivePropSelected($event)"  (coordinatesEmitter)="receiveCoordinates($event)" [history]="history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
-                [historyFilteredFromList]="historyFilteredFromList"></app-map>
+    <div [hidden]="!showMap" class="col-md-9">
+      <app-map (buildingEmitter)="receivePoint($event)" (propSelectFromMapEmitter)="receivePropSelected($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
+               [historyFilteredFromList]="historyFilteredFromList" [building]="building"></app-map>
     </div>
     <div *ngIf="showTypology && !showMap" id="typology" class="col-md-9" >
       <app-typology [typologies]="typologies"></app-typology>

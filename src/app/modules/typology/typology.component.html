@@ -1,7 +1,7 @@
 <div>
   <ul  ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
     <li [ngbNavItem]="1" class="nav-item">
-      <a ngbNavLink (click)="refreshStyles('typology');">Typology</a>
+      <a ngbNavLink >Typology</a>
       <ng-template ngbNavContent>
         <div *ngIf="categoryIsSelected">
           <p><b>Building:</b> {{typologyCur.categoryName}}</p>
@@ -36,7 +36,7 @@
       </ng-template>
     </li>
     <li [ngbNavItem]="2" class="nav-item" [disabled]="!categoryIsSelected">
-      <a ngbNavLink (click)="refreshStyles('envelope');">Building Data</a>
+      <a ngbNavLink >Building Data</a>
       <ng-template ngbNavContent>
         <div *ngIf="categoryIsSelected">
           <p><b>Building:</b> {{typologyCur.categoryName}}</p>

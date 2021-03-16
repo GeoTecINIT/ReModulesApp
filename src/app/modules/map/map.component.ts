@@ -21,13 +21,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   marker: any;
   point: any;
   markerClusterGroup: L.MarkerClusterGroup;
-  @Output() propertiesEmitter = new EventEmitter<any>();
+  @Output() buildingEmitter = new EventEmitter<any>();
   @Output() propSelectFromMapEmitter = new EventEmitter<any>();
   @Output() coordinatesEmitter = new EventEmitter<any>();
   @Input() itemSelectedFromHistory: Building;
   @Input() properties: Property[];
   @Input() history: Building[];
   @Input() historyFilteredFromList: any;
+  @Input() building: Building;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
   ZOOM = 8;
@@ -72,6 +73,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         const newBound = this.markerClusterGroup.getBounds();
         this.map.fitBounds(newBound);
       }
+    }
+    if ( changes.building && changes.building.currentValue){
+      this.building = changes.building.currentValue;
     }
   }
 
@@ -185,7 +189,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         textToShow = '<h6> ' + address + '</h6>';
         this.marker.bindPopup(textToShow).openPopup();
         const desError = dataFile.getElementsByTagName('des')[0].textContent;
-        this.propertiesEmitter.emit([{error_service: desError}]);
+        this.buildingEmitter.emit([{error_service: desError}]);
       } else {
         const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
         const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
@@ -219,13 +223,15 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
             this.properties[0].latlng = latLng;
-            this.propertiesEmitter.emit(this.properties);
+            this.building = new Building('', '', this.properties[0].yearConstruction, this.properties[0].province,
+              this.properties[0].address, {lat: latLng['lat'], lng: latLng['lng']}, this.properties, rcGeneral, '', '');
+            this.buildingEmitter.emit(this.building);
           });
         });
       }
     })
       .catch((error) => {
-        this.propertiesEmitter.emit([ { error} ]);
+        this.buildingEmitter.emit([ { error} ]);
       });
   }
 

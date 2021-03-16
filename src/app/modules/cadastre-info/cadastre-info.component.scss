@@ -4,6 +4,10 @@ button {
   font-weight: 700;
   border: 0;
 }
+button:disabled {
+  cursor: not-allowed;
+  color: #5d6d75b8;
+}
 img {
   width: 40%;
 }
