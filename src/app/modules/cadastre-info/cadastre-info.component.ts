@@ -74,9 +74,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         }
       }
     }
-    if ( changes.building ){
-      this.building = changes.building.currentValue;
-    }
     if (changes.history && changes.history.currentValue &&
       (changes.history.currentValue.length > this.history.length)){
       this.propSelected = null;

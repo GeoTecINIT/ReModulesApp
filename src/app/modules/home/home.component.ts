@@ -47,11 +47,7 @@ export class HomeComponent implements OnInit {
         this.isUserLogged = true;
         this.currentUser = new User(user);
         this.userService.getHistoryByUser(user.uid).subscribe( (hist: Building) => {
-          this.history = [];
-          Object.entries(hist).forEach( ([key, value]) => {
-            this.history.push(new Building(value.country, value.climate_zone, value.year, value.region,
-              value.address, { lat: value.lat, lng: value.lng}, [], value.rc, value.use, value.surface));
-          });
+          this.fillHistory(hist);
         });
       } else {
         this.isUserLogged = false;
@@ -66,25 +62,17 @@ export class HomeComponent implements OnInit {
 
   refreshFavorites(): void {
     this.history = null;
+    this.showMap = true;
     this.showTypology = false;
     this.userService.getHistoryByUser(this.currentUser.uid).subscribe( (hist: Building ) => {
-      this.history = [];
-      Object.entries(hist).forEach( ([key, value]) => {
-        this.history.push(new Building(value.country, value.climate_zone, value.year, value.region,
-          value.address, { lat: value.lat, lng: value.lng}, [], value.rc, value.use, value.surface));
-      });
+      this.fillHistory(hist);
       this.itemSelectedFromHistory = null;
       this.propertySelectedFormMap = null;
     });
   }
   receivePoint($event): void {
-    this.properties = $event;
-    if (this.properties.length > 0 ){
-      this.building.year = this.properties[0].yearConstruction;
-      this.building.address = this.properties[0].address;
-      this.building.region = this.properties[0].province;
-    }
-    this.building.properties = this.properties;
+    this.building = $event;
+    this.properties = this.building.properties;
     this.active = 1;
     this.showTypology = false;
   }
@@ -102,7 +90,7 @@ export class HomeComponent implements OnInit {
     this.historyFilteredFromList = $event;
   }
   receiveCoordinates($event): void {
-    this.building = new Building('', '', '', '', '', $event, [], '', '', '');
+    //this.building.coordinates = $event;
     this.calculateGeoData($event);
   }
   calculateTypology($event: Building): void{
@@ -132,11 +120,17 @@ export class HomeComponent implements OnInit {
           this.building.country = resCountry.features[0].properties.iso_2digit;
           this.building.climateZone = resClimate.features[0].properties.code;
         }
-        console.log('respuesta servicio!!! ', this.building);
       });
     });
   }
   showMapControl($event: boolean): void{
     this.showMap = $event;
+  }
+  fillHistory(building: Building){
+    this.history = [];
+    Object.entries(building).forEach( ([key, value]) => {
+      this.history.push(new Building(value.country, value.climate_zone, value.year, value.region,
+        value.address, { lat: value.lat, lng: value.lng}, [], value.rc, value.use, value.surface));
+    });
   }
 }

@@ -5,7 +5,7 @@
       </div>
     <div *ngIf="properties[0].type === URBAN_TYPE && building" >
       <div *ngIf="building && building.country" fxLayoutAlign="end">
-        <button *ngIf="mapControl" class="btn calculateTyp" (click)="showMap();">
+        <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();">
           <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
         </button>
         <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">
@@ -20,7 +20,7 @@
             </p>
             <p>Year of construction: {{building.year}}</p>
             <p>{{properties.length}} PROPERTIES</p>
-            <div style="text-align: center">
+            <div style="text-align: center" *ngIf="properties[0].image">
               <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
             </div>
             <div style="text-align: right">
