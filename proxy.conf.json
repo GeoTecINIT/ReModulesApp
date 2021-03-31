@@ -3,5 +3,15 @@
     "target": "https://ovc.catastro.meh.es",
     "secure": true,
     "changeOrigin": true
+  },
+  "/INSPIRE/*": {
+    "target": "https://ovc.catastro.meh.es",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/v1/*": {
+    "target": "https://api.opentopodata.org",
+    "secure": true,
+    "changeOrigin": true
   }
 }

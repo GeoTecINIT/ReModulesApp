@@ -3,6 +3,7 @@ import {Typology} from '../../shared/models/typology';
 import {TypologyService} from '../../core/typology/typology.service';
 import {Envelope} from '../../shared/models/envelope';
 import {SystemType} from '../../shared/models/systemType';
+import {Building} from '../../shared/models/building';
 
 @Component({
   selector: 'app-typology',
@@ -11,41 +12,47 @@ import {SystemType} from '../../shared/models/systemType';
 })
 export class TypologyComponent implements OnInit, OnChanges {
 
-  typologyCur: Typology;
   categoryIsSelected: boolean;
   active: number;
+  selectTypology = true;
   @Input() typologies: Typology[];
+  @Input() building: Building;
   constructor( private typologyService: TypologyService) { }
 
   ngOnInit(): void {
-    this.active = 1;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if ( changes.typologies.currentValue ) {
+    if ( changes.building.currentValue && changes.building.currentValue.typology &&
+      changes.building.currentValue.typology.categoryCode ) {
+      this.building = changes.building.currentValue;
+      this.selectTypology = false;
+      this.selectCategory(this.building.typology);
+    }
+    else if ( changes.typologies && changes.typologies.currentValue.length > 0 ) {
       this.typologies = changes.typologies.currentValue;
-      this.typologyCur = null;
+      this.selectTypology = true;
       this.categoryIsSelected  = false;
       this.active = 1;
     }
   }
   selectCategory( category: Typology) {
-    this.typologyCur = category;
+    this.building.typology = category;
     this.categoryIsSelected = true;
-    this.typologyCur.enveloped = [];
-    this.typologyCur.system = [];
+    this.building.typology.enveloped = [];
+    this.building.typology.system = [];
     this.active = 2;
-    this.typologyService.getEnvelope(this.typologyCur.yearCode, this.typologyCur.country,
-        this.typologyCur.zone, this.typologyCur.categoryCode ).subscribe(res => {
+    this.typologyService.getEnvelope(this.building.typology.yearCode, this.building.country,
+      this.building.climateZone, this.building.typology.categoryCode ).subscribe(res => {
       Object.values(res).forEach( env => {
-        this.typologyCur.enveloped.push(new Envelope(env.enveloped.type_construction,
+        this.building.typology.enveloped.push(new Envelope(env.enveloped.type_construction,
             env.enveloped.description, env.enveloped.u_value, env.enveloped.picture, env.component_type.name));
       });
     });
-    this.typologyService.getSystem(this.typologyCur.yearCode, this.typologyCur.country,
-      this.typologyCur.zone, this.typologyCur.buildingCode).subscribe( res => {
+    this.typologyService.getSystem(this.building.typology.yearCode, this.building.country,
+      this.building.climateZone, this.building.typology.buildingCode).subscribe( res => {
       Object.values(res).forEach( sys => {
-        this.typologyCur.system.push(new SystemType(sys.system_type,
+        this.building.typology.system.push(new SystemType(sys.system_type,
           sys.system_code, sys.System_code.description_system, sys.System_code.pictures));
       });
     });

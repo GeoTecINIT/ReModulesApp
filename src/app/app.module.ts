@@ -31,6 +31,7 @@ import { CadastreService} from './core/cadastre/cadastre.service';
 import { TypologyService } from './core/typology/typology.service';
 import {AuthenticationService} from './core/authentication/authentication.service';
 import {GeodataService} from './core/wfs/geodata.service';
+import {OpendataService} from './core/opendata/opendata.service';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import {GeodataService} from './core/wfs/geodata.service';
     UserService,
     CadastreService,
     TypologyService,
-    GeodataService
+    GeodataService,
+    OpendataService
   ],
   bootstrap: [AppComponent]
 })

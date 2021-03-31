@@ -18,7 +18,13 @@
             <h5> Province: {{ building.region }} </h5>
             <p>Address: <i class="fa fa-map-marker" aria-hidden="true"></i> {{building.address}}
             </p>
-            <p>Year of construction: {{building.year}}</p>
+            <div class="infoBuilding" >
+              <p>Year of construction: {{building.year}}</p>
+              <p *ngIf="building.use">Use: {{building.use}}</p>
+              <p *ngIf="building.surface">Surface: {{building.surface}}&nbsp; &#13217;</p>
+              <p *ngIf="building.typology && building.typology.categoryCode"> Typology: {{building.typology.categoryName}}</p>
+            </div>
+
             <p>{{properties.length}} PROPERTIES</p>
             <div style="text-align: center" *ngIf="properties[0].image">
               <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
@@ -94,7 +100,7 @@
   </div>
   <div class="detail"  *ngIf="propIsSelected && propSelected !== null">
     <div class="row">
-      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
+      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false; isAFavoriteProperty(building);"><i class="fa fa-arrow-left"></i> RETURN</button>
     </div>
     <div class="card">
       <div class="card-header">

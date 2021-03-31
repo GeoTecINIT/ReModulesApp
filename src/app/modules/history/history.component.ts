@@ -29,7 +29,7 @@ export class HistoryComponent implements OnInit, OnChanges {
 
   filterApplied: string[];
   @Input() history: Building[];
-  @Output() itemSelectedFromHistoryEmitter = new EventEmitter<any>();
+  @Output() buildingSelectedFromHistoryEmitter = new EventEmitter<any>();
   @Output() historyFilteredEmitter = new EventEmitter<any>();
   constructor(public afAuth: AngularFireAuth) {
     this.afAuth.onAuthStateChanged(user => {
@@ -65,7 +65,7 @@ export class HistoryComponent implements OnInit, OnChanges {
   }
 
   getInfoByRC(building: Building): void {
-    this.itemSelectedFromHistoryEmitter.emit(building);
+    this.buildingSelectedFromHistoryEmitter.emit(building);
   }
 
   buildFilterByUses(): void {

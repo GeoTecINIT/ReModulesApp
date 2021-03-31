@@ -22,13 +22,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   point: any;
   markerClusterGroup: L.MarkerClusterGroup;
   @Output() buildingEmitter = new EventEmitter<any>();
-  @Output() propSelectFromMapEmitter = new EventEmitter<any>();
   @Output() coordinatesEmitter = new EventEmitter<any>();
-  @Input() itemSelectedFromHistory: Building;
   @Input() properties: Property[];
   @Input() history: Building[];
   @Input() historyFilteredFromList: any;
   @Input() building: Building;
+  @Input() fromHistory: boolean;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
   ZOOM = 8;
@@ -52,7 +51,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.history = changes.history.currentValue;
       this.addMarkersHistory();
     }
-    if (changes.itemSelectedFromHistory && changes.itemSelectedFromHistory.currentValue &&
+    /*if (changes.itemSelectedFromHistory && changes.itemSelectedFromHistory.currentValue &&
       (changes.itemSelectedFromHistory.currentValue !== changes.itemSelectedFromHistory.previousValue)){
       this.itemSelectedFromHistory = changes.itemSelectedFromHistory.currentValue;
       this.removeGroupMarkers();
@@ -65,7 +64,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           this.marker.bindPopup(textPopup).openPopup();
         }
       });
-    }
+    }*/
     if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
       this.history = changes.historyFilteredFromList.currentValue;
       this.addMarkersHistory();
@@ -74,8 +73,43 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.map.fitBounds(newBound);
       }
     }
-    if ( changes.building && changes.building.currentValue){
-      this.building = changes.building.currentValue;
+    if ( changes.building && changes.building.currentValue && !changes.building.firstChange){
+      console.log('Entre en el building!!!! ', changes);
+      if (  changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
+        changes.building.currentValue[0].error_service )) {
+        this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
+      } else{
+        if ( this.marker !== undefined ) {
+          this.map.removeLayer(this.marker);
+        }
+        this.building = changes.building.currentValue;
+        let buildingFromHist = false;
+        this.history.forEach( (prop: Building) => {
+          if (prop.rc === this.building.rc) {
+            buildingFromHist = true;
+            return;
+          }
+        });
+        if ( !buildingFromHist ) {
+          const textPopup = '<h6> ' + this.building.address
+            + '</h6>' + '<p> Cadastre reference: ' + this.building.rc + '</p>';
+          this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
+          this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
+          this.marker.bindPopup(textPopup).openPopup();
+        } else if ( changes.fromHistory && changes.fromHistory.currentValue ) {
+          this.removeGroupMarkers();
+          this.history.forEach( (prop: Building) => {
+            if ( prop.rc === this.building.rc ) {
+              const textPopup = '<h6> ' + prop.address
+                + '</h6>' + '<p> Cadastre reference: ' + prop.rc + '</p>';
+              this.marker = L.marker(L.latLng(prop.coordinates.lat, prop.coordinates.lng)).addTo(this.map);
+              this.map.setView(L.latLng(prop.coordinates.lat, prop.coordinates.lng), 15);
+              this.marker.bindPopup(textPopup).openPopup();
+            }
+          });
+        }
+
+      }
     }
   }
 
@@ -134,9 +168,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       const geocodeService = esri_geo.geocodeService();
       this.removeGroupMarkers();
       this.properties = [];
-      if ( this.marker !== undefined ) {
-        this.map.removeLayer(this.marker);
-      }
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
       this.point = crs.project(ev.latlng);
@@ -223,8 +254,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
             this.properties[0].latlng = latLng;
-            this.building = new Building('', '', this.properties[0].yearConstruction, this.properties[0].province,
-              this.properties[0].address, {lat: latLng['lat'], lng: latLng['lng']}, this.properties, rcGeneral, '', '');
+            console.log('DAtos propiedades!!! ',  this.properties);
+            this.building = new Building('', '', '', this.properties[0].yearConstruction, this.properties[0].province,
+              this.properties[0].address, '', {lat: latLng['lat'], lng: latLng['lng']}, this.properties, rcGeneral, '', 0, null);
             this.buildingEmitter.emit(this.building);
           });
         });
@@ -263,8 +295,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
       const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
         tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
-      const postalCode = prop.getElementsByTagName('dp')[0].textContent;
-      const prov = prop.getElementsByTagName('np')[0].textContent;
+      const postalCode = prop.getElementsByTagName('dp').length > 0 ?
+        prop.getElementsByTagName('dp')[0].textContent : '';
+      const prov = prop.getElementsByTagName('np').length > 0 ? prop.getElementsByTagName('np')[0].textContent : '';
       const town = prop.getElementsByTagName('nm')[0].textContent;
       let logInt = '';
       const textBlock = block !== '' ? 'Bloque: ' + block : '';
@@ -300,7 +333,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             + '</h6>' + '<p> Cadastre reference: ' + propHistory.rc + '</p>';
           const markers = L.marker(latlngToMark).bindPopup(textPopup).openPopup();
           markers.on('click', () => {
-            this.propSelectFromMapEmitter.emit(propHistory);
+            this.building = propHistory;
+            this.buildingEmitter.emit(this.building);
           });
           this.markerClusterGroup.addLayer(markers);
           markerGroup.push(markers);

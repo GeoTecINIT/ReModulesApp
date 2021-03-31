@@ -8,7 +8,9 @@ import {Typology} from '../../shared/models/typology';
 import {GeodataService} from '../../core/wfs/geodata.service';
 import {Building} from '../../shared/models/building';
 import {$e} from 'codelyzer/angular/styles/chars';
-
+import {OpendataService} from '../../core/opendata/opendata.service';
+import {Observable} from 'rxjs';
+import 'rxjs/add/observable/forkJoin';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -18,7 +20,6 @@ export class HomeComponent implements OnInit {
 
   // general variables
   history: Building[];
-  itemSelectedFromHistory: Building;
   building: Building;
 
   // map variables
@@ -26,10 +27,11 @@ export class HomeComponent implements OnInit {
 
   // cadastre-info variables
   properties: Property[];
-  propertySelectedFormMap: Building;
 
   // typology variables
   typologies: Typology[];
+
+  fromHistory: boolean;
 
   // control variables
   active: number;
@@ -38,10 +40,12 @@ export class HomeComponent implements OnInit {
   showTypology: boolean;
   showMap = true;
 
+  SPAIN = 'ES';
   constructor( public afAuth: AngularFireAuth,
                private userService: UserService,
                private typologyService: TypologyService,
-               private geodataService: GeodataService) {
+               private geodataService: GeodataService,
+               private opendataService: OpendataService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.isUserLogged = true;
@@ -54,6 +58,7 @@ export class HomeComponent implements OnInit {
         this.history = [];
       }
     });
+    this.building =  new Building('', '', '',  null, '', '', '', {lat: '', lng: ''}, [], '', '', 0, null);
   }
 
   ngOnInit(): void {
@@ -64,25 +69,38 @@ export class HomeComponent implements OnInit {
     this.history = null;
     this.showMap = true;
     this.showTypology = false;
+    this.fromHistory = false;
     this.userService.getHistoryByUser(this.currentUser.uid).subscribe( (hist: Building ) => {
       this.fillHistory(hist);
-      this.itemSelectedFromHistory = null;
-      this.propertySelectedFormMap = null;
     });
   }
   receivePoint($event): void {
-    this.building = $event;
-    this.properties = this.building.properties;
+    if ( $event.country !== null ) {
+      let country = $event.country;
+      let climateZone = $event.climateZone;
+      let climateSubZone = $event.climateZone;
+      let region = $event.region;
+      let altitude = $event.altitude;
+      if ( this.building.country && this.building.climateZone ){
+        country = this.building.country;
+        climateZone = this.building.climateZone;
+        climateSubZone = this.building.climateSubZone;
+        region = this.building.region;
+        altitude = this.building.altitudeCode;
+      }
+      this.building = null;
+      this.building = new Building(country, climateZone, climateSubZone, $event.year,
+        region, $event.address, altitude, $event.coordinates, $event.properties, $event.rc,
+        $event.use, null, null);
+    }
+    this.properties = $event.properties;
     this.active = 1;
     this.showTypology = false;
-  }
-  receivePropSelected($event): void {
-    this.propertySelectedFormMap = $event;
-    this.showTypology = false;
-    this.active = 1;
+    this.fromHistory = false;
   }
   receivePropFromHistory($event): void{
-    this.itemSelectedFromHistory = $event;
+    this.building = $event;
+    this.fromHistory = true;
     this.showTypology = false;
     this.active = 1;
   }
@@ -90,38 +108,56 @@ export class HomeComponent implements OnInit {
     this.historyFilteredFromList = $event;
   }
   receiveCoordinates($event): void {
-    //this.building.coordinates = $event;
     this.calculateGeoData($event);
   }
   calculateTypology($event: Building): void{
     this.showTypology = true;
     this.building = $event;
-    this.typologies = [];
-    this.typologyService.getTypologyPics(this.building.year, this.building.country, this.building.climateZone).subscribe( res => {
-      Object.values(res).forEach( cat => {
-        const category = new Typology(cat.category.category_code, cat.category.name,
-          cat.year.year_code, cat.name,  this.building.climateZone,  this.building.country, cat.category.building_code, null, null);
-        this.typologies.push(category);
+    if ( !this.building.typology || ( this.building.typology && !this.building.typology.categoryCode ) ) {
+      this.typologies = [];
+      this.typologyService.getTypologyPics(this.building.year, this.building.country, this.building.climateZone).subscribe(res => {
+        Object.values(res).forEach( cat => {
+          const category = new Typology(cat.category.category_code, cat.category.name,
+            cat.year.year_code, cat.name,  this.building.climateZone,  this.building.country, cat.category.building_code, null, null);
+          this.typologies.push(category);
+        });
       });
-    });
+    }
   }
   cleanVariables(): void {
     this.properties = [];
-    this.building = null;
-    this.itemSelectedFromHistory = null;
-    this.propertySelectedFormMap = null;
     this.active = 1;
     this.showTypology = false;
+    this.fromHistory = false;
   }
-  calculateGeoData(coordinates: any[]): void {
-    this.geodataService.getCountries(coordinates['lat'], coordinates['lng']).subscribe(resCountry => {
-      this.geodataService.getClimateZones(coordinates['lat'], coordinates['lng']).subscribe(resClimate => {
-        if (resCountry.features.length === 1 &&  resClimate.features.length === 1) {
-          this.building.country = resCountry.features[0].properties.iso_2digit;
-          this.building.climateZone = resClimate.features[0].properties.code;
+  calculateGeoData(coordinates: any): void {
+    Observable.forkJoin([
+      this.geodataService.getCountries(coordinates.lat, coordinates.lng) ,
+      this.geodataService.getClimateZones(coordinates.lat, coordinates.lng ),
+      this.opendataService.getElevation(coordinates.lat, coordinates.lng),
+      this.geodataService.getProvinces(coordinates.lat, coordinates.lng)]).subscribe( data => {
+        const elevation = data[2].results[0].elevation;
+        const country = data[0].features[0].properties.iso_2digit;
+        const climateZone = data[1].features[0].properties.code;
+        const region = data[3].features.length > 0 ? data[3].features[0].properties.provincia : '';
+        if (country === this.SPAIN ) {
+            this.typologyService.getAltitude(elevation, climateZone, country ).subscribe( resAltitude => {
+              const altitude = resAltitude['altitude_code'];
+              this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
+                this.building.country = country;
+                this.building.climateZone = climateZone;
+                this.building.region = region;
+                this.building.altitudeCode = altitude;
+                this.building.climateSubZone = subZone['climate_zone'];
+              });
+            });
+        }
+        else {
+          this.building.country = country;
+          this.building.climateZone = climateZone;
+          this.building.region = region;
         }
       });
-    });
   }
   showMapControl($event: boolean): void{
     this.showMap = $event;
@@ -129,8 +165,8 @@ export class HomeComponent implements OnInit {
   fillHistory(building: Building){
     this.history = [];
     Object.entries(building).forEach( ([key, value]) => {
-      this.history.push(new Building(value.country, value.climate_zone, value.year, value.region,
-        value.address, { lat: value.lat, lng: value.lng}, [], value.rc, value.use, value.surface));
+      this.history.push(new Building(value.country, value.climate_zone, value.climate_sub_zone, value.year, value.region,
+        value.address, null, { lat: value.lat, lng: value.lng}, [], value.rc, value.use, value.surface, null));
     });
   }
 }

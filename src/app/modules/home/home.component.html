@@ -5,25 +5,24 @@
         <li [ngbNavItem]="1">
           <a ngbNavLink>Properties</a>
           <ng-template ngbNavContent>
-            <app-cadastre-info [properties]="properties" [history]="history"  [building]="building" [itemSelectedFromHistory] ="itemSelectedFromHistory"
-                               [propSelectFromMap]="propertySelectedFormMap" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);"></app-cadastre-info>
+            <app-cadastre-info [properties]="properties" [history]="history"  [building]="building"(calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);"></app-cadastre-info>
           </ng-template>
         </li>
         <li [ngbNavItem]="2" *ngIf="isUserLogged">
           <a ngbNavLink (click)="refreshFavorites();">History</a>
           <ng-template ngbNavContent>
-            <app-history [history]="history" (itemSelectedFromHistoryEmitter)="receivePropFromHistory($event)" (historyFilteredEmitter)="receiveHistoryFiltered($event)"></app-history>
+            <app-history [history]="history"  (buildingSelectedFromHistoryEmitter)="receivePropFromHistory($event)" (historyFilteredEmitter)="receiveHistoryFiltered($event)"></app-history>
           </ng-template>
         </li>
       </ul>
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
     </div>
     <div [hidden]="!showMap" class="col-md-9">
-      <app-map (buildingEmitter)="receivePoint($event)" (propSelectFromMapEmitter)="receivePropSelected($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history" [itemSelectedFromHistory] ="itemSelectedFromHistory"
-               [historyFilteredFromList]="historyFilteredFromList" [building]="building"></app-map>
+      <app-map (buildingEmitter)="receivePoint($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
+               [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory"></app-map>
     </div>
     <div *ngIf="showTypology && !showMap" id="typology" class="col-md-9" >
-      <app-typology [typologies]="typologies"></app-typology>
+      <app-typology [typologies]="typologies" [building]="building"></app-typology>
     </div>
   </div>
 

@@ -1,10 +1,10 @@
 <div>
   <ul  ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-    <li [ngbNavItem]="1" class="nav-item">
+    <li [ngbNavItem]="1" class="nav-item" *ngIf="selectTypology">
       <a ngbNavLink >Typology</a>
       <ng-template ngbNavContent>
-        <div *ngIf="categoryIsSelected">
-          <p><b>Building:</b> {{typologyCur.categoryName}}</p>
+        <div >
+          <p><b>Building:</b> {{building.typology.categoryName}}</p>
           <hr>
         </div>
         <div>
@@ -35,11 +35,11 @@
         </div>
       </ng-template>
     </li>
-    <li [ngbNavItem]="2" class="nav-item" [disabled]="!categoryIsSelected">
+    <li [ngbNavItem]="2" class="nav-item" [disabled]="!building.typology.categoryName">
       <a ngbNavLink >Building Data</a>
       <ng-template ngbNavContent>
-        <div *ngIf="categoryIsSelected">
-          <p><b>Building:</b> {{typologyCur.categoryName}}</p>
+        <div >
+          <p><b>Building:</b> {{building.typology.categoryName}}</p>
           <hr>
         </div>
         <div>
@@ -55,7 +55,7 @@
              fxLayout.lt-sm="column"
              fxLayoutGap="5px"
              fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let env of typologyCur.enveloped ">
+          <ng-container *ngFor="let env of building.typology.enveloped ">
             <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-md="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-sm="100%">
@@ -63,7 +63,7 @@
                 <h4>{{env.componentType}}</h4>
               </div>
               <a>
-                <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{typologyCur.country}}/{{env.picture}}">
+                <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{env.picture}}">
               </a>
               <div class="card-body">
                 <p>{{env.description}}</p>
@@ -75,11 +75,11 @@
         </div>
       </ng-template>
     </li>
-    <li [ngbNavItem]="3" class="nav-item" [disabled]="!categoryIsSelected">
+    <li [ngbNavItem]="3" class="nav-item" [disabled]="!building.typology.categoryName">
       <a ngbNavLink>System Type</a>
       <ng-template ngbNavContent>
-        <div *ngIf="categoryIsSelected">
-          <p><b>Building:</b> {{typologyCur.categoryName}}</p>
+        <div>
+          <p><b>Building:</b> {{building.typology.categoryName}}</p>
           <hr>
         </div>
         <div>
@@ -95,7 +95,7 @@
              fxLayout.lt-sm="column"
              fxLayoutGap="5px"
              fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let st of typologyCur.system ">
+          <ng-container *ngFor="let st of building.typology.system ">
             <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-md="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-sm="100%">
@@ -103,7 +103,7 @@
                 <h4>{{st.sysType}}</h4>
               </div>
               <a>
-                <img class="card-img-top" alt="Envelope image"  src="./assets/img/system/{{typologyCur.country}}/{{st.picture}}">
+                <img class="card-img-top" alt="Envelope image"  src="./assets/img/system/{{building.country}}/{{st.picture}}">
               </a>
               <div class="card-body">
                 <p>{{st.description}}</p>

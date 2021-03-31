@@ -21,4 +21,16 @@ export class TypologyService {
   getSystem(yearCode, country, zone, buildingCode ){
     return this.http.get(`${this.baseUrl}/system/year/${yearCode}/country/${country}/zone/${zone}/building/${buildingCode}`);
   }
+  getYearCode( year ){
+    return this.http.get(`${this.baseUrl}/year/${year}`);
+  }
+  getBuildingCode( typoCode ){
+    return this.http.get(`${this.baseUrl}/code/${typoCode}`);
+  }
+  getAltitude( elevation , climateZone, country ){
+    return this.http.get(`${this.baseUrl}/altitude/country/${country}/climate/${climateZone}/height/${elevation}`);
+  }
+  getClimateSubZone( altitude, province , climateZone, country ){
+    return this.http.get(`${this.baseUrl}/climateSubZone/country/${country}/climate/${climateZone}/province/${province}/altitude/${altitude}`);
+  }
 }
