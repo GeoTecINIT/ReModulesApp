@@ -68,8 +68,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           this.propIsSelected = false;
         }
         this.building.typology = new Typology('', '', '', '',
-          this.building.climateZone, this.building.country, '', null, null);
-        console.log('La info del building !!! ', this.building);
+          this.building.climateZone, this.building.country, '', null, null, null);
         if (this.building.rc ) {
           // Best case: Request info from Inspire
           const requestINSPIRE = this.cadastreService.getBuildingInfoINSPIREParcel(this.building.rc).subscribe( parcel => {
@@ -188,7 +187,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     if ( this.isUserLogged ) {
       this.userService.addPropertyToHistory(propToSave).subscribe( res => {
         const buildingToAdd = new Building(building.country, building.climateZone, building.climateSubZone, building.year,
-          building.region, building.address, building.altitudeCode, building.coordinates, [], building.rc, building.use, 0, null);
+          building.region, building.provinceCode, building.address, building.altitudeCode, building.coordinates, [],
+          building.rc, building.use, 0, null);
         this.history.push( buildingToAdd );
         this.isAFavProperty = true;
       });
@@ -381,10 +381,14 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           const parser2 = new DOMParser();
           const dataXML = parser2.parseFromString(pro, 'text/xml');
           const data = dataXML.getElementsByTagName('bico')[0];
-          this.building.use = use;
-          this.building.surface = +infoFromParcel.area;
-          this.building.year = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
-          this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+          const year = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
+          this.typologyService.getYearCode( year ).subscribe(resYear => {
+            this.building.use = use;
+            this.building.surface = +infoFromParcel.area;
+            this.building.year = year;
+            this.building.typology.yearCode = resYear['year_code'];
+            this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+          });
         });
       } else {
         this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );

@@ -21,8 +21,11 @@
       <app-map (buildingEmitter)="receivePoint($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
                [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory"></app-map>
     </div>
-    <div *ngIf="showTypology && !showMap" id="typology" class="col-md-9" >
-      <app-typology [typologies]="typologies" [building]="building"></app-typology>
+    <div *ngIf="showTypology && !showMap && !energyScore" id="typology" class="col-md-9" >
+      <app-typology [typologies]="typologies" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)"> </app-typology>
+    </div>
+    <div *ngIf="energyScore && !showTypology && !showMap" id="energyScore" class="col-md-9" >
+      <app-score [building]="building"></app-score>
     </div>
   </div>
 

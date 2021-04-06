@@ -5,7 +5,7 @@
       </div>
     <div *ngIf="properties[0].type === URBAN_TYPE && building" >
       <div *ngIf="building && building.country" fxLayoutAlign="end">
-        <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();">
+        <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();"  routerLink='/home' routerLinkActive='active' >
           <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
         </button>
         <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">

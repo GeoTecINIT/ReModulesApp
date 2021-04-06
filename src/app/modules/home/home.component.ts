@@ -11,6 +11,9 @@ import {$e} from 'codelyzer/angular/styles/chars';
 import {OpendataService} from '../../core/opendata/opendata.service';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
+import {Energy} from '../../shared/models/energy';
+import {SystemType} from '../../shared/models/systemType';
+import {ScoreSystem} from '../../shared/models/scoreSystem';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -39,6 +42,7 @@ export class HomeComponent implements OnInit {
   currentUser: User = new User();
   showTypology: boolean;
   showMap = true;
+  energyScore: boolean;
 
   SPAIN = 'ES';
   constructor( public afAuth: AngularFireAuth,
@@ -58,7 +62,7 @@ export class HomeComponent implements OnInit {
         this.history = [];
       }
     });
-    this.building =  new Building('', '', '',  null, '', '', '', {lat: '', lng: ''}, [], '', '', 0, null);
+    this.building =  new Building('', '', '',  null, '', '', '', '', {lat: '', lng: ''}, [], '', '', 0, null);
   }
 
   ngOnInit(): void {
@@ -69,6 +73,7 @@ export class HomeComponent implements OnInit {
     this.history = null;
     this.showMap = true;
     this.showTypology = false;
+    this.energyScore = false;
     this.fromHistory = false;
     this.userService.getHistoryByUser(this.currentUser.uid).subscribe( (hist: Building ) => {
       this.fillHistory(hist);
@@ -79,18 +84,18 @@ export class HomeComponent implements OnInit {
       let country = $event.country;
       let climateZone = $event.climateZone;
       let climateSubZone = $event.climateZone;
-      let region = $event.region;
+      let region = $event.provinceCode;
       let altitude = $event.altitude;
       if ( this.building.country && this.building.climateZone ){
         country = this.building.country;
         climateZone = this.building.climateZone;
         climateSubZone = this.building.climateSubZone;
-        region = this.building.region;
+        region = this.building.provinceCode;
         altitude = this.building.altitudeCode;
       }
       this.building = null;
       this.building = new Building(country, climateZone, climateSubZone, $event.year,
-        region, $event.address, altitude, $event.coordinates, $event.properties, $event.rc,
+        region, region, $event.address, altitude, $event.coordinates, $event.properties, $event.rc,
         $event.use, null, null);
     }
     this.properties = $event.properties;
@@ -112,13 +117,14 @@ export class HomeComponent implements OnInit {
   }
   calculateTypology($event: Building): void{
     this.showTypology = true;
+    this.energyScore = false;
     this.building = $event;
     if ( !this.building.typology || ( this.building.typology && !this.building.typology.categoryCode ) ) {
       this.typologies = [];
       this.typologyService.getTypologyPics(this.building.year, this.building.country, this.building.climateZone).subscribe(res => {
         Object.values(res).forEach( cat => {
           const category = new Typology(cat.category.category_code, cat.category.name,
-            cat.year.year_code, cat.name,  this.building.climateZone,  this.building.country, cat.category.building_code, null, null);
+            cat.year.year_code, cat.name,  this.building.climateZone,  this.building.country, cat.category.building_code, null, null, null);
           this.typologies.push(category);
         });
       });
@@ -146,7 +152,7 @@ export class HomeComponent implements OnInit {
               this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
                 this.building.country = country;
                 this.building.climateZone = climateZone;
-                this.building.region = region;
+                this.building.provinceCode = region;
                 this.building.altitudeCode = altitude;
                 this.building.climateSubZone = subZone['climate_zone'];
               });
@@ -155,7 +161,7 @@ export class HomeComponent implements OnInit {
         else {
           this.building.country = country;
           this.building.climateZone = climateZone;
-          this.building.region = region;
+          this.building.provinceCode = region;
         }
       });
   }
@@ -165,8 +171,29 @@ export class HomeComponent implements OnInit {
   fillHistory(building: Building){
     this.history = [];
     Object.entries(building).forEach( ([key, value]) => {
-      this.history.push(new Building(value.country, value.climate_zone, value.climate_sub_zone, value.year, value.region,
+      this.history.push(new Building(value.country, value.climate_zone, value.climate_sub_zone, value.year, value.region, value.regionCode,
         value.address, null, { lat: value.lat, lng: value.lng}, [], value.rc, value.use, value.surface, null));
+    });
+  }
+  receiveCalculateEnergy($event): void {
+    this.typologyService.getEnergyScore($event.country, $event.climateZone,
+      $event.climateSubZone, $event.typology.yearCode, $event.typology.categoryCode).subscribe( res => {
+      const energyScore = res['energy_score_code'];
+      const emissionRanking = res['emission_ranking'];
+      const consumptionRanking = res['consumption_ranking'];
+      this.typologyService.getScoreChart(energyScore).subscribe( dataScore => {
+        const energytmp = [];
+        Object.values(dataScore).forEach( sys => {
+          energytmp.push(new ScoreSystem(+sys.demand,
+            +sys.final_energy, +sys.primary_energy, +sys.emissions, sys.system));
+        });
+        console.log('Elemento!!!! ', energytmp);
+        this.building.typology = $event.typology;
+        this.building.typology.energy = new Energy(energyScore, emissionRanking, consumptionRanking, energytmp);
+        this.energyScore = true;
+        this.showMap = false;
+        this.showTypology = false;
+      });
     });
   }
 }

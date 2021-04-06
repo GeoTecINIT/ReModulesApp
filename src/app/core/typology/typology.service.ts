@@ -7,30 +7,37 @@ import {GlobalConstants} from '../../shared/GlobalConstants';
 })
 export class TypologyService {
 
-  private baseUrl = GlobalConstants.backendURL + '/api/typology';
+  private baseUrlTypology = GlobalConstants.backendURL + '/api/typology';
+  private baseUrlBuilding = GlobalConstants.backendURL + '/api/geoData';
   constructor(private http: HttpClient) { }
 
   getTypologyPics(year, country, zone ){
-    return this.http.get(`${this.baseUrl}/pics/year/${year}/country/${country}/zone/${zone}`);
+    return this.http.get(`${this.baseUrlTypology}/pics/year/${year}/country/${country}/zone/${zone}`);
   }
 
   getEnvelope(yearCode, country, zone, category ){
-    return this.http.get(`${this.baseUrl}/envelope/year/${yearCode}/country/${country}/zone/${zone}/category/${category}`);
+    return this.http.get(`${this.baseUrlTypology}/envelope/year/${yearCode}/country/${country}/zone/${zone}/category/${category}`);
   }
 
   getSystem(yearCode, country, zone, buildingCode ){
-    return this.http.get(`${this.baseUrl}/system/year/${yearCode}/country/${country}/zone/${zone}/building/${buildingCode}`);
+    return this.http.get(`${this.baseUrlTypology}/system/year/${yearCode}/country/${country}/zone/${zone}/building/${buildingCode}`);
   }
   getYearCode( year ){
-    return this.http.get(`${this.baseUrl}/year/${year}`);
+    return this.http.get(`${this.baseUrlBuilding}/year/${year}`);
   }
   getBuildingCode( typoCode ){
-    return this.http.get(`${this.baseUrl}/code/${typoCode}`);
+    return this.http.get(`${this.baseUrlBuilding}/code/${typoCode}`);
   }
   getAltitude( elevation , climateZone, country ){
-    return this.http.get(`${this.baseUrl}/altitude/country/${country}/climate/${climateZone}/height/${elevation}`);
+    return this.http.get(`${this.baseUrlBuilding}/altitude/country/${country}/climate/${climateZone}/height/${elevation}`);
   }
   getClimateSubZone( altitude, province , climateZone, country ){
-    return this.http.get(`${this.baseUrl}/climateSubZone/country/${country}/climate/${climateZone}/province/${province}/altitude/${altitude}`);
+    return this.http.get(`${this.baseUrlBuilding}/climateSubZone/country/${country}/climate/${climateZone}/province/${province}/altitude/${altitude}`);
+  }
+  getEnergyScore(country, climateCode, ClimateZone, yearCode, categoryCode){
+    return this.http.get(`${this.baseUrlTypology}/energyScore/year_code/${yearCode}/country/${country}/climate_code/${climateCode}/climate_zone/${ClimateZone}/category_code/${categoryCode}`);
+  }
+  getScoreChart( energyScore ) {
+    return this.http.get(`${this.baseUrlTypology}/scoreChart/energy_score/${energyScore}`);
   }
 }

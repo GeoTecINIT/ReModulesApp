@@ -1,0 +1,52 @@
+<div>
+  <div class="container row col-md-12">
+    <div class="col-sm-4 col-md-4">
+      <div class="card card-accent-info">
+        <div class="card-header">
+          <h6>Energy Score</h6>
+        </div>
+        <div class="card-body" style="background-color: #faf9f8">
+          <h6>Emissions</h6>
+          <div id="generalPointer">
+            <div class="pointer" id="emissions">
+              <div class="cnt">
+                <p>{{building.typology.energy.emissionRanking}}</p>
+              </div>
+            </div>
+          </div>
+          <h6>Consumptions</h6>
+          <div class="pointer" id="consumption">
+            <div class="cnt">
+              <p> {{building.typology.energy.consumptionRanking}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-8 col-md-8">
+      <div class="card card-accent-info">
+        <div class="card-header">
+          <h6>Score chart</h6>
+        </div>
+        <div class="card-body" style="background-color: #faf9f8">
+          <ngx-charts-bar-vertical-stacked
+            [view]="view"
+            [scheme]="colorScheme"
+            [results]="dataChart"
+            [gradient]="gradient"
+            [xAxis]="showXAxis"
+            [yAxis]="showYAxis"
+            [legend]="showLegend"
+            [showXAxisLabel]="showXAxisLabel"
+            [showYAxisLabel]="showYAxisLabel"
+            [yAxisLabel]="yAxisLabel"
+            [animations]="animations"
+            [legendTitle]="legendTitle"
+            >
+          </ngx-charts-bar-vertical-stacked>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

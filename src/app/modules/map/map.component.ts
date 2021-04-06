@@ -254,9 +254,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
             this.properties[0].latlng = latLng;
-            console.log('DAtos propiedades!!! ',  this.properties);
             this.building = new Building('', '', '', this.properties[0].yearConstruction, this.properties[0].province,
-              this.properties[0].address, '', {lat: latLng['lat'], lng: latLng['lng']}, this.properties, rcGeneral, '', 0, null);
+              this.properties[0].province, this.properties[0].address, '', {lat: latLng['lat'], lng: latLng['lng']},
+              this.properties, rcGeneral, '', 0, null);
             this.buildingEmitter.emit(this.building);
           });
         });

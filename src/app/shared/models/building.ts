@@ -7,6 +7,7 @@ export interface Building  {
   climateSubZone: string;
   year: string;
   region: string;
+  provinceCode: string;
   address: string;
   altitudeCode: string;
   coordinates: { lng: any | number; lat: any };
@@ -23,6 +24,7 @@ export class Building extends Object {
     public climateSubZone: string,
     public year: string,
     public region: string,
+    public provinceCode: string,
     public address: string,
     public altitudeCode: string,
     public coordinates: { lng: any | number; lat: any },

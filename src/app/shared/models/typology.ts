@@ -1,5 +1,6 @@
 import {Envelope} from './envelope';
 import {SystemType} from './systemType';
+import {Energy} from './energy';
 
 export class Typology extends Object {
   constructor(
@@ -11,7 +12,8 @@ export class Typology extends Object {
     public country: string,
     public buildingCode: string,
     public enveloped: Envelope[],
-    public system: SystemType[]
+    public system: SystemType[],
+    public energy: Energy
   ) {
     super();
   }

@@ -32,6 +32,9 @@ import { TypologyService } from './core/typology/typology.service';
 import {AuthenticationService} from './core/authentication/authentication.service';
 import {GeodataService} from './core/wfs/geodata.service';
 import {OpendataService} from './core/opendata/opendata.service';
+import { ScoreComponent } from './modules/score/score.component';
+import {NgxChartsModule} from '@swimlane/ngx-charts';
+import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -43,7 +46,8 @@ import {OpendataService} from './core/opendata/opendata.service';
     CadastreInfoComponent,
     HistoryComponent,
     FooterComponent,
-    TypologyComponent
+    TypologyComponent,
+    ScoreComponent
   ],
   imports: [
     BrowserModule,
@@ -59,6 +63,9 @@ import {OpendataService} from './core/opendata/opendata.service';
     NgSelectModule,
     NgxSliderModule,
     FlexLayoutModule,
+    NgxChartsModule,
+    BrowserAnimationsModule,
+    NoopAnimationsModule
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

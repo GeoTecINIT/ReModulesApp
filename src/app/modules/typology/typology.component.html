@@ -115,8 +115,14 @@
     </li>
   </ul>
 
-  <div class="typologyInfo container" [ngbNavOutlet]="nav"
+  <div class="typologyInfo" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="30px" >
+    <a class="btn calculateTyp" role="button"  routerLink='/score' routerLinkActive='active' (click)="calculateEfficiency();" *ngIf="building.typology.enveloped.length > 0">
+      <span> <i class="fa fa-cog" aria-hidden="true"></i> Calculate</span>
+    </a>
+  </div>
+  <div class=" container" [ngbNavOutlet]="nav"
        fxLayout="column"
-       fxLayoutGap="30px" > </div>
+       fxLayoutGap="30px" >
+  </div>
 </div>
 

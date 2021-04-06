@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Typology} from '../../shared/models/typology';
 import {TypologyService} from '../../core/typology/typology.service';
 import {Envelope} from '../../shared/models/envelope';
@@ -17,6 +17,7 @@ export class TypologyComponent implements OnInit, OnChanges {
   selectTypology = true;
   @Input() typologies: Typology[];
   @Input() building: Building;
+  @Output() calculateEnergyEmitter = new EventEmitter<Building>();
   constructor( private typologyService: TypologyService) { }
 
   ngOnInit(): void {
@@ -42,6 +43,7 @@ export class TypologyComponent implements OnInit, OnChanges {
     this.building.typology.enveloped = [];
     this.building.typology.system = [];
     this.active = 2;
+    console.log('Tipologia!!! ', category);
     this.typologyService.getEnvelope(this.building.typology.yearCode, this.building.country,
       this.building.climateZone, this.building.typology.categoryCode ).subscribe(res => {
       Object.values(res).forEach( env => {
@@ -56,5 +58,8 @@ export class TypologyComponent implements OnInit, OnChanges {
           sys.system_code, sys.System_code.description_system, sys.System_code.pictures));
       });
     });
+  }
+  calculateEfficiency( ) {
+    this.calculateEnergyEmitter.emit(this.building);
   }
 }
