@@ -35,6 +35,7 @@ import {OpendataService} from './core/opendata/opendata.service';
 import { ScoreComponent } from './modules/score/score.component';
 import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {NgxSpinnerModule} from 'ngx-spinner';
 
 @NgModule({
   declarations: [
@@ -65,7 +66,8 @@ import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-b
     FlexLayoutModule,
     NgxChartsModule,
     BrowserAnimationsModule,
-    NoopAnimationsModule
+    NoopAnimationsModule,
+    NgxSpinnerModule
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

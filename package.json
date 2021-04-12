@@ -43,6 +43,7 @@
     "leaflet.markercluster": "^1.4.1",
     "ngx-bootstrap": "^6.2.0",
     "ngx-perfect-scrollbar": "^10.0.1",
+    "ngx-spinner": "^11.0.1",
     "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
     "proj4": "^2.7.0",

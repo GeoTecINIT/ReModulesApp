@@ -43,7 +43,6 @@ export class TypologyComponent implements OnInit, OnChanges {
     this.building.typology.enveloped = [];
     this.building.typology.system = [];
     this.active = 2;
-    console.log('Tipologia!!! ', category);
     this.typologyService.getEnvelope(this.building.typology.yearCode, this.building.country,
       this.building.climateZone, this.building.typology.categoryCode ).subscribe(res => {
       Object.values(res).forEach( env => {

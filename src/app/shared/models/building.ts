@@ -11,6 +11,7 @@ export interface Building  {
   address: string;
   altitudeCode: string;
   coordinates: { lng: any | number; lat: any };
+  point: { x: any; y: any};
   properties: Property[];
   rc: string;
   use: string;
@@ -28,6 +29,7 @@ export class Building extends Object {
     public address: string,
     public altitudeCode: string,
     public coordinates: { lng: any | number; lat: any },
+    public point: { x: any; y: any},
     public properties: Property[],
     public rc: string,
     public use: string,

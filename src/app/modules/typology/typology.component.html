@@ -3,7 +3,7 @@
     <li [ngbNavItem]="1" class="nav-item" *ngIf="selectTypology">
       <a ngbNavLink >Typology</a>
       <ng-template ngbNavContent>
-        <div >
+        <div *ngIf="building.typology">
           <p><b>Building:</b> {{building.typology.categoryName}}</p>
           <hr>
         </div>
@@ -35,7 +35,7 @@
         </div>
       </ng-template>
     </li>
-    <li [ngbNavItem]="2" class="nav-item" [disabled]="!building.typology.categoryName">
+    <li [ngbNavItem]="2" class="nav-item" [disabled]="!building.typology.categoryName" *ngIf="building.typology">
       <a ngbNavLink >Building Data</a>
       <ng-template ngbNavContent>
         <div >
@@ -46,9 +46,6 @@
           <h3>
             Building Data
           </h3>
-          <p>
-            2.
-          </p>
           <hr>
         </div>
         <div fxLayout="row"
@@ -75,7 +72,7 @@
         </div>
       </ng-template>
     </li>
-    <li [ngbNavItem]="3" class="nav-item" [disabled]="!building.typology.categoryName">
+    <li [ngbNavItem]="3" class="nav-item" [disabled]="!building.typology.categoryName" *ngIf="building.typology">
       <a ngbNavLink>System Type</a>
       <ng-template ngbNavContent>
         <div>
@@ -86,9 +83,6 @@
           <h3>
             System Type
           </h3>
-          <p>
-            3.
-          </p>
           <hr>
         </div>
         <div fxLayout="row"
@@ -116,11 +110,11 @@
   </ul>
 
   <div class="typologyInfo" fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="30px" >
-    <a class="btn calculateTyp" role="button"  routerLink='/score' routerLinkActive='active' (click)="calculateEfficiency();" *ngIf="building.typology.enveloped.length > 0">
+    <a class="btn calculateTyp" role="button"  routerLink='/score' routerLinkActive='active' (click)="calculateEfficiency();" *ngIf="building.typology && building.typology.enveloped && building.typology.enveloped.length > 0">
       <span> <i class="fa fa-cog" aria-hidden="true"></i> Calculate</span>
     </a>
   </div>
-  <div class=" container" [ngbNavOutlet]="nav"
+  <div class="container" [ngbNavOutlet]="nav"
        fxLayout="column"
        fxLayoutGap="30px" >
   </div>

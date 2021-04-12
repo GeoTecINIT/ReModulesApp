@@ -1,10 +1,10 @@
 <div *ngIf="!hasError">
-  <div *ngIf="!propIsSelected && properties.length > 0" class="information">
-      <div *ngIf="properties[0].type === RURAL_TYPE" style="text-align: center;">
+  <div class="information">
+      <div *ngIf="ruralBuilding" style="text-align: center;">
         <h4>Rural property. Please try with another location</h4>
       </div>
-    <div *ngIf="properties[0].type === URBAN_TYPE && building" >
-      <div *ngIf="building && building.country" fxLayoutAlign="end">
+    <div *ngIf="building && !ruralBuilding && selectBuilding" >
+      <div *ngIf="building && building.country && building.year" fxLayoutAlign="end">
         <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();"  routerLink='/home' routerLinkActive='active' >
           <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
         </button>
@@ -18,16 +18,19 @@
             <h5> Province: {{ building.region }} </h5>
             <p>Address: <i class="fa fa-map-marker" aria-hidden="true"></i> {{building.address}}
             </p>
-            <div class="infoBuilding" >
+            <div class="infoBuilding">
               <p>Year of construction: {{building.year}}</p>
-              <p *ngIf="building.use">Use: {{building.use}}</p>
-              <p *ngIf="building.surface">Surface: {{building.surface}}&nbsp; &#13217;</p>
-              <p *ngIf="building.typology && building.typology.categoryCode"> Typology: {{building.typology.categoryName}}</p>
+              <div class="col-md-6" [hidden]="!selectYear">
+                <label for="selectYear">Select year</label>
+                <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();"></ng-select>
+              </div>
+              <p [hidden]="!building.use">Use: {{building.use}}</p>
+              <p [hidden]="!building.surface">Surface: {{building.surface}}&nbsp; &#13217;</p>
+              <p [hidden]="!building.typology"> Typology: <span *ngIf="building.typology">{{building.typology.categoryName}}</span></p>
             </div>
-
-            <p>{{properties.length}} PROPERTIES</p>
-            <div style="text-align: center" *ngIf="properties[0].image">
-              <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
+            <p [hidden]="properties.length < 1">{{properties.length}} PROPERTIES</p>
+            <div style="text-align: center" [hidden]="properties.length < 1">
+              <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' *ngIf=" properties.length > 0 && properties[0].image" />
             </div>
             <div style="text-align: right">
               <div *ngIf="isUserLogged && !searchFromHistory" >
@@ -47,7 +50,7 @@
           </div>
         </div>
       </div>
-      <div  class="seeMore">
+      <div [hidden]="properties.length < 1" class="seeMore">
         <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
           <div class="arrowFromLeft">
             <svg xmlns="http://www.w3.org/2000/svg" width="5.002" height="8.576" viewBox="0 0 5.002 8.576">
@@ -59,9 +62,9 @@
       <div class="collapse" id="propertiesInfo">
         <div style="text-align: right">
           <a class="btn filterButton" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">
-      <span>
-        <i class="fa fa-filter" aria-hidden="true"></i>
-      </span>Filters</a>
+        <span>
+          <i class="fa fa-filter" aria-hidden="true"></i>
+        </span>Filters</a>
         </div>
 
         <div class="collapse card filtersBuilding" id="filters">
@@ -125,6 +128,9 @@
     </div>
   </div>
 </div>
+<ngx-spinner [fullScreen]="false" type="ball-clip-rotate-multiple" size="medium">
+  <p class="loading">Loading ...</p>
+</ngx-spinner>
 <div *ngIf="hasError">
   <div class="container">
     <h6> {{error}}</h6>

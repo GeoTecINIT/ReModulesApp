@@ -74,7 +74,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       }
     }
     if ( changes.building && changes.building.currentValue && !changes.building.firstChange){
-      console.log('Entre en el building!!!! ', changes);
       if (  changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
         changes.building.currentValue[0].error_service )) {
         this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
@@ -90,18 +89,22 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             return;
           }
         });
-        if ( !buildingFromHist ) {
-          const textPopup = '<h6> ' + this.building.address
-            + '</h6>' + '<p> Cadastre reference: ' + this.building.rc + '</p>';
+        if ( !buildingFromHist  && this.building.coordinates) {
+          const rcInfo =  '<p> Cadastre reference: ' + this.building.rc + '</p>';
+          const textPopup = '<h6> ' + this.building.address  + '</h6>';
           this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
           this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
           this.marker.bindPopup(textPopup).openPopup();
+          if ( this.building.rc && this.building.rc.length > 1) {
+            this.marker.bindPopup(textPopup + rcInfo).openPopup();
+          } else {
+            this.marker.bindPopup(textPopup).openPopup();
+          }
         } else if ( changes.fromHistory && changes.fromHistory.currentValue ) {
           this.removeGroupMarkers();
           this.history.forEach( (prop: Building) => {
             if ( prop.rc === this.building.rc ) {
-              const textPopup = '<h6> ' + prop.address
-                + '</h6>' + '<p> Cadastre reference: ' + prop.rc + '</p>';
+              const textPopup = '<h6> ' + prop.address  + '</h6>' +  '<p> Cadastre reference: ' + prop.rc + '</p>';
               this.marker = L.marker(L.latLng(prop.coordinates.lat, prop.coordinates.lng)).addTo(this.map);
               this.map.setView(L.latLng(prop.coordinates.lat, prop.coordinates.lng), 15);
               this.marker.bindPopup(textPopup).openPopup();
@@ -177,8 +180,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           return;
         }
         address = result.address.Address;
-        this.coordinatesEmitter.emit(ev.latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
+        if ( this.building.rc ) this.building.rc = '';
+        this.coordinatesEmitter.emit({latlng: ev.latlng, x: this.point.x, y: this.point.y, address});
+        //this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
       });
     });
 
@@ -197,8 +201,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
         this.point = crs.project(data.results[i].latlng);
-        this.coordinatesEmitter.emit(data.results[i].latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
+        if ( this.building.rc ) this.building.rc = '';
+        let address = '';
+        address = data.results[i].text;
+        this.coordinatesEmitter.emit({latlng: data.results[i].latlng, x: this.point.x, y: this.point.y, address});
+        //this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });
   }
@@ -253,9 +260,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
             const urlCreator = window.URL;
             this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
-            this.properties[0].latlng = latLng;
+            this.properties[0].latlng = { lat: latLng['lat'], lng: latLng['lng']};
             this.building = new Building('', '', '', this.properties[0].yearConstruction, this.properties[0].province,
-              this.properties[0].province, this.properties[0].address, '', {lat: latLng['lat'], lng: latLng['lng']},
+              '', this.properties[0].address, '', {lat: latLng['lat'], lng: latLng['lng']}, null,
               this.properties, rcGeneral, '', 0, null);
             this.buildingEmitter.emit(this.building);
           });
@@ -284,7 +291,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
 
     if ( propType === 'RU') {
       return new Property(rc, addressMain, '', '', '', '', '', '', '', 'rural',
-        '', '', '', '', '', [], '', '', '');
+        '', '', '', '', '', null, '', '', '');
     } else {
       const tagLocInt = prop.getElementsByTagName('loint')[0];
       const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
@@ -306,7 +313,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       const textDoor = door !== '' ? 'Puerta: ' + door : '';
       logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
       return new Property(rc, addressMain, plant, logInt, '', postalCode, prov, town, '', 'urban',
-        '', '', '', '', '', [], block, stair, door);
+        '', '', '', '', '', null, block, stair, door);
     }
 
   }
