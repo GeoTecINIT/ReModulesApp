@@ -1,4 +1,30 @@
 <div>
+  <div  fxLayout="row" fxLayoutAlign="end center" class="favoriteSection">
+    <div *ngIf="isUserLogged && !searchFromHistory" >
+      <a href="#" (click)="addToFavorites(building);" *ngIf="!building.favorite"> Save to history
+        <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
+      </a>
+      <a href="#" (click)="removeFromFavorites(building);" *ngIf="building.favorite"> Saved to history
+        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+      </a>
+    </div>
+    <div *ngIf="isUserLogged && searchFromHistory" >
+      <a href="#" style="text-align: right;" (click)="removeFromFavorites(building);" *ngIf="building.favorite"> Saved to history
+        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
+      </a>
+    </div>
+  </div>
+  <div class="container">
+    <div class="card card-accent-info">
+      <div class="card-header">
+        <h6>Building Information </h6>
+      </div>
+      <div class="card-body" style="background-color: #faf9f8">
+        <p>Building type: {{building.typology.categoryName}}</p>
+        <p>Year of construction: {{building.year}}</p>
+      </div>
+    </div>
+  </div>
   <div class="container row col-md-12">
     <div class="col-sm-4 col-md-4">
       <div class="card card-accent-info">

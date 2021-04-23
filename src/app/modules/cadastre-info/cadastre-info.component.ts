@@ -71,44 +71,46 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
       } else {
         this.propertiesFilter = changes.building.currentValue.properties;
-        this.isAFavoriteProperty(this.building);
         this.hasError = false;
         if ( !changes.building.firstChange ) {
           this.propSelected = null;
           this.propIsSelected = false;
         }
-        this.building.typology = new Typology('', '', '', '',
-          this.building.climateZone, this.building.country, '', null, null, null);
         this.selectYear = false;
         this.selectedYear = null;
         this.ruralBuilding = false;
-        // Best case: Services gives all
-        if ( this.building.provinceCode === '46') {
-          this.spinner.show();
+        if ( !this.building.favorite ) {
+          this.building.typology = new Typology('', '', '', '',
+            '', null, null, null);
+          // Best case: Services gives all
+          if ( this.building.provinceCode === '46') {
+            this.spinner.show();
+            this.selectBuilding = true;
+            this.getInfoFromCadastre(true);
+          }
+          // Case when services only get year
+          else if ( this.building.provinceCode === '12') {
+            this.spinner.show();
+            this.selectBuilding = true;
+            this.getInfoFromCadastre(false);
+          }
+          // Case everything is request to user
+          else if ( this.building.provinceCode === '03') {
+            const buildingTmp  = this.building;
+            this.building = null;
+            this.spinner.show();
+            this.selectBuilding = true;
+            this.selectYear = true;
+            this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
+              '', buildingTmp.region, buildingTmp.provinceCode,
+              buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point, [], null, '', null, null, false);
+            this.properties = [];
+            this.propertiesFilter = [];
+            this.spinner.hide();
+          }
+        } else {
           this.selectBuilding = true;
-          this.getInfoFromCadastre(true);
         }
-        // Case when services only get year
-        else if ( this.building.provinceCode === '12') {
-          this.spinner.show();
-          this.selectBuilding = true;
-          this.getInfoFromCadastre(false);
-        }
-        // Case everything is request to user
-        else if ( this.building.provinceCode === '03') {
-          const buildingTmp  = this.building;
-          this.building = null;
-          this.spinner.show();
-          this.selectBuilding = true;
-          this.selectYear = true;
-          this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
-            '', buildingTmp.region, buildingTmp.provinceCode,
-            buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point, [], null, '', null, null);
-          this.properties = [];
-          this.propertiesFilter = [];
-          this.spinner.hide();
-        }
-
       }
     }
     if (changes.history && changes.history.currentValue &&
@@ -158,58 +160,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       surfaceGraph, participation, this.facadeImage, null, '', '', '');
   }
 
-  /**
-   *  Added the property selected as a favorite in user history
-   * @param building
-   */
-  addToFavorites( building: Building ): void{
-    const propToSave = {
-      country: building.country,
-      climate_zone: building.climateZone,
-      year: building.year,
-      rc: building.rc,
-      address: building.address,
-      uid: this.currentUser.uid,
-      lat: +building.coordinates.lat,
-      lng: +building.coordinates.lng,
-    };
-    if ( this.isUserLogged ) {
-      this.userService.addPropertyToHistory(propToSave).subscribe( res => {
-        const buildingToAdd = new Building(building.country, building.climateZone, building.climateSubZone, building.year,
-          building.region, building.provinceCode, building.address, building.altitudeCode, building.coordinates, null, [],
-          building.rc, building.use, 0, null);
-        this.history.push( buildingToAdd );
-        this.isAFavProperty = true;
-      });
-    }
-  }
-
-  removeFromFavorites( building: Building): void{
-    if ( this.isUserLogged ) {
-      this.userService.removePropertyFromHistory( building.rc,  this.currentUser.uid).subscribe( res => {
-        this.history.forEach( prop => {
-          if ( prop.rc === building.rc ) {
-            const index = this.history.indexOf(prop, 0);
-            this.history.splice(index, 1);
-            this.isAFavProperty = false;
-            return;
-          }
-        });
-      });
-    }
-  }
-
-  isAFavoriteProperty(property: Building): void {
-    this.isAFavProperty = false;
-    if ( this.history ) {
-      this.history.forEach(prop => {
-        if ( prop.rc === property.rc ) {
-          this.isAFavProperty = true;
-          return;
-        }
-      });
-    }
-  }
 
   filterBuilding(): void {
     if ( this.modelFilters.filtBl !== '' ||  this.modelFilters.filtEs !== '' ||
@@ -399,7 +349,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   selectYearOption() {
     this.building.year = String(this.selectedYear);
   }
-  getInfoFromCadastre(getTypology:boolean) {
+  getInfoFromCadastre(getTypology: boolean) {
     const buildingTmp = this.building;
     this.cadastreService.getRCByCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
       this.building = null;
@@ -434,6 +384,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
               const property = this.getInfoPropGeneral(detail, addressMain);
               this.properties.push(property);
             }
+            this.propertiesFilter = this.properties;
           }
           if ( !this.ruralBuilding ) {
             this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {

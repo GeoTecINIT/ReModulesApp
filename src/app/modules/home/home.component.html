@@ -25,7 +25,7 @@
       <app-typology [typologies]="typologies" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)"> </app-typology>
     </div>
     <div *ngIf="energyScore && !showTypology && !showMap" id="energyScore" class="col-md-9" >
-      <app-score [building]="building"></app-score>
+      <app-score [building]="building" [history]="history"></app-score>
     </div>
   </div>
 

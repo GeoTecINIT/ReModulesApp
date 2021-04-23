@@ -16,6 +16,7 @@ import {SystemType} from '../../shared/models/systemType';
 import {ScoreSystem} from '../../shared/models/scoreSystem';
 import {CadastreService} from '../../core/cadastre/cadastre.service';
 import {DomSanitizer} from '@angular/platform-browser';
+import {Envelope} from '../../shared/models/envelope';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -51,9 +52,7 @@ export class HomeComponent implements OnInit {
                private userService: UserService,
                private typologyService: TypologyService,
                private geodataService: GeodataService,
-               private opendataService: OpendataService,
-               private cadastreService: CadastreService,
-               private sanitizer: DomSanitizer) {
+               private opendataService: OpendataService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.isUserLogged = true;
@@ -66,7 +65,8 @@ export class HomeComponent implements OnInit {
         this.history = [];
       }
     });
-    this.building =  new Building('', '', '',  null, '', '', '', '', {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null);
+    this.building =  new Building('', '', '',  null, '', '', '', '',
+      {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false);
   }
 
   ngOnInit(): void {
@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
       this.building = null;
       this.building = new Building(country, climateZone, climateSubZone, $event.year,
         $event.region, provinceCode, $event.address, altitude, $event.coordinates, $event.point, $event.properties, $event.rc,
-        $event.use, null, null);
+        $event.use, null, null, false);
     }
     this.properties = $event.properties;
     this.active = 1;
@@ -108,6 +108,7 @@ export class HomeComponent implements OnInit {
     this.fromHistory = false;
   }
   receivePropFromHistory($event): void{
+    console.log('Recibido!!! ', $event);
     this.building = $event;
     this.fromHistory = true;
     this.showTypology = false;
@@ -118,16 +119,17 @@ export class HomeComponent implements OnInit {
   }
   receiveCoordinates($event): void {
     this.calculateGeoData($event);
+    this.active = 1;
   }
   calculateTypology($event: Building): void{
-    this.showTypology = true;
-    this.energyScore = false;
+    this.showTypology =  !($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
+    this.energyScore = !!($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
     if ( !$event.typology || ( $event.typology && !$event.typology.categoryCode ) ) {
       this.typologies = [];
       this.typologyService.getTypologyPics($event.year, $event.country, $event.climateZone).subscribe(res => {
         Object.values(res).forEach( cat => {
           const category = new Typology(cat.category.category_code, cat.category.name,
-            cat.year.year_code, cat.name,  $event.climateZone,  $event.country, cat.category.building_code, null, null, null);
+            cat.year.year_code, cat.name,  cat.category.building_code, null, null, null);
           this.typologies.push(category);
           this.building.year = $event.year;
         });
@@ -163,7 +165,7 @@ export class HomeComponent implements OnInit {
                 this.building =  new Building(country, climateZone, subZone['climate_zone'], buildingTmp.year,
                   nameRegion , region, buildingTmp.address,
                   altitude, coordinates, { x, y}, [], buildingTmp.rc,
-                  '', 0, null);
+                  '', 0, null, false);
               });
             });
         }
@@ -171,18 +173,38 @@ export class HomeComponent implements OnInit {
           this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, buildingTmp.year,
             buildingTmp.region, region, buildingTmp.address,
             buildingTmp.altitudeCode, coordinates, { x, y}, buildingTmp.properties, buildingTmp.rc,
-            buildingTmp.use, buildingTmp.surface, buildingTmp.typology);
+            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
         }
       });
   }
   showMapControl($event: boolean): void{
     this.showMap = $event;
   }
-  fillHistory(building: Building){
+  fillHistory( historyFromService ){
     this.history = [];
-    Object.entries(building).forEach( ([key, value]) => {
-      this.history.push(new Building(value.country, value.climate_zone, value.climate_sub_zone, value.year, value.region, value.regionCode,
-        value.address, null, { lat: value.lat, lng: value.lng}, null, [], value.rc, value.use, value.surface, null));
+    Object.values(historyFromService).forEach( history => {
+      const buildingData = history['building'];
+      const envelope = [];
+      const system = [];
+      const scoreChart = [];
+      const scoreSystem = history['energy_scores'][0];
+      Object.values(history['envelopeds']).forEach( env => {
+        envelope.push( new Envelope(env['enveloped_code'], '', env['description'], env['u_value'], env['picture'], ''));
+      });
+      Object.values(history['system_codes']).forEach( sys => {
+        system.push( new SystemType(sys['system_type'], sys['system_code'], sys['description_system'], sys['pictures']));
+      });
+      Object.values(history['score_charts']).forEach( sch => {
+        scoreChart.push( new ScoreSystem(sch['score_chart_code'], sch['demand'], sch['final_energy'],
+          sch['primary_energy'], sch['emissions'], sch['system']));
+      });
+      const energy = new Energy(scoreSystem.energy_score_code, scoreSystem.emission_ranking, scoreSystem.consumption_ranking, scoreChart);
+      const typology = new Typology( history['typology_code'], history['typology_name'], history['year_code'], history['picture'],
+        history['building_code'], envelope, system, energy);
+      this.history.push( new Building( buildingData.country, buildingData.climate_zone, buildingData.climate_sub_zone, history['year'],
+        buildingData.province_name, buildingData.province_code, buildingData.address, buildingData.altitude_code,
+        { lat: buildingData.lat, lng: buildingData.lng}, { x: buildingData.x, y: buildingData.y}, [], buildingData.rc,
+        buildingData.use, buildingData.surface, typology, true));
     });
   }
   receiveCalculateEnergy($event): void {
@@ -194,7 +216,7 @@ export class HomeComponent implements OnInit {
       this.typologyService.getScoreChart(energyScore).subscribe( dataScore => {
         const energytmp = [];
         Object.values(dataScore).forEach( sys => {
-          energytmp.push(new ScoreSystem(+sys.demand,
+          energytmp.push(new ScoreSystem(sys.score_chart_code, +sys.demand,
             +sys.final_energy, +sys.primary_energy, +sys.emissions, sys.system));
         });
         this.building.typology = $event.typology;

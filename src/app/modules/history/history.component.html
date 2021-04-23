@@ -6,7 +6,6 @@
       </span>Filters</a>
     <div class="collapse" id="filters">
       <div class="card card-body form">
-
           <label for="filterYear"> Year: </label>
           <ng-select id="filterYear" class="filter" [(ngModel)]="yearSelected" [disabled]="!yearControl"
                      (change)="filter('year');">
@@ -17,6 +16,18 @@
                      (change)="filter('use');">
             <ng-option *ngFor="let use of usesFilter" [value]="use">{{use}}</ng-option>
           </ng-select>
+
+          <label for="buildingType"> Building Type: </label>
+          <ng-select id="buildingType" class="filter" [(ngModel)]="typologySelected" [disabled]="!typologyControl"
+                     (change)="filter('typology');">
+            <ng-option *ngFor="let typo of typologyFilter" [value]="typo.value">{{typo.name}}</ng-option>
+          </ng-select>
+
+          <label for="emissionRanking"> Emision ranking: </label>
+          <ng-select id="emissionRanking" class="filter" [(ngModel)]="emissionSelected" [disabled]="!emissionControl"
+                     (change)="filter('emission');">
+            <ng-option *ngFor="let em of emissionFilter" [value]="em">{{em}}</ng-option>
+          </ng-select>
           <label for="filterYear"> Surface: </label>
         <div class="custom-slider">
           <ngx-slider [(value)]="surfaceFilter.floor" [(highValue)]="surfaceFilter.ceil" [options]="surfaceFilter" (userChangeEnd)="filterSurface($event)" ></ngx-slider>
@@ -25,12 +36,13 @@
     </div>
   </div>
   <ul>
-    <li *ngFor="let mk of historyFiltered">
+    <li *ngFor="let mk of historyFiltered; let i = index">
       <div fxLayout="row" fxLayoutAlign="space-between center" >
         <a href="#" (click)="getInfoByRC(mk)">{{mk.address}}</a>
         <!--button (click)="removeFromFavorites(mk);"><span><i class="fa fa-times" aria-hidden="true"></i></span></button-->
       </div>
-      <p>{{mk.rc}}</p>
+      <p>Building Type: {{mk.typology.categoryName}}</p>
+      <p>Emission Ranking: {{mk.typology.energy.emissionRanking}}</p>
     </li>
   </ul>
 </div>

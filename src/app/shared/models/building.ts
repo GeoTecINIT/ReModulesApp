@@ -17,6 +17,7 @@ export interface Building  {
   use: string;
   surface: number;
   typology: Typology;
+  favorite: boolean;
 }
 export class Building extends Object {
   constructor(
@@ -34,7 +35,8 @@ export class Building extends Object {
     public rc: string,
     public use: string,
     public surface: number,
-    public typology: Typology
+    public typology: Typology,
+    public favorite: boolean
   ) {
     super();
   }

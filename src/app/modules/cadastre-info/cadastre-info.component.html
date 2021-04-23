@@ -32,22 +32,6 @@
             <div style="text-align: center" [hidden]="properties.length < 1">
               <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' *ngIf=" properties.length > 0 && properties[0].image" />
             </div>
-            <div style="text-align: right">
-              <div *ngIf="isUserLogged && !searchFromHistory" >
-                <a href="#" (click)="addToFavorites(building);" *ngIf="!isAFavProperty"> Save to history
-                  <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
-                </a>
-                <a href="#" (click)="removeFromFavorites(building);" *ngIf="isAFavProperty"> Saved to history
-                  <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-                </a>
-              </div>
-              <div *ngIf="isUserLogged && searchFromHistory" >
-                <a href="#" style="text-align: right;" (click)="removeFromFavorites(building);" *ngIf="isAFavProperty"> Saved to history
-                  <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       <div [hidden]="properties.length < 1" class="seeMore">
@@ -101,9 +85,10 @@
     </div>
 
   </div>
+  </div>
   <div class="detail"  *ngIf="propIsSelected && propSelected !== null">
     <div class="row">
-      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false; isAFavoriteProperty(building);"><i class="fa fa-arrow-left"></i> RETURN</button>
+      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
     </div>
     <div class="card">
       <div class="card-header">

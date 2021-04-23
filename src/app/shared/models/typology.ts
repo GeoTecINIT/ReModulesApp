@@ -8,8 +8,6 @@ export class Typology extends Object {
     public categoryName: string,
     public yearCode: string,
     public picName: string,
-    public zone: string,
-    public country: string,
     public buildingCode: string,
     public enveloped: Envelope[],
     public system: SystemType[],
