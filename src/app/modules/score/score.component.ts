@@ -93,7 +93,7 @@ export class ScoreComponent implements OnInit, AfterViewInit {
   }
   ngAfterViewInit(): void {
     const elemEm: HTMLElement = document.getElementById('emissions');
-    const color = GlobalConstants.colors[this.building.typology.energy.emissionRanking].color;
+    const color = GlobalConstants.colorsEmission[this.building.typology.energy.emissionRanking].color;
     elemEm.style.setProperty('--check-primary', color);
     elemEm.style.setProperty('--check-secondary', '1.25em solid ' + color);
 
