@@ -1,14 +1,11 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpEvent, HttpHeaders, HttpParams} from '@angular/common/http';
-import {DomSanitizer} from '@angular/platform-browser';
-import { GlobalConstants} from '../../shared/GlobalConstants';
 import {Observable} from 'rxjs';
-import {catchError} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CadastreService {
+export class CadastreESService {
 
   private cadastreByCoordinateURL  = '/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR';
   private cadastreByRcURL = '/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';

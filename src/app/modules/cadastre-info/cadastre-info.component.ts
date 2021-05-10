@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Property} from '../../shared/models/property';
-import {CadastreService} from '../../core/cadastre/cadastre.service';
+import { CadastreESService } from '../../core/cadastre/ES/cadastreES.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
@@ -9,6 +9,7 @@ import {Building} from '../../shared/models/building';
 import {Typology} from '../../shared/models/typology';
 import {TypologyService} from '../../core/typology/typology.service';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {CadastreNLService} from '../../core/cadastre/NL/cadastre-nl.service';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -27,13 +28,12 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   searchFromHistory: boolean;
   modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
   propertiesFilter: Property[];
-  RURAL_TYPE = 'rural';
-  URBAN_TYPE = 'urban';
   mapControl: boolean;
   ruralBuilding: boolean;
   selectBuilding: boolean;
 
-  //VAriables temp for 3 cases
+  textSpinner: string;
+  // Variables temp for 3 cases
   selectYear = false;
   years: number[];
   selectedYear: number;
@@ -43,9 +43,13 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   @Input() building: Building;
   @Output() showMapEmitter = new EventEmitter<boolean>();
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
-  constructor(private cadastreService: CadastreService, private sanitizer: DomSanitizer,
-              public afAuth: AngularFireAuth, private userService: UserService,
-              private typologyService: TypologyService, private spinner: NgxSpinnerService) {
+  constructor(private cadastreServiceES: CadastreESService,
+              private cadastreNLService: CadastreNLService,
+              private sanitizer: DomSanitizer,
+              public afAuth: AngularFireAuth,
+              private userService: UserService,
+              private typologyService: TypologyService,
+              private spinner: NgxSpinnerService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.currentUser = new User(user);
@@ -61,6 +65,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     for (let i = 1950; i <= new Date().getFullYear(); i++) {
       this.years.push(i);
     }
+    this.textSpinner = 'Loading ...';
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -82,31 +87,39 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         if ( !this.building.favorite ) {
           this.building.typology = new Typology('', '', '', '',
             '', null, null, null);
-          // Best case: Services gives all
-          if ( this.building.provinceCode === '46') {
+          if ( this.building.country === 'NL') {
             this.spinner.show();
             this.selectBuilding = true;
-            this.getInfoFromCadastre(true);
+            this.getInfoFromCadastre_NL();
+          } else {
+            // Best case: Services gives all
+            if ( this.building.provinceCode === '46') {
+              this.spinner.show();
+              this.textSpinner = 'Waiting for the cadastre service ... ';
+              this.selectBuilding = true;
+              this.getInfoFromCadastre_ES(true);
+            }
+            // Case when services only get year
+            else if ( this.building.provinceCode === '12') {
+              this.spinner.show();
+              this.textSpinner = 'Waiting for the cadastre service ... ';
+              this.selectBuilding = true;
+              this.getInfoFromCadastre_ES(false);
+            }
+            // Case everything is request to user
+            else if ( this.building.provinceCode === '03') {
+              const buildingTmp  = this.building;
+              this.building = null;
+              this.spinner.show();
+              this.selectBuilding = true;
+              this.selectYear = true;
+              this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
+                '', buildingTmp.region, buildingTmp.provinceCode,
+                buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point, [], null, '', null, null, false);
+              this.properties = [];
+              this.propertiesFilter = [];
+              this.spinner.hide();
           }
-          // Case when services only get year
-          else if ( this.building.provinceCode === '12') {
-            this.spinner.show();
-            this.selectBuilding = true;
-            this.getInfoFromCadastre(false);
-          }
-          // Case everything is request to user
-          else if ( this.building.provinceCode === '03') {
-            const buildingTmp  = this.building;
-            this.building = null;
-            this.spinner.show();
-            this.selectBuilding = true;
-            this.selectYear = true;
-            this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
-              '', buildingTmp.region, buildingTmp.provinceCode,
-              buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point, [], null, '', null, null, false);
-            this.properties = [];
-            this.propertiesFilter = [];
-            this.spinner.hide();
           }
         } else {
           this.selectBuilding = true;
@@ -132,7 +145,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
    */
   getDetailFromRC(rc: any): void{
     this.initialData();
-    this.cadastreService.getBuildingDetailsByRC(rc).subscribe(( pro) => {
+    this.cadastreServiceES.getBuildingDetailsByRC(rc).subscribe(( pro) => {
       const parser2 = new DOMParser();
       const dataXML = parser2.parseFromString(pro, 'text/xml');
       const data = dataXML.getElementsByTagName('bico')[0];
@@ -152,7 +165,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
     const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
-    this.cadastreService.getFacadeImage(rc).subscribe( (baseImage: any) => {
+    this.cadastreServiceES.getFacadeImage(rc).subscribe( (baseImage: any) => {
       const urlCreator = window.URL;
       this.facadeImage = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
     });
@@ -249,7 +262,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.showMapEmitter.emit(true);
   }
   getYearFromCadastre(): void {
-    this.cadastreService.getBuildingDetailsByRC(this.properties[0].rc).subscribe((pro) => {
+    this.cadastreServiceES.getBuildingDetailsByRC(this.properties[0].rc).subscribe((pro) => {
       const parser2 = new DOMParser();
       const dataXML = parser2.parseFromString(pro, 'text/xml');
       const data = dataXML.getElementsByTagName('bico')[0];
@@ -318,7 +331,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     const use = useCut[useCut.length - 1];
     if (use === 'residential' ) {
       if ( this.properties.length > 0   && !this.building.year) {
-        this.cadastreService.getBuildingDetailsByRC(this.properties[0].rc).subscribe((pro) => {
+        this.cadastreServiceES.getBuildingDetailsByRC(this.properties[0].rc).subscribe((pro) => {
           const parser2 = new DOMParser();
           const dataXML = parser2.parseFromString(pro, 'text/xml');
           const data = dataXML.getElementsByTagName('bico')[0];
@@ -349,9 +362,20 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   selectYearOption() {
     this.building.year = String(this.selectedYear);
   }
-  getInfoFromCadastre(getTypology: boolean) {
+  getInfoFromCadastre_NL( ) {
     const buildingTmp = this.building;
-    this.cadastreService.getRCByCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
+    this.cadastreNLService.getGeneralInfoBuildingBYCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
+      const buildingInfo = JSON.parse(data).features[0].properties;
+      buildingTmp.year = buildingInfo.bouwjaar;
+      buildingTmp.use =  buildingInfo.gebruiksdoel;
+      buildingTmp.rc = buildingInfo.identificatie;
+      this.building = buildingTmp;
+      this.spinner.hide();
+    });
+  }
+  getInfoFromCadastre_ES(getTypology: boolean) {
+    const buildingTmp = this.building;
+    this.cadastreServiceES.getRCByCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
       this.building = null;
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
@@ -366,7 +390,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
         const rcGeneral = rc1.concat(rc2);
         const addressMain = dataFile.getElementsByTagName('ldt')[0].textContent;
-        this.cadastreService.getBuildingDetailsByRC(rcGeneral).subscribe((prop) => {
+        this.cadastreServiceES.getBuildingDetailsByRC(rcGeneral).subscribe((prop) => {
           const parser2 = new DOMParser();
           const dataXML = parser2.parseFromString(prop, 'text/xml');
           // case: when request is only one property
@@ -387,7 +411,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
             this.propertiesFilter = this.properties;
           }
           if ( !this.ruralBuilding ) {
-            this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
+            this.cadastreServiceES.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
               const urlCreator = window.URL;
               this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
               this.properties[0].latlng = buildingTmp.coordinates;
@@ -400,8 +424,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
               if ( getTypology ) {
                 let getInfoFromINSPIRE = true;
                 // Best case: Request info from Inspire
-                const requestINSPIRE = this.cadastreService.getBuildingInfoINSPIREParcel(this.building.rc).subscribe( parcel => {
-                  this.cadastreService.getBuildingInfoINSPIREPartParcel(this.building.rc).subscribe( partParcel => {
+                const requestINSPIRE = this.cadastreServiceES.getBuildingInfoINSPIREParcel(this.building.rc).subscribe( parcel => {
+                  this.cadastreServiceES.getBuildingInfoINSPIREPartParcel(this.building.rc).subscribe( partParcel => {
                     this.getDataBuildingFromINSPIRE(parcel, partParcel);
                   });
                 }, (error) => {

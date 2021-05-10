@@ -27,7 +27,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { TypologyComponent } from './modules/typology/typology.component';
 
 import { UserService} from './core/authentication/user.service';
-import { CadastreService} from './core/cadastre/cadastre.service';
+import { CadastreESService} from './core/cadastre/ES/cadastreES.service';
 import { TypologyService } from './core/typology/typology.service';
 import {AuthenticationService} from './core/authentication/authentication.service';
 import {GeodataService} from './core/wfs/geodata.service';
@@ -74,7 +74,7 @@ import {NgxSpinnerModule} from 'ngx-spinner';
     AngularFireAuthGuard,
     AuthenticationService,
     UserService,
-    CadastreService,
+    CadastreESService,
     TypologyService,
     GeodataService,
     OpendataService

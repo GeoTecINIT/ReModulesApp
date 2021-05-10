@@ -14,7 +14,7 @@ import 'rxjs/add/observable/forkJoin';
 import {Energy} from '../../shared/models/energy';
 import {SystemType} from '../../shared/models/systemType';
 import {ScoreSystem} from '../../shared/models/scoreSystem';
-import {CadastreService} from '../../core/cadastre/cadastre.service';
+import {CadastreESService} from '../../core/cadastre/ES/cadastreES.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Envelope} from '../../shared/models/envelope';
 @Component({
@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
       this.fillHistory(hist);
     });
   }
-  receivePoint($event): void {
+  receiveBuildingFromMap($event): void {
     if ( $event.country !== null ) {
       let country = $event.country;
       let climateZone = $event.climateZone;
@@ -108,7 +108,6 @@ export class HomeComponent implements OnInit {
     this.fromHistory = false;
   }
   receivePropFromHistory($event): void{
-    console.log('Recibido!!! ', $event);
     this.building = $event;
     this.fromHistory = true;
     this.showTypology = false;
@@ -144,8 +143,6 @@ export class HomeComponent implements OnInit {
   }
   calculateGeoData(elementsFromMap): void {
     const coordinates = elementsFromMap.latlng;
-    const x = elementsFromMap.x;
-    const y = elementsFromMap.y;
     const buildingTmp = this.building;
     buildingTmp.address = elementsFromMap.address;
     Observable.forkJoin([
@@ -155,16 +152,27 @@ export class HomeComponent implements OnInit {
       this.geodataService.getProvinces(coordinates.lat, coordinates.lng)]).subscribe( data => {
         const elevation = +data[2].results[0].elevation > 0 ? data[2].results[0].elevation : 0;
         const country = data[0].features[0].properties.iso_2digit;
-        const climateZone = data[1].features[0].properties.code;
+        const climateZone = data[1].features.length > 0 ? data[1].features[0].properties.code : '';
         const region = data[3].features.length > 0 ? data[3].features[0].properties.cod_prov : '';
         const nameRegion = data[3].features.length > 0 ? data[3].features[0].properties.nombre : '';
+        let point = null;
+        switch (country) {
+          case 'NL' : {
+            point = { x: elementsFromMap.point.ESPG28992.x, y: elementsFromMap.point.ESPG28992.y};
+            break;
+          }
+          case 'ES' : {
+            point = { x: elementsFromMap.point.ESPG25830, y: elementsFromMap.point.ESPG25830.y};
+            break;
+          }
+        }
         if (country === this.SPAIN ) {
             this.typologyService.getAltitude(elevation, climateZone, country ).subscribe( resAltitude => {
               const altitude = resAltitude['altitude_code'];
               this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
                 this.building =  new Building(country, climateZone, subZone['climate_zone'], buildingTmp.year,
                   nameRegion , region, buildingTmp.address,
-                  altitude, coordinates, { x, y}, [], buildingTmp.rc,
+                  altitude, coordinates, point, [], buildingTmp.rc,
                   '', 0, null, false);
               });
             });
@@ -172,7 +180,7 @@ export class HomeComponent implements OnInit {
         else {
           this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, buildingTmp.year,
             buildingTmp.region, region, buildingTmp.address,
-            buildingTmp.altitudeCode, coordinates, { x, y}, buildingTmp.properties, buildingTmp.rc,
+            buildingTmp.altitudeCode, coordinates, point, buildingTmp.properties, buildingTmp.rc,
             buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
         }
       });

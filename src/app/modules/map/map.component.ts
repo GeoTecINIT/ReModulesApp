@@ -8,10 +8,9 @@ import 'leaflet.awesome-markers';
 import 'leaflet-groupedlayercontrol';
 import * as esri_geo from 'esri-leaflet-geocoder';
 import {Property} from '../../shared/models/property';
-import {CadastreService} from '../../core/cadastre/cadastre.service';
-import {DomSanitizer} from '@angular/platform-browser';
 import {Building} from '../../shared/models/building';
 import {GlobalConstants} from '../../shared/GlobalConstants';
+import {Crs} from '../../shared/models/crs';
 
 @Component({
   selector: 'app-map',
@@ -22,7 +21,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
 
   error: any;
   marker: any;
-  point: any;
+  point: Crs;
   markerClusterGroup: L.MarkerClusterGroup;
   layersControl: any;
   historyLayer: any;
@@ -49,12 +48,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   ZOOM = 8;
   private map;
 
-  constructor(public cadastreService: CadastreService, private sanitizer: DomSanitizer) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.properties = [];
     this.markerClusterGroup = L.markerClusterGroup({removeOutsideVisibleBounds: true});
     this.currentLayer = 'History';
+    this.point = new Crs(null, null);
   }
 
   ngAfterViewInit(): void {
@@ -66,7 +66,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       (changes.history.currentValue !== changes.history.previousValue )){
       this.history = [];
       this.history = changes.history.currentValue;
-      console.log('El history!!!!', this.history);
+      if ( this.legend ) {
+        this.map.removeControl(this.legend);
+      }
       this.addMarkersHistory();
       this.map.on( 'overlayadd', (overla) => {
         this.markerClusterGroup.clearLayers();
@@ -155,7 +157,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     }
     if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
       this.history = changes.historyFilteredFromList.currentValue;
-      console.log('El history!!!!', this.history);
       this.addMarkersFilters(this.currentLayer);
       /*if ( this.history.length > 0 ){
         const newBound = this.markerClusterGroup.getBounds();
@@ -217,11 +218,22 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       iconColor: 'white'
     });
 
-    // Reference system EPSG:25830 to get info from cadastre
-    const crs = new L.Proj.CRS('EPSG:25830',
+    // Reference system EPSG:25830 to get info from cadastre Spain
+    const crs25830 = new L.Proj.CRS('EPSG:25830',
       '+proj=utm +zone=30 +ellps=GRS80 +units=m +no_defs',
       {
         resolutions: [2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5],
+        origin: [0, 0]
+      });
+
+    // Reference system EPSG:28992 to get info from cadastre Nederlands
+    const crs28992 = new L.Proj.CRS('EPSG:28992',
+      '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs',
+      {
+        esolutions: [3251.206502413005, 1625.6032512065026, 812.8016256032513, 406.40081280162565,
+          203.20040640081282, 101.60020320040641, 50.800101600203206,
+          25.400050800101603, 12.700025400050801, 6.350012700025401, 3.1750063500127004,
+          1.5875031750063502, 0.7937515875031751, 0.39687579375158755, 0.19843789687579377, 0.09921894843789689, 0.04960947421894844],
         origin: [0, 0]
       });
 
@@ -266,7 +278,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.properties = [];
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
-      this.point = crs.project(ev.latlng);
+      this.point.ESPG25830 = crs25830.project(ev.latlng);
+      this.point.ESPG28992 = crs28992.project(ev.latlng);
+      console.log('Proyecciones!!! ', ev, this.point);
       let address = '';
       geocodeService.reverse().latlng(ev.latlng).run((error, result) => {
         if (error) {
@@ -274,8 +288,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         }
         address = result.address.Address;
         if ( this.building.rc ) this.building.rc = '';
-        this.coordinatesEmitter.emit({latlng: ev.latlng, x: this.point.x, y: this.point.y, address});
-        //this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
+        this.coordinatesEmitter.emit({latlng: ev.latlng, x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point});
       });
     });
 
@@ -293,11 +306,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       for ( let i = data.results.length - 1; i >= 0; i--) {
         this.marker = L.marker(data.results[i].latlng);
         results.addLayer(this.marker);
-        this.point = crs.project(data.results[i].latlng);
+        this.point.ESPG25830 = crs25830.project(data.results[i].latlng);
+        this.point.ESPG28992 = crs28992.project(data.results[i].latlng);
         if ( this.building.rc ) this.building.rc = '';
         let address = '';
         address = data.results[i].text;
-        this.coordinatesEmitter.emit({latlng: data.results[i].latlng, x: this.point.x, y: this.point.y, address});
+        this.coordinatesEmitter.emit({latlng: data.results[i].latlng,
+          x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point});
         //this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });
@@ -352,9 +367,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   addMarkersHistory() {
+    this.removeGroupMarkers();
     this.removeClusterMarkers();
     this.removeOverlays();
-    this.removeGroupMarkers();
     this.map.setView(this.CENTER_POINT, this.ZOOM);
     this.addLayersEnergyEfficiency(this.history, false);
     this.markerClusterGroup.addTo(this.map);
@@ -418,24 +433,28 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.historyMarkers.forEach( marker => {
           marker.addTo(this.map);
         });
+        this.markersGroup = this.historyMarkers;
         break;
       }
       case 'typology' : {
         this.typologyMarkers.forEach( marker => {
           marker.addTo(this.map);
         });
+        this.markersGroup = this.typologyMarkers;
         break;
       }
       case 'emissions' : {
         this.emissionsMarkers.forEach( marker => {
           marker.addTo(this.map);
         });
+        this.markersGroup = this.emissionsMarkers;
         break;
       }
       case 'year' : {
         this.yearsMarkers.forEach( marker => {
           marker.addTo(this.map);
         });
+        this.markersGroup = this.yearsMarkers;
         break;
       }
     }
