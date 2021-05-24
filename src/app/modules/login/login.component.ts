@@ -73,8 +73,8 @@ export class LoginComponent implements OnInit {
       const id = user.uid;
       const name = user.displayName;
       const email = user.email;
-      this.userService.getByUid(id).subscribe( data => {
-        if (!data) {
+      this.userService.getByUid(id).subscribe( (data: any) => {
+        if (!data || data.length < 1) {
           const newUser = {
             uid: id,
             email: email,

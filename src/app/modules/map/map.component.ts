@@ -43,6 +43,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() building: Building;
   @Input() fromHistory: boolean;
   @Input() active: number;
+  @Input() totalHistory: Building[];
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
   ZOOM = 8;
@@ -62,115 +63,31 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    console.log('Cambios!!!! ', changes);
     if (changes.history && changes.history.currentValue &&
-      (changes.history.currentValue !== changes.history.previousValue )){
+      (changes.history.currentValue !== changes.history.previousValue ) && this.active === 2 ){
+      console.log('Primer If!!!');
       this.history = [];
       this.history = changes.history.currentValue;
       if ( this.legend ) {
         this.map.removeControl(this.legend);
       }
-      this.addMarkersHistory();
+      this.addMarkersHistory(this.history, true);
       this.map.on( 'overlayadd', (overla) => {
-        this.markerClusterGroup.clearLayers();
-        if ( this.legend ) {
-          this.map.removeControl(this.legend);
-        }
-
-        this.legend = L.control({position: 'bottomright'});
-        if ( overla.name === 'Building type') {
-          this.legend.onAdd = () => {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<h4> Building Type</h4>';
-            // loop through our density intervals and generate a label with a colored square for each interval
-            Object.keys( GlobalConstants.colorsTypo).forEach( key => {
-              div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsTypo[key] + '"></i> ' +
-                '<span>' + key + '</span><br>' ;
-            });
-
-            return div;
-          };
-
-          this.legend.addTo(this.map);
-          this.currentLayer = 'typology';
-          this.markersGroup = this.typologyMarkers;
-        }
-        if ( overla.name === 'Emissions') {
-          this.legend.onAdd = () => {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<h4>Emissions Ranking</h4>';
-            // loop through our density intervals and generate a label with a colored square for each interval
-            Object.keys( GlobalConstants.colorsEmissionsLayer).forEach( key => {
-              div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsEmissionsLayer[key] + '"></i> ' +
-                '<span>' + key + '</span><br>' ;
-            });
-
-            return div;
-          };
-          this.legend.addTo(this.map);
-          this.currentLayer = 'emissions';
-          this.markersGroup = this.emissionsMarkers;
-        }
-
-        if ( overla.name === 'Year of construction') {
-          this.legend.onAdd = () => {
-            const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<h4>Years Ranking</h4>';
-            // loop through our density intervals and generate a label with a colored square for each interval
-            Object.keys( GlobalConstants.colorsYears).forEach( key => {
-              let textLabel = '';
-              switch (key) {
-                case '01': {
-                  textLabel = '0 - 1900';
-                  break;
-                }
-                case '02': {
-                  textLabel = '1901- 1936';
-                  break;
-                }
-                case '03': {
-                  textLabel = '1937 - 1959';
-                  break;
-                }
-                case '04': {
-                  textLabel = '1960 - 1979';
-                  break;
-                }
-                case '05': {
-                  textLabel = '1980 - 2006';
-                  break;
-                }
-                case '06': {
-                  textLabel = '2007 - ';
-                  break;
-                }
-              }
-              div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsYears[key] + '"></i> ' +
-                '<span>' + textLabel + '</span><br>' ;
-            });
-            return div;
-          };
-          this.legend.addTo(this.map);
-          this.currentLayer = 'year';
-          this.markersGroup = this.yearsMarkers;
-        }
+        this.addOverlayAction(overla);
       });
     }
     if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
+      console.log('Segundo If!!!');
       this.history = changes.historyFilteredFromList.currentValue;
       this.addMarkersFilters(this.currentLayer);
-      /*if ( this.history.length > 0 ){
-        const newBound = this.markerClusterGroup.getBounds();
-        this.map.fitBounds(newBound);
-      }*/
     }
     if ( changes.building && changes.building.currentValue && !changes.building.firstChange){
       if (  changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
         changes.building.currentValue[0].error_service )) {
         this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
       } else{
-        if ( this.marker !== undefined ) {
-          this.map.removeLayer(this.marker);
-        }
+        console.log('Tercer If!!!');
         this.building = changes.building.currentValue;
         let buildingFromHist = false;
         if ( this.history.length > 0 ){
@@ -182,6 +99,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           });
         }
         if ( !buildingFromHist  && this.building.coordinates) {
+          console.log('Tercer Uno If!!!');
           const rcInfo =  '<p> Cadastre reference: ' + this.building.rc + '</p>';
           const textPopup = '<h6> ' + this.building.address  + '</h6>';
           this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
@@ -193,7 +111,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             this.marker.bindPopup(textPopup).openPopup();
           }
         } else if ( changes.fromHistory && changes.fromHistory.currentValue ) {
+          console.log('Tercer Dos If!!!');
           this.removeClusterMarkers();
+          this.removeGroupMarkers();
           this.history.forEach( (prop: Building) => {
             if ( prop.rc === this.building.rc ) {
               const textPopup = '<h6> ' + prop.address  + '</h6>' +  '<p> Cadastre reference: ' + prop.rc + '</p>';
@@ -205,8 +125,19 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         }
       }
     }
-    if ( this.active === 1 ) {
+    if ( this.active === 1 && this.map) {
+      console.log('Cuarto If!!!');
       this.removeOverlays();
+      this.removeGroupMarkers();
+      if ( this.legend ) {
+        this.map.removeControl(this.legend);
+      }
+      this.addLayersEnergyEfficiencyPersonal(this.totalHistory, false, false);
+      this.map.on( 'overlayadd', (overla) => {
+        this.addOverlayAction(overla);
+      });
+     // this.markersGroup = this.totalHistory;
+      //this.addMarkersHistory(this.totalHistory, false);
     }
   }
 
@@ -230,7 +161,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const crs28992 = new L.Proj.CRS('EPSG:28992',
       '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs',
       {
-        esolutions: [3251.206502413005, 1625.6032512065026, 812.8016256032513, 406.40081280162565,
+        resolutions: [3251.206502413005, 1625.6032512065026, 812.8016256032513, 406.40081280162565,
           203.20040640081282, 101.60020320040641, 50.800101600203206,
           25.400050800101603, 12.700025400050801, 6.350012700025401, 3.1750063500127004,
           1.5875031750063502, 0.7937515875031751, 0.39687579375158755, 0.19843789687579377, 0.09921894843789689, 0.04960947421894844],
@@ -273,14 +204,16 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const results = L.layerGroup().addTo(this.map);
     // event click position in map
     this.map.on('click', (ev) => {
+      if ( this.marker !== undefined ) {
+        this.map.removeLayer(this.marker);
+      }
+      results.clearLayers();
       const geocodeService = esri_geo.geocodeService();
-      this.removeClusterMarkers();
       this.properties = [];
       this.marker = L.marker(ev.latlng);
       results.addLayer(this.marker);
       this.point.ESPG25830 = crs25830.project(ev.latlng);
       this.point.ESPG28992 = crs28992.project(ev.latlng);
-      console.log('Proyecciones!!! ', ev, this.point);
       let address = '';
       geocodeService.reverse().latlng(ev.latlng).run((error, result) => {
         if (error) {
@@ -318,6 +251,91 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
+  addOverlayAction( overla ) {
+      this.markerClusterGroup.clearLayers();
+      if ( this.legend ) {
+        this.map.removeControl(this.legend);
+      }
+
+      this.legend = L.control({position: 'bottomright'});
+      if ( overla.name === 'Building type') {
+        this.legend.onAdd = () => {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4> Building Type</h4>';
+          // loop through our density intervals and generate a label with a colored square for each interval
+          Object.keys( GlobalConstants.colorsTypo).forEach( key => {
+            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsTypo[key] + '"></i> ' +
+              '<span>' + key + '</span><br>' ;
+          });
+
+          return div;
+        };
+
+        this.legend.addTo(this.map);
+        this.currentLayer = 'typology';
+        this.markersGroup = this.typologyMarkers;
+      }
+      if ( overla.name === 'Emissions') {
+        this.legend.onAdd = () => {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4>Emissions Ranking</h4>';
+          // loop through our density intervals and generate a label with a colored square for each interval
+          Object.keys( GlobalConstants.colorsEmissionsLayer).forEach( key => {
+            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsEmissionsLayer[key] + '"></i> ' +
+              '<span>' + key + '</span><br>' ;
+          });
+
+          return div;
+        };
+        this.legend.addTo(this.map);
+        this.currentLayer = 'emissions';
+        this.markersGroup = this.emissionsMarkers;
+      }
+
+      if ( overla.name === 'Year of construction') {
+        this.legend.onAdd = () => {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4>Years Ranking</h4>';
+          // loop through our density intervals and generate a label with a colored square for each interval
+          Object.keys( GlobalConstants.colorsYears).forEach( key => {
+            let textLabel = '';
+            switch (key) {
+              case '01': {
+                textLabel = '0 - 1900';
+                break;
+              }
+              case '02': {
+                textLabel = '1901- 1936';
+                break;
+              }
+              case '03': {
+                textLabel = '1937 - 1959';
+                break;
+              }
+              case '04': {
+                textLabel = '1960 - 1979';
+                break;
+              }
+              case '05': {
+                textLabel = '1980 - 2006';
+                break;
+              }
+              case '06': {
+                textLabel = '2007 - ';
+                break;
+              }
+            }
+            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsYears[key] + '"></i> ' +
+              '<span>' + textLabel + '</span><br>' ;
+          });
+          return div;
+        };
+        this.legend.addTo(this.map);
+        this.currentLayer = 'year';
+        this.markersGroup = this.yearsMarkers;
+      }
+  }
+
   removeClusterMarkers(){
     if (this.markerClusterGroup){
       this.markerClusterGroup.clearLayers();
@@ -342,79 +360,116 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   removeGroupMarkers() {
     if ( this.markersGroup && this.markersGroup.length > 0 ) {
       this.markersGroup.forEach( marker => {
-        this.map.removeLayer(marker);
+        if ( this.marker !== marker ) {
+          this.map.removeLayer(marker);
+        }
       });
     }
   }
 
-  createMarker(source: string, building: Building ) {
-    const markerStyle = L.AwesomeMarkers.icon({
-      markerColor: source,
+  createMarker(sourceColor: string, building: Building, showOnlyPopup: boolean, idPopup: string ) {
+    let markers = null;
+    const markerStyleHistory = L.AwesomeMarkers.icon({
+      markerColor: sourceColor,
       prefix: 'fa',
       icon: 'circle',
       iconColor: 'white'
     });
-    const textPopup = '<h6> ' + building.address
-      + '</h6>' + '<p> Cadastre reference: ' + building.rc + '</p>';
+    const markerStyle = {
+      radius: 8,
+      fillColor: sourceColor,
+      color: '#000',
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 1
+    };
+    let buildingInfo = '';
+    const buttonBuilding = '<button id="' + idPopup + '" style="color: #2888BA; background: transparent; font-weight: 700; border: 0;"> See more ...</button>';
+    if ( ! showOnlyPopup ) {
+      buildingInfo = '<p> Cadastre reference: ' + building.rc + '</p>';
+      const textPopup = '<h6> ' + building.address
+        + '</h6>' + buildingInfo + buttonBuilding;
 
-    const latlngToMark = L.latLng(building.coordinates.lat, building.coordinates.lng);
-    const markers = L.marker(latlngToMark, { icon: markerStyle}).bindPopup(textPopup).openPopup();
-    markers.on('click', () => {
-      this.building = building;
-      this.buildingEmitter.emit(this.building);
+      const latlngToMark = L.latLng(building.coordinates.lat, building.coordinates.lng);
+      markers = L.marker(latlngToMark, { icon: markerStyleHistory}).bindPopup(textPopup).openPopup();
+    }
+    else {
+      buildingInfo = '<p> Typology: ' + building.typology.categoryName + '</p>'
+        + '<p>Year: ' + building.year + '</p>'
+      + '<p> Emissions: ' + building.typology.energy.emissionRanking + '</p>';
+      const textPopup = '<h6> ' + building.address
+        + '</h6>' + buildingInfo + buttonBuilding;
+
+      const latlngToMark = L.latLng(building.coordinates.lat, building.coordinates.lng);
+      markers = L.circleMarker(latlngToMark,  /*{ icon: markerStyle}*/ markerStyle).bindPopup(textPopup).openPopup();
+    }
+    markers.on('popupopen', mark => {
+      L.DomEvent.on(L.DomUtil.get(idPopup),
+        'click',
+        (ev ) => {
+          this.marker = mark.target;
+          this.building = building;
+          this.buildingEmitter.emit(this.building);
+        });
     });
     return markers;
   }
 
-  addMarkersHistory() {
-    this.removeGroupMarkers();
+  addMarkersHistory(listHistory: Building[], showCluster: boolean) {
     this.removeClusterMarkers();
+    this.removeGroupMarkers();
     this.removeOverlays();
     this.map.setView(this.CENTER_POINT, this.ZOOM);
-    this.addLayersEnergyEfficiency(this.history, false);
+    this.addLayersEnergyEfficiencyPersonal(listHistory, false, showCluster);
     this.markerClusterGroup.addTo(this.map);
     this.markersGroup = this.historyMarkers;
   }
 
-  addLayersEnergyEfficiency( listProperties: Building[], fromFilters: boolean) {
+  addLayersEnergyEfficiencyPersonal(listProperties: Building[], fromFilters: boolean, showCluster: boolean) {
     const markerGroup = [];
     const arrayTypology = [];
     const arrayEmissions = [];
     const arrayYear = [];
+    const showOnlyPopup = !showCluster;
     if (listProperties && listProperties.length > 0 ){
+      let cont = 1;
       listProperties.forEach( propHistory => {
 
-        const markerHistory = this.createMarker('blue', propHistory);
-       if (!fromFilters) this.markerClusterGroup.addLayer(markerHistory);
+        const idPopup = 'marker-popup' + +cont;
+        const markerHistory = this.createMarker('blue', propHistory, showOnlyPopup, idPopup);
+       if (!fromFilters && showCluster) this.markerClusterGroup.addLayer(markerHistory);
         markerGroup.push(markerHistory);
 
         // pins for building type
-        const buildingMarker = this.createMarker(GlobalConstants.colorsTypo[propHistory.typology.categoryCode], propHistory);
+        const buildingMarker = this.createMarker(GlobalConstants.colorsTypo[propHistory.typology.categoryCode], propHistory,
+          showOnlyPopup, idPopup);
         arrayTypology.push(buildingMarker);
 
         // pins for emissions
         const emissionMarker = this.createMarker(GlobalConstants.colorsEmissionsLayer[propHistory.typology.energy.emissionRanking],
-          propHistory);
+          propHistory, showOnlyPopup, idPopup);
         arrayEmissions.push(emissionMarker);
 
         // pins for year
-        const yearMarker = this.createMarker(GlobalConstants.colorsYears[propHistory.typology.yearCode], propHistory);
+        const yearMarker = this.createMarker(GlobalConstants.colorsYears[propHistory.typology.yearCode],
+          propHistory, showOnlyPopup, idPopup);
         arrayYear.push(yearMarker);
+
+        cont ++;
       });
 
-      if ( this.active === 2 ) {
-        this.historyLayer = L.layerGroup(markerGroup);
-        this.layersControl.addOverlay( this.historyLayer, 'History', 'Energy Efficiency');
+      this.historyLayer = L.layerGroup(markerGroup);
+      this.layersControl.addOverlay( this.historyLayer, 'History', 'Energy Efficiency');
 
-        this.buildingTypesLayer = L.layerGroup(arrayTypology);
-        this.layersControl.addOverlay( this.buildingTypesLayer, 'Building type', 'Energy Efficiency');
+      this.buildingTypesLayer = L.layerGroup(arrayTypology);
+      this.layersControl.addOverlay( this.buildingTypesLayer, 'Building type', 'Energy Efficiency');
 
-        this.emissionsLayer = L.layerGroup(arrayEmissions);
-        this.layersControl.addOverlay( this.emissionsLayer, 'Emissions', 'Energy Efficiency');
+      this.emissionsLayer = L.layerGroup(arrayEmissions);
+      this.layersControl.addOverlay( this.emissionsLayer, 'Emissions', 'Energy Efficiency');
 
-        this.yearLayer = L.layerGroup(arrayYear);
-        this.layersControl.addOverlay( this.yearLayer, 'Year of construction', 'Energy Efficiency');
-      }
+      this.yearLayer = L.layerGroup(arrayYear);
+      this.layersControl.addOverlay( this.yearLayer, 'Year of construction', 'Energy Efficiency');
+
     }
     this.historyMarkers = markerGroup;
     this.typologyMarkers = arrayTypology;
@@ -427,7 +482,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     this.removeClusterMarkers();
     this.removeOverlays();
     this.map.setView(this.CENTER_POINT, this.ZOOM);
-    this.addLayersEnergyEfficiency(this.history, true);
+    this.addLayersEnergyEfficiencyPersonal(this.history, true, false);
     switch ( currentLayer) {
       case 'History' : {
         this.historyMarkers.forEach( marker => {

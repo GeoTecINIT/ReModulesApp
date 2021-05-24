@@ -12,7 +12,6 @@ export class UserService {
   private baseUrl = GlobalConstants.backendURL + '/api/user';
   private baseHistoryUserUrl = GlobalConstants.backendURL + '/api/history/user';
   private baseHistoryUrl = GlobalConstants.backendURL + '/api/history';
-  private baseHistoryUsesUrl = GlobalConstants.backendURL + '/api/history/uses';
 
   constructor(private http: HttpClient) { }
 
@@ -43,5 +42,13 @@ export class UserService {
       responseType: 'text' as 'text'
     };
     return this.http.request('delete', `${this.baseHistoryUrl}/prop/${rc}/user/${user}`, options);
+  }
+
+  getAllHistory() {
+    return this.http.get(`${this.baseHistoryUrl}`);
+  }
+
+  getBuildingByAddress(address) {
+    return this.http.get(`${this.baseHistoryUrl}/address/${address}`);
   }
 }

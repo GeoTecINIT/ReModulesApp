@@ -10,6 +10,7 @@ import {Typology} from '../../shared/models/typology';
 import {TypologyService} from '../../core/typology/typology.service';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {CadastreNLService} from '../../core/cadastre/NL/cadastre-nl.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -35,8 +36,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   textSpinner: string;
   // Variables temp for 3 cases
   selectYear = false;
-  years: number[];
-  selectedYear: number;
+  years: string[];
+  selectedYear: string;
 
   @Input() history: Building[];
   @Input() properties: Property[];
@@ -63,9 +64,11 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   ngOnInit(){
     this.years = [];
     for (let i = 1950; i <= new Date().getFullYear(); i++) {
-      this.years.push(i);
+      const year = String( i);
+      this.years.push( year);
     }
     this.textSpinner = 'Loading ...';
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -84,42 +87,43 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.selectYear = false;
         this.selectedYear = null;
         this.ruralBuilding = false;
+        console.log('CAdastreInfo!!!! ', this.building);
+        if ( this.building.year ) this.selectedYear = this.building.year;
         if ( !this.building.favorite ) {
           this.building.typology = new Typology('', '', '', '',
             '', null, null, null);
-          if ( this.building.country === 'NL') {
-            this.spinner.show();
-            this.selectBuilding = true;
-            this.getInfoFromCadastre_NL();
-          } else {
-            // Best case: Services gives all
-            if ( this.building.provinceCode === '46') {
+          switch (this.building.country ) {
+            case 'NL' : {
               this.spinner.show();
-              this.textSpinner = 'Waiting for the cadastre service ... ';
               this.selectBuilding = true;
-              this.getInfoFromCadastre_ES(true);
+              this.getInfoFromCadastre_NL();
+              break;
             }
-            // Case when services only get year
-            else if ( this.building.provinceCode === '12') {
-              this.spinner.show();
-              this.textSpinner = 'Waiting for the cadastre service ... ';
-              this.selectBuilding = true;
-              this.getInfoFromCadastre_ES(false);
+            case 'IT' : {
+              this.showYearSelection();
+              break;
             }
-            // Case everything is request to user
-            else if ( this.building.provinceCode === '03') {
-              const buildingTmp  = this.building;
-              this.building = null;
-              this.spinner.show();
-              this.selectBuilding = true;
-              this.selectYear = true;
-              this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
-                '', buildingTmp.region, buildingTmp.provinceCode,
-                buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point, [], null, '', null, null, false);
-              this.properties = [];
-              this.propertiesFilter = [];
-              this.spinner.hide();
-          }
+            case 'ES' : {
+              // Best case: Services gives all
+              if ( this.building.provinceCode === '46') {
+                this.spinner.show();
+                this.textSpinner = 'Waiting for the cadastre service ... ';
+                this.selectBuilding = true;
+                this.getInfoFromCadastre_ES(true);
+              }
+              // Case when services only get year
+              else if ( this.building.provinceCode === '12') {
+                this.spinner.show();
+                this.textSpinner = 'Waiting for the cadastre service ... ';
+                this.selectBuilding = true;
+                this.getInfoFromCadastre_ES(false);
+              }
+              // Case everything is request to user
+              else if ( this.building.provinceCode === '03') {
+                this.showYearSelection();
+              }
+              break;
+            }
           }
         } else {
           this.selectBuilding = true;
@@ -133,6 +137,20 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
 
+  showYearSelection() {
+    const buildingTmp  = this.building;
+    this.building = null;
+    this.spinner.show();
+    this.selectBuilding = true;
+    this.selectYear = true;
+    this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
+      '', buildingTmp.region, buildingTmp.provinceCode,
+      buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
+      [], null, '', null, null, false);
+    this.properties = [];
+    this.propertiesFilter = [];
+    this.spinner.hide();
+  }
   initialData(): void{
     this.propSelected = null;
     this.propIsSelected = true;
@@ -360,6 +378,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
   selectYearOption() {
+    console.log('Años!!!! ', this.building.year);
     this.building.year = String(this.selectedYear);
   }
   getInfoFromCadastre_NL( ) {

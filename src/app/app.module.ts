@@ -36,6 +36,7 @@ import { ScoreComponent } from './modules/score/score.component';
 import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {NgxSpinnerModule} from 'ngx-spinner';
+import {TranslateModule} from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -67,7 +68,8 @@ import {NgxSpinnerModule} from 'ngx-spinner';
     NgxChartsModule,
     BrowserAnimationsModule,
     NoopAnimationsModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    TranslateModule.forRoot()
   ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },

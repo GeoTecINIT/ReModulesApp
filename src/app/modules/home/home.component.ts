@@ -7,16 +7,15 @@ import {TypologyService} from '../../core/typology/typology.service';
 import {Typology} from '../../shared/models/typology';
 import {GeodataService} from '../../core/wfs/geodata.service';
 import {Building} from '../../shared/models/building';
-import {$e} from 'codelyzer/angular/styles/chars';
 import {OpendataService} from '../../core/opendata/opendata.service';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {Energy} from '../../shared/models/energy';
 import {SystemType} from '../../shared/models/systemType';
 import {ScoreSystem} from '../../shared/models/scoreSystem';
-import {CadastreESService} from '../../core/cadastre/ES/cadastreES.service';
-import {DomSanitizer} from '@angular/platform-browser';
 import {Envelope} from '../../shared/models/envelope';
+import {ActivatedRoute, Params} from '@angular/router';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -26,6 +25,7 @@ export class HomeComponent implements OnInit {
 
   // general variables
   history: Building[];
+  totalHistory: Building[];
   building: Building;
 
   // map variables
@@ -50,13 +50,21 @@ export class HomeComponent implements OnInit {
   SPAIN = 'ES';
   constructor( public afAuth: AngularFireAuth,
                private userService: UserService,
+               private route: ActivatedRoute,
                private typologyService: TypologyService,
                private geodataService: GeodataService,
                private opendataService: OpendataService) {
+    this.totalHistory = [];
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.isUserLogged = true;
         this.currentUser = new User(user);
+        this.userService.getByUid(user.uid).subscribe(userFromDB => {
+          if (userFromDB) {
+            this.currentUser.name = userFromDB['user'].name;
+            this.currentUser.role = userFromDB['role'].name;
+          }
+        });
         this.userService.getHistoryByUser(user.uid).subscribe( (hist: Building) => {
           this.fillHistory(hist);
         });
@@ -67,6 +75,11 @@ export class HomeComponent implements OnInit {
     });
     this.building =  new Building('', '', '',  null, '', '', '', '',
       {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false);
+    this.userService.getAllHistory().subscribe( hist => {
+      for (let histKey in hist) {
+        this.totalHistory.push(this.convertBuildingFromRequest(hist[histKey]));
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -79,18 +92,20 @@ export class HomeComponent implements OnInit {
     this.showTypology = false;
     this.energyScore = false;
     this.fromHistory = false;
-    this.userService.getHistoryByUser(this.currentUser.uid).subscribe( (hist: Building ) => {
+    this.active = 2;
+    this.userService.getHistoryByUser(this.currentUser.uid).
+    subscribe( (hist: Building ) => {
       this.fillHistory(hist);
     });
   }
   receiveBuildingFromMap($event): void {
-    if ( $event.country !== null ) {
+    if ( $event.country !== null && !$event.typology && !$event.favorite) {
       let country = $event.country;
       let climateZone = $event.climateZone;
-      let climateSubZone = $event.climateZone;
+      let climateSubZone = $event.climateSubZone;
       let provinceCode = $event.provinceCode;
       let altitude = $event.altitude;
-      if ( this.building.country && this.building.climateZone ){
+      if ( this.building.country && this.building.climateZone  ){
         country = this.building.country;
         climateZone = this.building.climateZone;
         climateSubZone = this.building.climateSubZone;
@@ -101,6 +116,9 @@ export class HomeComponent implements OnInit {
       this.building = new Building(country, climateZone, climateSubZone, $event.year,
         $event.region, provinceCode, $event.address, altitude, $event.coordinates, $event.point, $event.properties, $event.rc,
         $event.use, null, null, false);
+    }
+    else if ( $event.typology && $event.favorite) {
+      this.building = $event;
     }
     this.properties = $event.properties;
     this.active = 1;
@@ -159,14 +177,14 @@ export class HomeComponent implements OnInit {
         switch (country) {
           case 'NL' : {
             point = { x: elementsFromMap.point.ESPG28992.x, y: elementsFromMap.point.ESPG28992.y};
+            this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, buildingTmp.year,
+              buildingTmp.region, region, buildingTmp.address,
+              buildingTmp.altitudeCode, coordinates, point, buildingTmp.properties, buildingTmp.rc,
+              buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
             break;
           }
           case 'ES' : {
-            point = { x: elementsFromMap.point.ESPG25830, y: elementsFromMap.point.ESPG25830.y};
-            break;
-          }
-        }
-        if (country === this.SPAIN ) {
+            point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
             this.typologyService.getAltitude(elevation, climateZone, country ).subscribe( resAltitude => {
               const altitude = resAltitude['altitude_code'];
               this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
@@ -176,12 +194,8 @@ export class HomeComponent implements OnInit {
                   '', 0, null, false);
               });
             });
-        }
-        else {
-          this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, buildingTmp.year,
-            buildingTmp.region, region, buildingTmp.address,
-            buildingTmp.altitudeCode, coordinates, point, buildingTmp.properties, buildingTmp.rc,
-            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
+            break;
+          }
         }
       });
   }
@@ -234,5 +248,31 @@ export class HomeComponent implements OnInit {
         this.showTypology = false;
       });
     });
+  }
+  convertBuildingFromRequest(record: any ){
+    const building = new Building(record.building.country, record.building.climate_zone, record.building.climate_sub_zone,
+      record.year, record.building.province_name, record.building.province_code, record.building.address,
+      record.building.altitude_code, { lng: record.building.lng, lat: record.building.lat}, {x: record.building.x, y: record.building.y },
+      [], record.building.rc, record.building.use, record.building.surface, new Typology( record.typology_code,
+        record.typology_name, record.year_code, '', record.building_code, [], [], new Energy(record.energy_scores[0].energy_score_code,
+          record.energy_scores[0].emission_ranking, record.energy_scores[0].consumption_ranking, [])), true);
+    record.envelopeds.forEach( env => {
+      const envelopeToAdd = new Envelope(env.enveloped_code, null, env.description, env.u_value, env.picture, '');
+      building.typology.enveloped.push(envelopeToAdd);
+    });
+    record.system_codes.forEach( sys => {
+      const systemToAdd = new SystemType(sys.system_type, sys.system_code, sys.description_system, sys.picture);
+      building.typology.system.push(systemToAdd);
+    });
+    record.score_charts.forEach( sco => {
+      const scoreToAdd = new ScoreSystem( sco.score_chart_code, sco.demand, sco.final_energy,
+        sco.primary_energy, sco.emissions, sco.system);
+      building.typology.energy.scoreSystem.push(scoreToAdd);
+    });
+
+    return building;
+  }
+  generalTab() {
+    this.active = 1;
   }
 }

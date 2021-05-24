@@ -4,7 +4,7 @@
         <h4>Rural property. Please try with another location</h4>
       </div>
     <div *ngIf="building && !ruralBuilding && selectBuilding" >
-      <div *ngIf="building && building.country && building.year" fxLayoutAlign="end">
+      <div [hidden]="!building || ( building && !building.country) || ( building && !building.year)" fxLayoutAlign="end">
         <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();"  routerLink='/home' routerLinkActive='active' >
           <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
         </button>
@@ -22,7 +22,7 @@
               <p>Year of construction: {{building.year}}</p>
               <div class="col-md-6" [hidden]="!selectYear">
                 <label for="selectYear">Select year</label>
-                <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();"></ng-select>
+                <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();" [bindValue]="selectedYear"></ng-select>
               </div>
               <p [hidden]="!building.use">Use: {{building.use}}</p>
               <p [hidden]="!building.surface">Surface: {{building.surface}}&nbsp; &#13217;</p>
