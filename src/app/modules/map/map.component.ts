@@ -63,82 +63,80 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log('Cambios!!!! ', changes);
-    if (changes.history && changes.history.currentValue &&
-      (changes.history.currentValue !== changes.history.previousValue ) && this.active === 2 ){
-      console.log('Primer If!!!');
-      this.history = [];
-      this.history = changes.history.currentValue;
-      if ( this.legend ) {
-        this.map.removeControl(this.legend);
-      }
-      this.addMarkersHistory(this.history, true);
-      this.map.on( 'overlayadd', (overla) => {
-        this.addOverlayAction(overla);
-      });
-    }
-    if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
-      console.log('Segundo If!!!');
-      this.history = changes.historyFilteredFromList.currentValue;
-      this.addMarkersFilters(this.currentLayer);
-    }
-    if ( changes.building && changes.building.currentValue && !changes.building.firstChange){
-      if (  changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
+    if ( this.active === 1 ) {
+      if (changes.building && changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
         changes.building.currentValue[0].error_service )) {
         this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
-      } else{
-        console.log('Tercer If!!!');
-        this.building = changes.building.currentValue;
-        let buildingFromHist = false;
-        if ( this.history.length > 0 ){
-          this.history.forEach( (prop: Building) => {
-            if (prop.rc === this.building.rc) {
-              buildingFromHist = true;
-              return;
-            }
-          });
-        }
-        if ( !buildingFromHist  && this.building.coordinates) {
-          console.log('Tercer Uno If!!!');
+      }
+      if ( changes.active && changes.active.previousValue !== 1) {
+        this.removeOverlays();
+        this.removeGroupMarkers();
+        this.removeClusterMarkers();
+        this.markersGroup = [];
+        this.currentLayer = '';
+      }
+      if (changes.building && changes.building.currentValue
+        && changes.building.currentValue.year === '' ){ // when year is required
+        this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
+        const textPopup = '<h6> ' + this.building.address  + '</h6>';
+        this.marker.bindPopup(textPopup).openPopup();
+      }
+      if (  (changes.building && changes.building.currentValue && !changes.building.firstChange &&  changes.building.currentValue.year !== '')
+        || (!changes.building && this.building.country && this.building.country !== '') ) {
+        if ( changes.building && changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
+          changes.building.currentValue[0].error_service )) {
+          this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
+        } else{
           const rcInfo =  '<p> Cadastre reference: ' + this.building.rc + '</p>';
           const textPopup = '<h6> ' + this.building.address  + '</h6>';
-          this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
+          if ( this.map && !this.map.hasLayer( this.marker)) {
+            this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
+          }
           this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
-          this.marker.bindPopup(textPopup).openPopup();
           if ( this.building.rc && this.building.rc.length > 1) {
             this.marker.bindPopup(textPopup + rcInfo).openPopup();
           } else {
             this.marker.bindPopup(textPopup).openPopup();
           }
-        } else if ( changes.fromHistory && changes.fromHistory.currentValue ) {
-          console.log('Tercer Dos If!!!');
-          this.removeClusterMarkers();
-          this.removeGroupMarkers();
-          this.history.forEach( (prop: Building) => {
-            if ( prop.rc === this.building.rc ) {
-              const textPopup = '<h6> ' + prop.address  + '</h6>' +  '<p> Cadastre reference: ' + prop.rc + '</p>';
-              this.marker = L.marker(L.latLng(prop.coordinates.lat, prop.coordinates.lng)).addTo(this.map);
-              this.map.setView(L.latLng(prop.coordinates.lat, prop.coordinates.lng), 15);
-              this.marker.bindPopup(textPopup).openPopup();
-            }
-          });
+       }
+      }
+      if (this.map && ( !this.building.country || changes.active && changes.active.previousValue !== 1)) {
+        if ( this.legend ) {
+          this.map.removeControl(this.legend);
         }
+        this.addLayersEnergyEfficiencyPersonal(this.totalHistory, false, false);
+        this.map.on( 'overlayadd', (overla) => {
+          this.addOverlayAction(overla);
+        });
+        this.markersGroup = this.totalHistory;
+        this.addMarkersHistory(this.totalHistory, false);
       }
     }
-    if ( this.active === 1 && this.map) {
-      console.log('Cuarto If!!!');
+   // this.removeMarkerFromMap();
+    else  if (changes.active && changes.active.currentValue === 2 || this.active === 2) {
+      const markerTmp = this.marker;
+      this.removeMarkerFromMap(markerTmp);
       this.removeOverlays();
       this.removeGroupMarkers();
-      if ( this.legend ) {
-        this.map.removeControl(this.legend);
+      this.removeClusterMarkers();
+      if (changes.history && changes.history.currentValue &&
+        (changes.history.currentValue !== changes.history.previousValue ) && this.active === 2 ){
+        this.history = [];
+        this.history = changes.history.currentValue;
+        if ( this.legend ) {
+          this.map.removeControl(this.legend);
+        }
+        this.addMarkersHistory(this.history, true);
+        this.map.on( 'overlayadd', (overla) => {
+          this.addOverlayAction(overla);
+        });
       }
-      this.addLayersEnergyEfficiencyPersonal(this.totalHistory, false, false);
-      this.map.on( 'overlayadd', (overla) => {
-        this.addOverlayAction(overla);
-      });
-     // this.markersGroup = this.totalHistory;
-      //this.addMarkersHistory(this.totalHistory, false);
+      if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
+        this.history = changes.historyFilteredFromList.currentValue;
+        this.addMarkersFilters(this.currentLayer);
+      }
     }
+
   }
 
   private initMap(): void {
@@ -204,13 +202,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     const results = L.layerGroup().addTo(this.map);
     // event click position in map
     this.map.on('click', (ev) => {
+      this.removeMarkerFromMap(this.marker);
       if ( this.marker !== undefined ) {
         this.map.removeLayer(this.marker);
       }
       results.clearLayers();
       const geocodeService = esri_geo.geocodeService();
       this.properties = [];
-      this.marker = L.marker(ev.latlng);
+      this.marker = L.marker(ev.latlng).addTo(this.map);
       results.addLayer(this.marker);
       this.point.ESPG25830 = crs25830.project(ev.latlng);
       this.point.ESPG28992 = crs28992.project(ev.latlng);
@@ -230,14 +229,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       placeholder: 'Search your address'}).addTo(this.map);
 
     searchControl.on('results',  (data) => {
-      this.removeClusterMarkers();
+      this.removeMarkerFromMap(this.marker);
       this.properties = [];
       if ( this.marker !== undefined ) {
         this.map.removeLayer(this.marker);
       }
       results.clearLayers();
       for ( let i = data.results.length - 1; i >= 0; i--) {
-        this.marker = L.marker(data.results[i].latlng);
+        this.marker = L.marker(data.results[i].latlng).addTo(this.map);
         results.addLayer(this.marker);
         this.point.ESPG25830 = crs25830.project(data.results[i].latlng);
         this.point.ESPG28992 = crs28992.project(data.results[i].latlng);
@@ -336,12 +335,15 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       }
   }
 
+  removeMarkerFromMap(marker) {
+    if ( marker !== undefined ) {
+      this.map.removeLayer(marker);
+    }
+  }
+
   removeClusterMarkers(){
     if (this.markerClusterGroup){
       this.markerClusterGroup.clearLayers();
-    }
-    if ( this.marker !== undefined ) {
-      this.map.removeLayer(this.marker);
     }
   }
   removeOverlays() {
@@ -407,6 +409,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       L.DomEvent.on(L.DomUtil.get(idPopup),
         'click',
         (ev ) => {
+          this.removeMarkerFromMap(this.marker);
           this.marker = mark.target;
           this.building = building;
           this.buildingEmitter.emit(this.building);
@@ -419,7 +422,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     this.removeClusterMarkers();
     this.removeGroupMarkers();
     this.removeOverlays();
-    this.map.setView(this.CENTER_POINT, this.ZOOM);
     this.addLayersEnergyEfficiencyPersonal(listHistory, false, showCluster);
     this.markerClusterGroup.addTo(this.map);
     this.markersGroup = this.historyMarkers;
@@ -482,7 +484,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     this.removeClusterMarkers();
     this.removeOverlays();
     this.map.setView(this.CENTER_POINT, this.ZOOM);
-    this.addLayersEnergyEfficiencyPersonal(this.history, true, false);
+    this.addLayersEnergyEfficiencyPersonal(this.history, true, true);
     switch ( currentLayer) {
       case 'History' : {
         this.historyMarkers.forEach( marker => {

@@ -42,8 +42,10 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   @Input() history: Building[];
   @Input() properties: Property[];
   @Input() building: Building;
+  @Input() active: number;
   @Output() showMapEmitter = new EventEmitter<boolean>();
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
+  @Output() buildingCompleteEmitter = new EventEmitter<any>();
   constructor(private cadastreServiceES: CadastreESService,
               private cadastreNLService: CadastreNLService,
               private sanitizer: DomSanitizer,
@@ -72,7 +74,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( changes.building && changes.building.currentValue ) {
+    if ( this.active === 1 && changes.building && changes.building.currentValue
+      && changes.building.currentValue.country ) {
       if (  changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
         changes.building.currentValue[0].error_service )) {
         this.hasError = true;
@@ -87,7 +90,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.selectYear = false;
         this.selectedYear = null;
         this.ruralBuilding = false;
-        console.log('CAdastreInfo!!!! ', this.building);
         if ( this.building.year ) this.selectedYear = this.building.year;
         if ( !this.building.favorite ) {
           this.building.typology = new Typology('', '', '', '',
@@ -129,11 +131,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           this.selectBuilding = true;
         }
       }
-    }
-    if (changes.history && changes.history.currentValue &&
-      (changes.history.currentValue.length > this.history.length)){
-      this.propSelected = null;
-      this.history = changes.history.currentValue;
     }
   }
 
@@ -289,6 +286,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       }
       this.typologyService.getYearCode( this.building.year ).subscribe(resYear => {
         this.building.typology.yearCode = resYear['year_code'];
+        this.buildingCompleteEmitter.emit(this.building);
         this.spinner.hide();
       });
     });
@@ -360,11 +358,13 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
             this.building.year = year;
             this.building.typology.yearCode = resYear['year_code'];
             this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+            this.buildingCompleteEmitter.emit(this.building);
             this.spinner.hide();
           });
         });
       } else {
         this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+        this.buildingCompleteEmitter.emit(this.building);
         this.spinner.hide();
       }
     } else {
@@ -378,7 +378,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
   selectYearOption() {
-    console.log('Años!!!! ', this.building.year);
     this.building.year = String(this.selectedYear);
   }
   getInfoFromCadastre_NL( ) {
@@ -389,6 +388,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       buildingTmp.use =  buildingInfo.gebruiksdoel;
       buildingTmp.rc = buildingInfo.identificatie;
       this.building = buildingTmp;
+      this.buildingCompleteEmitter.emit(this.building);
       this.spinner.hide();
     });
   }
@@ -462,6 +462,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
               }
             });
           } else {
+            this.buildingCompleteEmitter.emit(this.building);
             this.spinner.hide();
           }
         });

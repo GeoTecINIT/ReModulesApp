@@ -65,9 +65,6 @@ export class HomeComponent implements OnInit {
             this.currentUser.role = userFromDB['role'].name;
           }
         });
-        this.userService.getHistoryByUser(user.uid).subscribe( (hist: Building) => {
-          this.fillHistory(hist);
-        });
       } else {
         this.isUserLogged = false;
         this.history = [];
@@ -76,9 +73,11 @@ export class HomeComponent implements OnInit {
     this.building =  new Building('', '', '',  null, '', '', '', '',
       {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false);
     this.userService.getAllHistory().subscribe( hist => {
+      const totalHistoryTmp = [];
       for (let histKey in hist) {
-        this.totalHistory.push(this.convertBuildingFromRequest(hist[histKey]));
+        totalHistoryTmp.push(this.convertBuildingFromRequest(hist[histKey]));
       }
+      this.totalHistory = totalHistoryTmp;
     });
   }
 
@@ -177,7 +176,7 @@ export class HomeComponent implements OnInit {
         switch (country) {
           case 'NL' : {
             point = { x: elementsFromMap.point.ESPG28992.x, y: elementsFromMap.point.ESPG28992.y};
-            this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, buildingTmp.year,
+            this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
               buildingTmp.region, region, buildingTmp.address,
               buildingTmp.altitudeCode, coordinates, point, buildingTmp.properties, buildingTmp.rc,
               buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
@@ -188,7 +187,7 @@ export class HomeComponent implements OnInit {
             this.typologyService.getAltitude(elevation, climateZone, country ).subscribe( resAltitude => {
               const altitude = resAltitude['altitude_code'];
               this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
-                this.building =  new Building(country, climateZone, subZone['climate_zone'], buildingTmp.year,
+                this.building =  new Building(country, climateZone, subZone['climate_zone'], '',
                   nameRegion , region, buildingTmp.address,
                   altitude, coordinates, point, [], buildingTmp.rc,
                   '', 0, null, false);

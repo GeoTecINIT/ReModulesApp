@@ -5,7 +5,7 @@
         <li [ngbNavItem]="1">
           <a ngbNavLink (click)="generalTab();">Properties</a>
           <ng-template ngbNavContent>
-            <app-cadastre-info [properties]="properties" [history]="history"  [building]="building"(calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
+            <app-cadastre-info [properties]="properties" [history]="history" [active]="active" [building]="building"(calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
           </ng-template>
         </li>
         <li [ngbNavItem]="2" *ngIf="isUserLogged">
