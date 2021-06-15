@@ -15,7 +15,7 @@
       <div >
         <div class="card">
           <div class="card-body">
-            <h5> Province: {{ building.region }} </h5>
+            <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
             <p>Address: <i class="fa fa-map-marker" aria-hidden="true"></i> {{building.address}}
             </p>
             <div class="infoBuilding">

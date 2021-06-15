@@ -15,6 +15,7 @@ import {SystemType} from '../../shared/models/systemType';
 import {ScoreSystem} from '../../shared/models/scoreSystem';
 import {Envelope} from '../../shared/models/envelope';
 import {ActivatedRoute, Params} from '@angular/router';
+import {$e} from 'codelyzer/angular/styles/chars';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit {
   history: Building[];
   totalHistory: Building[];
   building: Building;
+  error: string;
 
   // map variables
   historyFilteredFromList: any;
@@ -36,6 +38,7 @@ export class HomeComponent implements OnInit {
 
   // typology variables
   typologies: Typology[];
+  subcategoriesTypo: any[];
 
   fromHistory: boolean;
 
@@ -138,17 +141,54 @@ export class HomeComponent implements OnInit {
     this.active = 1;
   }
   calculateTypology($event: Building): void{
+    this.typologies = [];
     this.showTypology =  !($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
     this.energyScore = !!($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
     if ( !$event.typology || ( $event.typology && !$event.typology.categoryCode ) ) {
-      this.typologies = [];
       this.typologyService.getTypologyPics($event.year, $event.country, $event.climateZone).subscribe(res => {
-        Object.values(res).forEach( cat => {
-          const category = new Typology(cat.category.category_code, cat.category.name,
-            cat.year.year_code, cat.name,  cat.category.building_code, null, null, null);
-          this.typologies.push(category);
+        if ( Object.assign(res).length <= 4 ) {
+          Object.values(res).forEach( cat => {
+            const category = new Typology(cat.category.category_code, cat.category.name, cat.category_pic_code, cat.d_add_parameter,
+              cat.year.year_code, cat.name,  cat.category.building_code, null, null, null);
+            this.typologies.push(category);
+            this.building.year = $event.year;
+          });
+        } else {
+          this.subcategoriesTypo = [];
+          const catTmp = [];
+          const subCatTmp = [];
+          Object.values(res).forEach( cat => {
+            const category = new Typology(cat.category.category_code, cat.category.name, cat.category_pic_code, cat.d_add_parameter,
+              cat.year.year_code, cat.name,  cat.category.building_code, null, null, null);
+            if ( !catTmp || catTmp.length === 0) {
+              catTmp.push(category);
+              subCatTmp[category.categoryCode] =
+                {category_pic_code : category.categoryPicCode, description: category.addParameterDescription, subcats: [] };
+              subCatTmp[category.categoryCode].subcats.push(
+                { category_pic_code : category.categoryPicCode, description: category.addParameterDescription, info: category});
+            } else {
+              let added = false;
+              catTmp.forEach(typo => {
+                if ( typo.categoryCode === category.categoryCode) {
+                  added = true;
+                }
+              });
+              if ( !added ) {
+                catTmp.push(category);
+                subCatTmp[category.categoryCode] =
+                  {category_pic_code : category.categoryPicCode, description: category.addParameterDescription, subcats: [] };
+                subCatTmp[category.categoryCode].subcats.push(
+                  { category_pic_code : category.categoryPicCode, description: category.addParameterDescription, info: category});
+              } else {
+                subCatTmp[category.categoryCode].subcats.push(
+                  { category_pic_code : category.categoryPicCode, description: category.addParameterDescription, info: category});
+              }
+            }
+          });
           this.building.year = $event.year;
-        });
+          this.subcategoriesTypo = subCatTmp;
+          this.typologies = catTmp;
+        }
       });
     }
   }
@@ -173,34 +213,41 @@ export class HomeComponent implements OnInit {
         const region = data[3].features.length > 0 ? data[3].features[0].properties.cod_prov : '';
         const nameRegion = data[3].features.length > 0 ? data[3].features[0].properties.nombre : '';
         let point = null;
-        switch (country) {
-          case 'NL' : {
-            point = { x: elementsFromMap.point.ESPG28992.x, y: elementsFromMap.point.ESPG28992.y};
-            this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
-              buildingTmp.region, region, buildingTmp.address,
-              buildingTmp.altitudeCode, coordinates, point, buildingTmp.properties, buildingTmp.rc,
-              buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
-            break;
-          }
-          case 'ES' : {
-            point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
-            this.typologyService.getAltitude(elevation, climateZone, country ).subscribe( resAltitude => {
-              const altitude = resAltitude['altitude_code'];
-              this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
-                this.building =  new Building(country, climateZone, subZone['climate_zone'], '',
-                  nameRegion , region, buildingTmp.address,
-                  altitude, coordinates, point, [], buildingTmp.rc,
-                  '', 0, null, false);
-              });
+        if ( country === 'ES') {
+          point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
+          this.typologyService.getAltitude(elevation, climateZone, country ).subscribe( resAltitude => {
+            const altitude = resAltitude ? resAltitude['altitude_code'] : 0;
+            this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
+              const climateSubZoneRes = subZone ? subZone['climate_zone'] : '';
+              this.building =  new Building(country, climateZone, climateSubZoneRes, '',
+                nameRegion , region, buildingTmp.address,
+                altitude, coordinates, point, [], buildingTmp.rc,
+                '', 0, null, false);
             });
-            break;
-          }
+          });
+        } else if ( country === 'NL') {
+          point = { x: elementsFromMap.point.ESPG28992.x, y: elementsFromMap.point.ESPG28992.y};
+          this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
+            nameRegion, region, buildingTmp.address,
+            buildingTmp.altitudeCode, coordinates, point, [], buildingTmp.rc,
+            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
+        } else {
+          point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
+          this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
+            nameRegion, region, buildingTmp.address,
+            buildingTmp.altitudeCode, coordinates, point, [], buildingTmp.rc,
+            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false);
         }
       });
   }
   showMapControl($event: boolean): void{
     this.showMap = $event;
   }
+
+  /****
+   * TODO Get from history category_pic_code
+   *
+   * ***/
   fillHistory( historyFromService ){
     this.history = [];
     Object.values(historyFromService).forEach( history => {
@@ -220,7 +267,7 @@ export class HomeComponent implements OnInit {
           sch['primary_energy'], sch['emissions'], sch['system']));
       });
       const energy = new Energy(scoreSystem.energy_score_code, scoreSystem.emission_ranking, scoreSystem.consumption_ranking, scoreChart);
-      const typology = new Typology( history['typology_code'], history['typology_name'], history['year_code'], history['picture'],
+      const typology = new Typology( history['typology_code'], history['typology_name'], '',  '', history['year_code'], history['picture'],
         history['building_code'], envelope, system, energy);
       this.history.push( new Building( buildingData.country, buildingData.climate_zone, buildingData.climate_sub_zone, history['year'],
         buildingData.province_name, buildingData.province_code, buildingData.address, buildingData.altitude_code,
@@ -248,12 +295,18 @@ export class HomeComponent implements OnInit {
       });
     });
   }
+
+  /****
+   * TODO Get from history category_pic_code
+   *
+   * ***/
   convertBuildingFromRequest(record: any ){
     const building = new Building(record.building.country, record.building.climate_zone, record.building.climate_sub_zone,
       record.year, record.building.province_name, record.building.province_code, record.building.address,
       record.building.altitude_code, { lng: record.building.lng, lat: record.building.lat}, {x: record.building.x, y: record.building.y },
       [], record.building.rc, record.building.use, record.building.surface, new Typology( record.typology_code,
-        record.typology_name, record.year_code, '', record.building_code, [], [], new Energy(record.energy_scores[0].energy_score_code,
+        record.typology_name, '', '', record.year_code, '',
+        record.building_code, [], [], new Energy(record.energy_scores[0].energy_score_code,
           record.energy_scores[0].emission_ranking, record.energy_scores[0].consumption_ranking, [])), true);
     record.envelopeds.forEach( env => {
       const envelopeToAdd = new Envelope(env.enveloped_code, null, env.description, env.u_value, env.picture, '');
@@ -270,6 +323,10 @@ export class HomeComponent implements OnInit {
     });
 
     return building;
+  }
+
+  receiveErrorFromTypology($event){
+    this.error = $event;
   }
   generalTab() {
     this.active = 1;

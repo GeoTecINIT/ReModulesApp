@@ -82,7 +82,9 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
       } else {
         this.propertiesFilter = changes.building.currentValue.properties;
+        this.properties = changes.building.currentValue.properties;
         this.hasError = false;
+        this.error = '';
         if ( !changes.building.firstChange ) {
           this.propSelected = null;
           this.propIsSelected = false;
@@ -92,44 +94,41 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.ruralBuilding = false;
         if ( this.building.year ) this.selectedYear = this.building.year;
         if ( !this.building.favorite ) {
-          this.building.typology = new Typology('', '', '', '',
+          this.building.typology = new Typology('', '', '', '', '', '',
             '', null, null, null);
-          switch (this.building.country ) {
-            case 'NL' : {
+          if ( this.building.country  === 'ES') {
+            // Best case: Services gives all
+            //if ( this.building.provinceCode === '46') {
+            this.spinner.show();
+            this.textSpinner = 'Waiting for the cadastre service ... ';
+            this.selectBuilding = true;
+            this.getInfoFromCadastre_ES(true);
+            //}
+            // Case when services only get year
+            /*else if ( this.building.provinceCode === '12') {
               this.spinner.show();
+              this.textSpinner = 'Waiting for the cadastre service ... ';
               this.selectBuilding = true;
-              this.getInfoFromCadastre_NL();
-              break;
+              this.getInfoFromCadastre_ES(false);
             }
-            case 'IT' : {
+            // Case everything is request to user
+            else if ( this.building.provinceCode === '03') {
               this.showYearSelection();
-              break;
-            }
-            case 'ES' : {
-              // Best case: Services gives all
-              if ( this.building.provinceCode === '46') {
-                this.spinner.show();
-                this.textSpinner = 'Waiting for the cadastre service ... ';
-                this.selectBuilding = true;
-                this.getInfoFromCadastre_ES(true);
-              }
-              // Case when services only get year
-              else if ( this.building.provinceCode === '12') {
-                this.spinner.show();
-                this.textSpinner = 'Waiting for the cadastre service ... ';
-                this.selectBuilding = true;
-                this.getInfoFromCadastre_ES(false);
-              }
-              // Case everything is request to user
-              else if ( this.building.provinceCode === '03') {
-                this.showYearSelection();
-              }
-              break;
-            }
+            }*/
+          } else if ( this.building.country  === 'NL' ) {
+            this.spinner.show();
+            this.selectBuilding = true;
+            this.getInfoFromCadastre_NL();
+          } else {
+            this.showYearSelection();
           }
         } else {
           this.selectBuilding = true;
         }
+      }
+      if ( changes.error && changes.error.currentValue) {
+        this.error = changes.error.currentValue;
+        this.hasError = true;
       }
     }
   }
@@ -332,12 +331,20 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
     this.building.typology.categoryCode = typology.code;
     this.building.typology.categoryName = typology.name;
-    this.typologyService.getBuildingCode( this.building.typology.categoryCode ).subscribe( resTypo => {
-      this.building.typology.buildingCode = resTypo['building_code'];
-      this.typologyService.getYearCode( this.building.year ).subscribe(resYear => {
-        this.building.typology.yearCode = resYear['year_code'];
-        this.calculateTypologyEmitter.emit(this.building);
-      });
+    this.typologyService.getTypologyCode( this.building.year, this.building.country, this.building.climateZone,
+      this.building.typology.categoryCode ).subscribe( resTypo => {
+        const dataRes = resTypo[0];
+        if ( dataRes ) {
+          this.building.typology.categoryPicCode = dataRes.category_pic_code;
+          this.building.typology.buildingCode = dataRes.category.building_code;
+          this.typologyService.getYearCode( this.building.year ).subscribe(resYear => {
+            this.building.typology.yearCode = resYear['year_code'];
+            this.calculateTypologyEmitter.emit(this.building);
+          });
+        } else {
+          this.hasError = true;
+          this.error = 'We do not have data in this climate zone';
+        }
     });
   }
   getDataBuildingFromINSPIRE( parcel, partParcel ): void {

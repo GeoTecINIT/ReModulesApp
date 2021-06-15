@@ -6,6 +6,8 @@ export class Typology extends Object {
   constructor(
     public categoryCode: string,
     public categoryName: string,
+    public categoryPicCode: string,
+    public addParameterDescription: string,
     public yearCode: string,
     public picName: string,
     public buildingCode: string,

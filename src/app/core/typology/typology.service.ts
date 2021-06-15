@@ -15,8 +15,12 @@ export class TypologyService {
     return this.http.get(`${this.baseUrlTypology}/pics/year/${year}/country/${country}/zone/${zone}`);
   }
 
+  getTypologyCode(year, country, zone, categoryCode ){
+    return this.http.get(`${this.baseUrlBuilding}/year/${year}/country/${country}/zone/${zone}/category/${categoryCode}`);
+  }
+
   getEnvelope(yearCode, country, zone, category ){
-    return this.http.get(`${this.baseUrlTypology}/envelope/year/${yearCode}/country/${country}/zone/${zone}/category/${category}`);
+    return this.http.get(`${this.baseUrlTypology}/envelope/country/${country}/category/${category}`);
   }
 
   getSystem(yearCode, country, zone, buildingCode ){
@@ -24,9 +28,6 @@ export class TypologyService {
   }
   getYearCode( year ){
     return this.http.get(`${this.baseUrlBuilding}/year/${year}`);
-  }
-  getBuildingCode( typoCode ){
-    return this.http.get(`${this.baseUrlBuilding}/code/${typoCode}`);
   }
   getAltitude( elevation , climateZone, country ){
     return this.http.get(`${this.baseUrlBuilding}/altitude/country/${country}/climate/${climateZone}/height/${elevation}`);

@@ -5,7 +5,7 @@
         <li [ngbNavItem]="1">
           <a ngbNavLink (click)="generalTab();">Properties</a>
           <ng-template ngbNavContent>
-            <app-cadastre-info [properties]="properties" [history]="history" [active]="active" [building]="building"(calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
+            <app-cadastre-info [properties]="properties" [history]="history" [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
           </ng-template>
         </li>
         <li [ngbNavItem]="2" *ngIf="isUserLogged">
@@ -22,7 +22,7 @@
                [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory" [active]="active" [totalHistory]="totalHistory"></app-map>
     </div>
     <div *ngIf="showTypology && !showMap && !energyScore" id="typology" class="col-md-9" >
-      <app-typology [typologies]="typologies" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)"> </app-typology>
+      <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)"> </app-typology>
     </div>
     <div *ngIf="energyScore && !showTypology && !showMap" id="energyScore" class="col-md-9" >
       <app-score [building]="building" [history]="history"></app-score>

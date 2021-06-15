@@ -16,20 +16,37 @@
           </p>
           <hr>
         </div>
+        <div  fxLayout="row" fxLayoutAlign="end center" >
+          <button (click)="selectCategory(true);" class="btn calculateTyp" [disabled]="!typologySelected">
+            Continue
+          </button>
+        </div>
         <div fxLayout="row"
              fxLayout.lt-sm="column"
              fxLayoutGap="5px"
-             fxLayoutAlign="space-between ">
+             fxLayoutAlign="space-between " class="form-group">
           <ng-container *ngFor="let cat of typologies " >
             <div class="card" fxFlex="0 1 calc(100% - 5px)"
                  fxFlex.lt-md="0 1 calc(100% - 5px)"
                  fxFlex.lt-sm="100%" id="{{cat.categoryCode}}" >
               <div class="card-header">
-                <h4>{{cat.categoryName}}</h4>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox"  id="check-{{cat.categoryPicCode}}" value="{{typologySelected}}"
+                         (click)="typologySelected = cat" [hidden]="building.country === 'NL' ">
+                  <label class="form-check-label" for="check-{{cat.categoryPicCode}}">
+                    <h4>{{cat.categoryName}}</h4>
+                  </label>
+                </div>
               </div>
-                <a href="#" (click)="selectCategory(cat);">
+              <div class="card-body" [hidden]=" building.country !== 'NL' " *ngIf="subcategoriesTypo && subcategoriesTypo[cat.categoryCode] && subcategoriesTypo[cat.categoryCode].subcats">
+                <div class="form-check" *ngFor="let sub of subcategoriesTypo[cat.categoryCode].subcats">
+                  <input class="form-check-input" type="radio" name="flexRadioDefault" id="{{sub.category_pic_code}}" value="{{typologySelected}}" (click)="typologySelected = sub.info">
+                  <label class="form-check-label" for="{{sub.category_pic_code}}">
+                    {{sub.description}}
+                  </label>
+                </div>
+              </div>
                   <img class="card-img-top" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{cat.picName}}">
-                </a>
               </div>
           </ng-container>
         </div>
