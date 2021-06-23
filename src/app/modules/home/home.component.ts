@@ -144,6 +144,9 @@ export class HomeComponent implements OnInit {
     this.typologies = [];
     this.showTypology =  !($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
     this.energyScore = !!($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
+    /*
+    this.showTypology =  !($event.typology && $event.typology.categoryCode);
+    this.energyScore = !!($event.typology && $event.typology.categoryCode);*/
     if ( !$event.typology || ( $event.typology && !$event.typology.categoryCode ) ) {
       this.typologyService.getTypologyPics($event.year, $event.country, $event.climateZone).subscribe(res => {
         if ( Object.assign(res).length <= 4 ) {
@@ -190,6 +193,9 @@ export class HomeComponent implements OnInit {
           this.typologies = catTmp;
         }
       });
+    } else {
+      //this.getBuildingData();
+      //this.calculateEnergyEfficiency(this.building);
     }
   }
   cleanVariables(): void {
@@ -276,18 +282,25 @@ export class HomeComponent implements OnInit {
     });
   }
   receiveCalculateEnergy($event): void {
-    this.typologyService.getEnergyScore($event.country, $event.climateZone,
-      $event.climateSubZone, $event.typology.yearCode, $event.typology.categoryCode).subscribe( res => {
-      const energyScore = res['energy_score_code'];
-      const emissionRanking = res['emission_ranking'];
-      const consumptionRanking = res['consumption_ranking'];
+    this.calculateEnergyEfficiency($event);
+  }
+  calculateEnergyEfficiency(buildingIn: Building): void {
+    console.log('El building en el home!!! ', buildingIn);
+    if ( !buildingIn.climateSubZone ) {
+      buildingIn.climateSubZone = 'NA';
+    }
+    this.typologyService.getEnergyScore(buildingIn.country, buildingIn.climateZone,
+      buildingIn.climateSubZone, buildingIn.typology.yearCode, buildingIn.typology.categoryCode).subscribe( res => {
+      const energyScore = res && res['energy_score_code'] ? res['energy_score_code'] : '-';
+      const emissionRanking = res && res['emission_ranking'] ? res['emission_ranking'] : '-';
+      const consumptionRanking = res && res['consumption_ranking'] ? res['consumption_ranking'] : '-';
       this.typologyService.getScoreChart(energyScore).subscribe( dataScore => {
         const energytmp = [];
         Object.values(dataScore).forEach( sys => {
           energytmp.push(new ScoreSystem(sys.score_chart_code, +sys.demand,
             +sys.final_energy, +sys.primary_energy, +sys.emissions, sys.system));
         });
-        this.building.typology = $event.typology;
+        this.building.typology = buildingIn.typology;
         this.building.typology.energy = new Energy(energyScore, emissionRanking, consumptionRanking, energytmp);
         this.energyScore = true;
         this.showMap = false;

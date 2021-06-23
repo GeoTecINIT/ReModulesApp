@@ -1,3 +1,4 @@
+@import '../src/scss/variables';
 .pointer {
   display: inline-block;
   font-size: 7pt; //Width of pointer
@@ -35,3 +36,20 @@
   padding: 30px 60px 30px 30px;
 }
 
+.btn-type.active {
+  background-color: $button-active !important;
+  border-color: $button-active;
+  color: white;
+}
+.btn-states {
+  border-radius: 10px 10px 0 0;
+}
+.btn-today {
+  background-color: #e55353;
+}
+.btn-low {
+  background-color: #ffd708;
+}
+.btn-high {
+  background-color: #99f187;
+}

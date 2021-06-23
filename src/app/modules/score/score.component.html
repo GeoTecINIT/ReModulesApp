@@ -14,7 +14,7 @@
       </a>
     </div>
   </div>
-  <div class="container">
+  <div>
     <div class="card card-accent-info">
       <div class="card-header">
         <h6>Building Information </h6>
@@ -22,10 +22,65 @@
       <div class="card-body" style="background-color: #faf9f8">
         <p>Building type: {{building.typology.categoryName}}</p>
         <p>Year of construction: {{building.year}}</p>
+
+          <div fxLayout="row" fxLayoutAlign="space-around center" >
+            <button type="button" class="btn btn-type active" (click)="informationSelection = 1;"> BUILDING DATA </button>
+            <button type="button" class="btn btn-type " (click)="informationSelection = 2;"> SYSTEM DATA </button>
+            <button type="button" class="btn btn-type" (click)="informationSelection = 3;"> CHART 1 </button>
+          </div>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="space-around end" >
+        <button type="button" class="btn btn-states btn-today active btn-lg" > TODAY </button>
+        <button type="button" class="btn btn-states btn-low btn-lg" > LOW REFURBISHMENT </button>
+        <button type="button" class="btn btn-states btn-high btn-lg" > HIGH REFURBISHMENT </button>
       </div>
     </div>
   </div>
-  <div class="container row col-md-12">
+  <div class="row" [hidden]="informationSelection !== 1">
+      <div class="col-md-4">
+        <ng-container *ngFor="let env of building.typology.enveloped ">
+          <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
+            <div class="card-header">
+              <h4>{{env.componentType}}</h4>
+            </div>
+              <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{env.picture}}">
+
+            <div class="card-body">
+              <p>{{env.description}}</p>
+              <p>{{env.typeConstruction}}</p>
+              <p>{{env.uValue}}</p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <div class="col-md-4">
+        <ng-container *ngFor="let ref of lowRefurbishment ">
+          <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
+            <div class="card-header">
+              <h4>{{ref.component_name}}</h4>
+            </div>
+              <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{ref.picture}}">
+            <div class="card-body">
+              <p>{{ref.description}}</p>
+              <p>{{ref.uValue}}</p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+      <div class="col-md-4">
+        <ng-container *ngFor="let ref of highRefurbishment ">
+          <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
+            <div class="card-header">
+              <h4>{{ref.component_name}}</h4>
+            </div>
+            <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{ref.picture}}">
+            <div class="card-body">
+              <p>{{ref.description}}</p>
+              <p>{{ref.uValue}}</p>
+            </div>
+          </div>
+        </ng-container>
+      </div>
     <!--div class="col-sm-4 col-md-4">
       <div class="card card-accent-info">
         <div class="card-header">

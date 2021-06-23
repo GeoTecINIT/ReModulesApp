@@ -41,4 +41,7 @@ export class TypologyService {
   getScoreChart( energyScore ) {
     return this.http.get(`${this.baseUrlTypology}/scoreChart/energy_score/${energyScore}`);
   }
+  getRefurbishment( categoryPicCode ) {
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/category_pic_code/${categoryPicCode}`);
+  }
 }

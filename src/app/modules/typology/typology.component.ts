@@ -77,6 +77,7 @@ export class TypologyComponent implements OnInit, OnChanges {
             sys.system_code, sys.System_code.description_system, sys.System_code.pictures));
         });
       });
+      console.log('El edificio en la tipologia!!!! ', this.building);
     } else  {
       this.errorEmitter.emit('We do not have data in this climate zone');
     }
