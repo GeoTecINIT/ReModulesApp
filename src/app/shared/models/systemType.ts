@@ -1,9 +1,11 @@
+import {System} from './system';
+
 export class SystemType extends Object {
   constructor(
-    public sysType: string,
-    public systemCode: string,
+    public codeSystemMeasure: string,
     public description: string,
-    public picture: string
+    public originalDescription: string,
+    public systems: System[]
   ) {
     super();
   }

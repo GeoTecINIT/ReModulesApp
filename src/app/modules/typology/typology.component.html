@@ -102,22 +102,28 @@
           </h3>
           <hr>
         </div>
+        <div class="systems">
+          <ng-select [(ngModel)]="systemSelected">
+            <ng-option *ngFor="let sys of building.typology.system" [value]="sys">{{sys.description}}</ng-option>
+          </ng-select>
+        </div>
         <div fxLayout="row"
              fxLayout.lt-sm="column"
              fxLayoutGap="5px"
              fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let st of building.typology.system ">
+          <ng-container *ngFor="let systems of systemSelected.systems ">
             <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-md="0 1 calc(33.3% - 5px)"
                  fxFlex.lt-sm="100%">
               <div class="card-header">
-                <h4>{{st.sysType}}</h4>
+                <h4>{{systems.name}}</h4>
               </div>
               <a>
-                <img class="card-img-top" alt="Envelope image"  src="./assets/img/system/{{building.country}}/{{st.picture}}">
+                <img class="card-img-top" alt="System image"  src="./assets/img/system/{{building.country}}/{{systems.picture}}">
               </a>
               <div class="card-body">
-                <p>{{st.description}}</p>
+                <p>{{systems.systemCode}}</p>
+                <p>{{systems.description}}</p>
               </div>
             </div>
           </ng-container>

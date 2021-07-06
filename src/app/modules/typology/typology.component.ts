@@ -4,6 +4,7 @@ import {TypologyService} from '../../core/typology/typology.service';
 import {Envelope} from '../../shared/models/envelope';
 import {SystemType} from '../../shared/models/systemType';
 import {Building} from '../../shared/models/building';
+import {System} from '../../shared/models/system';
 
 @Component({
   selector: 'app-typology',
@@ -16,6 +17,7 @@ export class TypologyComponent implements OnInit, OnChanges {
   active: number;
   selectTypology = true;
   typologySelected: Typology;
+  systemSelected: SystemType;
 
   isChecked;
   isCheckedName;
@@ -28,6 +30,7 @@ export class TypologyComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.typologySelected = null;
+    this.systemSelected = new SystemType('', '', '', []);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -70,14 +73,21 @@ export class TypologyComponent implements OnInit, OnChanges {
             env.enveloped.description, env.enveloped.u_value, env.enveloped.picture, env.component_type.name));
         });
       });
-      this.typologyService.getSystem(this.building.typology.yearCode, this.building.country,
-        this.building.climateZone, this.building.typology.buildingCode).subscribe( res => {
-        Object.values(res).forEach( sys => {
-          this.building.typology.system.push(new SystemType(sys.system_type,
-            sys.system_code, sys.System_code.description_system, sys.System_code.pictures));
-        });
+      this.typologyService.getSystem(this.building.typology.categoryPicCode).subscribe( res => {
+          Object.values( res ).forEach( sysType => {
+            const systemType = new SystemType(
+              sysType.code_system_measure, sysType.system_measure.description_actual_conditions,
+              sysType.system_measure.original_description_aconditions, []);
+            systemType.systems.push(new System( 'Heating', sysType.heating.system_code, sysType.heating.system_description,
+              sysType.heating.system_description_original, sysType.heating.picture));
+            systemType.systems.push(new System( 'Water', sysType.water.system_code, sysType.water.system_description,
+              sysType.water.system_description_original, sysType.water.picture));
+            systemType.systems.push(new System( 'Ventilation', sysType.ventilation.system_code, sysType.ventilation.system_description,
+              sysType.ventilation.system_description_original, sysType.ventilation.picture));
+            this.building.typology.system.push(systemType);
+          });
+          console.log('SYSTEMS!!!!!!! ', this.building.typology.system);
       });
-      console.log('El edificio en la tipologia!!!! ', this.building);
     } else  {
       this.errorEmitter.emit('We do not have data in this climate zone');
     }

@@ -110,7 +110,7 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
     });
     const system = [];
     building.typology.system.forEach( sys => {
-      system.push(sys.systemCode);
+      system.push(sys.codeSystemMeasure);
     });
     const scoreChart = [];
     building.typology.energy.scoreSystem.forEach( sc => {
@@ -221,7 +221,6 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
           });
         }
       });
-      console.log('El low refurbishment!!!! ', this.lowRefurbishment);
     });
   }
 }

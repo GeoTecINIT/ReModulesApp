@@ -23,8 +23,8 @@ export class TypologyService {
     return this.http.get(`${this.baseUrlTypology}/envelope/country/${country}/category/${category}`);
   }
 
-  getSystem(yearCode, country, zone, buildingCode ){
-    return this.http.get(`${this.baseUrlTypology}/system/year/${yearCode}/country/${country}/zone/${zone}/building/${buildingCode}`);
+  getSystem(categoryPicCode ){
+    return this.http.get(`${this.baseUrlTypology}/system/category_pic_code/${categoryPicCode}`);
   }
   getYearCode( year ){
     return this.http.get(`${this.baseUrlBuilding}/year/${year}`);
