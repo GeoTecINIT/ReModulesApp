@@ -42,6 +42,9 @@ export class TypologyService {
     return this.http.get(`${this.baseUrlTypology}/scoreChart/energy_score/${energyScore}`);
   }
   getRefurbishment( categoryPicCode ) {
-    return this.http.get(`${this.baseUrlTypology}/refurbishment/category_pic_code/${categoryPicCode}`);
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/enveloped/category_pic_code/${categoryPicCode}`);
+  }
+  getSystemRefurbishment( categoryPicCode, codeMeasure ) {
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/systems/category_pic_code/${categoryPicCode}/system_measure/${codeMeasure}`);
   }
 }

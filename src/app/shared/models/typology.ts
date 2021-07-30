@@ -12,7 +12,7 @@ export class Typology extends Object {
     public picName: string,
     public buildingCode: string,
     public enveloped: Envelope[],
-    public system: SystemType[],
+    public system: SystemType,
     public energy: Energy
   ) {
     super();

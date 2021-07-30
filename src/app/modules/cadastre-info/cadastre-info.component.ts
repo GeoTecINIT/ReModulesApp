@@ -142,7 +142,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
       '', buildingTmp.region, buildingTmp.provinceCode,
       buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
-      [], null, '', null, null, false);
+      [], null, '', null, null, false, null);
     this.properties = [];
     this.propertiesFilter = [];
     this.spinner.hide();
@@ -220,7 +220,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   calculateTypology(): void {
     this.mapControl = true;
     this.showMapEmitter.emit(false);
-    this.calculateTypologyEmitter.emit(this.building);
+    this.calculateTypologyEmitter.emit({ building: this.building, selected: true});
   }
 
   clearFilters(): void {
@@ -337,9 +337,10 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         if ( dataRes ) {
           this.building.typology.categoryPicCode = dataRes.category_pic_code;
           this.building.typology.buildingCode = dataRes.category.building_code;
+          this.building.typology.picName = dataRes.name;
           this.typologyService.getYearCode( this.building.year ).subscribe(resYear => {
             this.building.typology.yearCode = resYear['year_code'];
-            this.calculateTypologyEmitter.emit(this.building);
+            this.calculateTypologyEmitter.emit({ building: this.building, selected: false});
           });
         } else {
           this.hasError = true;

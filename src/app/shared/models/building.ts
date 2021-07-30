@@ -1,5 +1,6 @@
 import {Property} from './property';
 import {Typology} from './typology';
+import {Refurbishment} from './refurbishment';
 
 export interface Building  {
   country: string;
@@ -18,6 +19,7 @@ export interface Building  {
   surface: number;
   typology: Typology;
   favorite: boolean;
+  refurbishment: Refurbishment;
 }
 export class Building extends Object {
   constructor(
@@ -36,7 +38,8 @@ export class Building extends Object {
     public use: string,
     public surface: number,
     public typology: Typology,
-    public favorite: boolean
+    public favorite: boolean,
+    public refurbishment: Refurbishment
   ) {
     super();
   }

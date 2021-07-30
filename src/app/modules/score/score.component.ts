@@ -8,6 +8,7 @@ import {UserService} from '../../core/authentication/user.service';
 import {Envelope} from '../../shared/models/envelope';
 import {SystemType} from '../../shared/models/systemType';
 import {TypologyService} from '../../core/typology/typology.service';
+import {System} from '../../shared/models/system';
 
 @Component({
   selector: 'app-score',
@@ -74,6 +75,7 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       this.prepareDataForChart();
     }
     this.getRefurbishment();
+    this.getSystemRefurbishment();
   }
   ngAfterViewInit(): void {
     if ( this.building.typology.energy ) {
@@ -108,10 +110,10 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       enveloped[i] = env.envelopedCode;
       i++;
     });
-    const system = [];
+    /*const system = [];
     building.typology.system.forEach( sys => {
       system.push(sys.codeSystemMeasure);
-    });
+    });*/
     const scoreChart = [];
     building.typology.energy.scoreSystem.forEach( sc => {
       scoreChart.push(sc.scoreChartCode);
@@ -139,7 +141,7 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       typology_name: building.typology.categoryName,
       building_code: building.typology.buildingCode,
       enveloped,
-      system,
+      //system,
       score_chart: scoreChart,
       energy_score_code: building.typology.energy.energyScoreCode
     };
@@ -202,23 +204,49 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
     this.typologyService.getRefurbishment(this.building.typology.categoryPicCode).subscribe( refurbishments => {
       Object.values(refurbishments).forEach( ref => {
         if ( ref.improving_building.level_improvement === 'Standard') {
-          this.lowRefurbishment.push({
-            type: ref.improving_building.level_improvement,
-            component_name: ref.measure.component_type.name,
-            description: ref.measure.description_measure_type,
-            description_original: ref.measure.description_measure_type_original,
-            picture: ref.measure.picture,
-            u_value: ref.measure.u_value,
-          });
+          this.building.refurbishment.envelopedStandard.push( new Envelope(ref.component_code, ref.measure.component_type.name,
+            ref.measure.description_measure_type,
+            ref.measure.u_value, ref.measure.picture, ref.measure.component_type.name));
         } else if (ref.improving_building.level_improvement === 'Advanced' ) {
-          this.highRefurbishment.push({
-            type: ref.improving_building.level_improvement,
-            component_name: ref.measure.component_type.name,
-            description: ref.measure.description_measure_type,
-            description_original: ref.measure.description_measure_type_original,
-            picture: ref.measure.picture,
-            u_value: ref.measure.u_value,
-          });
+          this.building.refurbishment.envelopedAdvanced.push(new Envelope(ref.component_code, ref.measure.component_type.name,
+            ref.measure.description_measure_type,
+            ref.measure.u_value, ref.measure.picture, ref.measure.component_type.name));
+        }
+      });
+    });
+  }
+
+  getSystemRefurbishment(): void {
+    this.typologyService.getSystemRefurbishment(this.building.typology.categoryPicCode,
+      this.building.typology.system.codeSystemMeasure).subscribe( systemRe => {
+      Object.values(systemRe).forEach( ref => {
+        console.log('CAda systema', ref);
+        if ( ref.level_improvement === 'Standard') {
+          this.building.refurbishment.systemStandard = new SystemType(
+            ref.code_system_measure, ref.system_measure.description_actual_conditions,
+            ref.system_measure.original_description_aconditions, []);
+          this.building.refurbishment.systemStandard.systems.push(new System( 'Heating',
+            ref.heating.system_code, ref.heating.system_description,
+            ref.heating.system_description_original, ref.heating.picture));
+          this.building.refurbishment.systemStandard.systems.push(new System( 'Water',
+            ref.water.system_code, ref.water.system_description,
+            ref.water.system_description_original, ref.water.picture));
+          this.building.refurbishment.systemStandard.systems.push(new System( 'Ventilation',
+            ref.ventilation.system_code, ref.ventilation.system_description,
+            ref.ventilation.system_description_original, ref.ventilation.picture));
+        } else if (ref.level_improvement === 'Advanced' ) {
+          this.building.refurbishment.systemAdvanced = new SystemType(
+            ref.code_system_measure, ref.system_measure.description_actual_conditions,
+            ref.system_measure.original_description_aconditions, []);
+          this.building.refurbishment.systemAdvanced.systems.push(new System( 'Heating',
+            ref.heating.system_code, ref.heating.system_description,
+            ref.heating.system_description_original, ref.heating.picture));
+          this.building.refurbishment.systemAdvanced.systems.push(new System( 'Water',
+            ref.water.system_code, ref.water.system_description,
+            ref.water.system_description_original, ref.water.picture));
+          this.building.refurbishment.systemAdvanced.systems.push(new System( 'Ventilation',
+            ref.ventilation.system_code, ref.ventilation.system_description,
+            ref.ventilation.system_description_original, ref.ventilation.picture));
         }
       });
     });

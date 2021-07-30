@@ -25,13 +25,8 @@ input {
   background-color: #f7f7f7;
 }
 
-.information {
-  height: 85vh;
-  overflow: auto;
-}
-
 .detail {
-  height: 85vh;
+  height: 100vh;
   overflow: auto;
 }
 
@@ -84,4 +79,23 @@ input {
 .listBuild li {
   padding: 1rem 0;
 }
-
+.cadastreInfo {
+  background-color: #dedddb;
+  border-radius: 30px;
+  margin-top: 100px;
+  padding: 30px;
+}
+.buildingInfo {
+  margin-top: 30px;
+  font-size: 17px;
+}
+.calculateEnergy {
+  color: white;
+  background-color: #616060;
+  border-radius: 30px;
+  margin-top: 40px;
+  padding: 20px;
+}
+.calculateEnergy:hover{
+  background-color: #f7f7f7;
+}

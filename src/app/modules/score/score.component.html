@@ -1,5 +1,146 @@
 <div>
-  <div  fxLayout="row" fxLayoutAlign="end center" class="favoriteSection">
+  <div class="d-flex bd-highlight">
+    <div class="p-2 flex-fill bd-highlight" [hidden]="building.properties.length < 1">
+        <img class="img-thumbnail" alt="Facade image" [src]='building.properties[0].image' *ngIf=" building.properties.length > 0 && building.properties[0].image" width="170" height="170"/>
+    </div>
+    <div  class="p-2 flex-fill bd-highlight " >
+      <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
+      <p> <i class="fa fa-map-marker" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
+      </p>
+      <div class="d-flex bd-highlight">
+        <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
+          <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; &#13217; </span>
+        </div>
+        <div class="p-2 flex-fill bd-highlight">
+          <p>Climate Region: <strong>{{building.climateZone}}</strong></p>
+          <span><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
+        </div>
+        </div>
+    </div>
+    <div  class="p-2 flex-fill bd-highlight " >
+      <p [hidden]="!building.rc">Cadastral reference: <strong>{{building.rc}}</strong></p>
+      <p [hidden]="!building.use">Primary use: <strong>{{building.use}}</strong></p>
+    </div>
+
+    <div  class="p-2 flex-fill bd-highlight" >
+      <span> <i class="fa fa-battery-empty" aria-hidden="true"></i> ACTUAL ENERGY COST VS REFURBISHMENT</span>
+    </div>
+  </div>
+  <!-- Refurbishment section-->
+  <div class="row">
+    <div class="col-md-4">
+      <div class="titleSection">
+        Today
+      </div>
+      <div class="accordion" id="today">
+        <div class="card">
+          <div class="card-header" id="buildingData">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#components" aria-expanded="true" aria-controls="components">
+                Building Data
+              </button>
+            </h2>
+          </div>
+
+          <div id="components" class="collapse" aria-labelledby="buildingData" data-parent="#today">
+            <div class="card-body">
+              <div class="accordion" id="buildingComponents">
+                <div class="card" *ngFor="let typ of building.typology.enveloped; let i = index">
+                  <div class="card-header" id="header-{{i}}">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-'+i" aria-expanded="true" [attr.aria-controls]="'#component-'+i" >
+                        {{typ.componentType}}
+                      </button>
+                    </h2>
+                  </div>
+
+                  <div id="component-{{i}}" class="collapse" [attr.aria-labelledby]="'header-'+i" data-parent="#buildingComponents">
+                    <div class="card-body row">
+                      <div class="col-md-6">
+                        <img src="./assets/img/envelope/{{building.country}}/{{typ.picture}}" width="240" height="170"/>
+                      </div>
+                      <div class="col-md-1">
+
+                      </div>
+                      <div class="col-md-5">
+                        <p>
+                          {{typ.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" id="systemData">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="true" aria-controls="systems">
+                System Data
+              </button>
+            </h2>
+          </div>
+
+          <div id="systems" class="collapse" aria-labelledby="systemData" data-parent="#today">
+            <div class="card-body">
+              <div class="accordion" id="systemComponent">
+                <div class="card" *ngFor="let sys of building.typology.system.systems; let i = index">
+                  <div class="card-header" id="header-system-{{i}}">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-system-'+i" aria-expanded="true" [attr.aria-controls]="'#component-system-'+i" >
+                        {{sys.name}}
+                      </button>
+                    </h2>
+                  </div>
+
+                  <div id="component-system-{{i}}" class="collapse" [attr.aria-labelledby]="'header-system-'+i" data-parent="#systemComponent">
+                    <div class="card-body row">
+                      <div class="col-md-6">
+                        <img src="./assets/img/system/{{building.country}}/{{sys.picture}}" width="240" height="170"/>
+                      </div>
+                      <div class="col-md-6">
+                        <p>
+                          {{sys.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" id="energyEfficiency">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyData" aria-expanded="true" aria-controls="energyData">
+                Energy Efficiency
+              </button>
+            </h2>
+          </div>
+
+          <div id="energyData" class="collapse" aria-labelledby="energyEfficiency" data-parent="#today">
+            <div class="card-body">
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="col-md-4">
+
+    </div>
+    <div class="col-md-4">
+
+    </div>
+
+  </div>
+  <!--div  fxLayout="row" fxLayoutAlign="end center" class="favoriteSection">
     <div *ngIf="isUserLogged && !searchFromHistory" >
       <a href="#" (click)="addToFavorites(building);" *ngIf="!building.favorite"> Save to history
         <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
@@ -13,8 +154,8 @@
         <span><i class="fa fa-heart" aria-hidden="true"></i></span>
       </a>
     </div>
-  </div>
-  <div>
+  </div-->
+  <!--div>
     <div class="card card-accent-info">
       <div class="card-header">
         <h6>Building Information </h6>
@@ -35,8 +176,8 @@
         <button type="button" class="btn btn-states btn-high btn-lg" > HIGH REFURBISHMENT </button>
       </div>
     </div>
-  </div>
-  <div class="row" [hidden]="informationSelection !== 1">
+  </div-->
+  <!--div class="row" [hidden]="informationSelection !== 1">
       <div class="col-md-4">
         <ng-container *ngFor="let env of building.typology.enveloped ">
           <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
@@ -54,10 +195,10 @@
         </ng-container>
       </div>
       <div class="col-md-4">
-        <ng-container *ngFor="let ref of lowRefurbishment ">
+        <ng-container *ngFor="let ref of building.refurbishment.envelopedStandard ">
           <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
             <div class="card-header">
-              <h4>{{ref.component_name}}</h4>
+              <h4>{{ref.componentType}}</h4>
             </div>
               <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{ref.picture}}">
             <div class="card-body">
@@ -68,10 +209,10 @@
         </ng-container>
       </div>
       <div class="col-md-4">
-        <ng-container *ngFor="let ref of highRefurbishment ">
+        <ng-container *ngFor="let ref of building.refurbishment.envelopedAdvanced ">
           <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
             <div class="card-header">
-              <h4>{{ref.component_name}}</h4>
+              <h4>{{ref.componentType}}</h4>
             </div>
             <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{ref.picture}}">
             <div class="card-body">
@@ -81,53 +222,48 @@
           </div>
         </ng-container>
       </div>
-    <!--div class="col-sm-4 col-md-4">
-      <div class="card card-accent-info">
-        <div class="card-header">
-          <h6>Energy Score</h6>
-        </div>
-        <div class="card-body" style="background-color: #faf9f8">
-          <h6>Emissions</h6>
-          <div id="generalPointer">
-            <div class="pointer" id="emissions">
-              <div class="cnt">
-                <p>{{building.typology.energy.emissionRanking}}</p>
-              </div>
-            </div>
+  </div-->
+  <!--div class="row" [hidden]="informationSelection !== 2">
+    <div class="col-md-4">
+      <ng-container *ngFor="let sys of building.typology.system.systems ">
+        <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
+          <div class="card-header">
+            <h4>{{sys.name}}</h4>
           </div>
-          <h6>Consumptions</h6>
-          <div class="pointer" id="consumption">
-            <div class="cnt">
-              <p> {{building.typology.energy.consumptionRanking}}</p>
-            </div>
+          <img class="card-img-top" alt="Envelope image"  src="./assets/img/system/{{building.country}}/{{sys.picture}}">
+
+          <div class="card-body">
+            <p>{{sys.descriptionOriginal}}</p>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
-    <div class="col-sm-8 col-md-8">
-      <div class="card card-accent-info">
-        <div class="card-header">
-          <h6>Score chart</h6>
+    <div class="col-md-4">
+      <ng-container *ngFor="let sys of building.refurbishment.systemStandard.systems ">
+        <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
+          <div class="card-header">
+            <h4>{{sys.name}}</h4>
+          </div>
+          <img class="card-img-top" alt="System image"  src="./assets/img/system/{{building.country}}/{{sys.picture}}">
+          <div class="card-body">
+            <p>{{sys.descriptionOriginal}}</p>
+          </div>
         </div>
-        <div class="card-body" style="background-color: #faf9f8">
-          <ngx-charts-bar-vertical-stacked
-            [view]="view"
-            [scheme]="colorScheme"
-            [results]="dataChart"
-            [gradient]="gradient"
-            [xAxis]="showXAxis"
-            [yAxis]="showYAxis"
-            [legend]="showLegend"
-            [showXAxisLabel]="showXAxisLabel"
-            [showYAxisLabel]="showYAxisLabel"
-            [yAxisLabel]="yAxisLabel"
-            [animations]="animations"
-            [legendTitle]="legendTitle"
-            >
-          </ngx-charts-bar-vertical-stacked>
+      </ng-container>
+    </div>
+    <div class="col-md-4">
+      <ng-container *ngFor="let sys of building.refurbishment.systemAdvanced.systems  ">
+        <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
+          <div class="card-header">
+            <h4>{{sys.name}}</h4>
+          </div>
+          <img class="card-img-top" alt="System image"  src="./assets/img/system/{{building.country}}/{{sys.picture}}">
+          <div class="card-body">
+            <p>{{sys.descriptionOriginal}}</p>
+          </div>
         </div>
-      </div>
-    </div-->
-  </div>
+      </ng-container>
+    </div>
+  </div-->
 
 </div>

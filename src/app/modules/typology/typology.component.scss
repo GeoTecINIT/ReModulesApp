@@ -22,3 +22,46 @@ button:disabled {
 .calculateTyp:hover{
   background-color: #f7f7f7;
 }
+.typologySection, .customData > div, .card-header{
+  background-color: #797979;
+  color: white;
+}
+.card-header i{
+  color: white;
+}
+.typologyIcon {
+  width: 50px !important;
+  height: 50px !important;
+}
+.typologyImage {
+  width: 100px !important;
+  height: 100px !important;
+}
+.typologyImageCont {
+  text-align: center;
+}
+
+.carousel-inner > .carousel-item > img {
+  width:640px!important;
+  height:360px;
+}
+
+.carousel-px-wide {
+  padding-left: 50px;
+  padding-right: 50px;
+}
+.componentEnv, .componentSys {
+  text-align: center;
+  color: #d8d5d5;
+}
+.calculateTyp {
+  color: white;
+  background-color: #616060;
+  border-radius: 30px;
+  margin-top: 40px;
+  padding: 20px;
+}
+.calculateTyp:hover{
+  background-color: #f7f7f7;
+  color: #616060;
+}

@@ -1,55 +1,6 @@
-@import '../src/scss/variables';
-.pointer {
-  display: inline-block;
-  font-size: 7pt; //Width of pointer
-  width: 100px;
-  height: 4em;
-  position: relative;
-  background: var(--check-primary);
-  text-align: center;
-  vertical-align: middle;
-  margin: 0.6em;
-}
-.pointer:before {
-  content: '';
-  position: absolute;
-  right: -1.25em;
-  bottom: 0;
-  width: 0;
-  height: 0;
-  border-left: var(--check-secondary);
-  //border-left: 1.25em solid;
-  border-top: 2em solid transparent;
-  border-bottom: 2em solid transparent;
-}
-
-.cnt {
-  position: relative;
-  top: 0.25em;
-  left: 1em;
-  color: white;
-}
-.cnt p {
-  font-size:15pt;
-}
-.favoriteSection {
-  padding: 30px 60px 30px 30px;
-}
-
-.btn-type.active {
-  background-color: $button-active !important;
-  border-color: $button-active;
-  color: white;
-}
-.btn-states {
+.titleSection {
   border-radius: 10px 10px 0 0;
-}
-.btn-today {
-  background-color: #e55353;
-}
-.btn-low {
-  background-color: #ffd708;
-}
-.btn-high {
-  background-color: #99f187;
+  background-color: #1a80b6;
+  color: white;
+  text-align: center;
 }

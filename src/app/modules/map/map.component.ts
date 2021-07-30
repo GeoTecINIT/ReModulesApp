@@ -220,7 +220,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         }
         address = result.address.Address;
         if ( this.building.rc ) this.building.rc = '';
-        this.coordinatesEmitter.emit({latlng: ev.latlng, x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point});
+        this.coordinatesEmitter.emit({latlng: ev.latlng, x: this.point.ESPG25830.x, y: this.point.ESPG25830.y,
+          address, point: this.point, region: result.address.Region});
       });
     });
 
@@ -244,7 +245,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         let address = '';
         address = data.results[i].text;
         this.coordinatesEmitter.emit({latlng: data.results[i].latlng,
-          x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point});
+          x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point, region: ''});
         //this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });

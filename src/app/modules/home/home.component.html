@@ -1,31 +1,57 @@
 <main>
-  <div class="row selectLocation">
-    <div class="col-md-3 tabs">
-      <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
-        <li [ngbNavItem]="1">
-          <a ngbNavLink (click)="generalTab();">Properties</a>
-          <ng-template ngbNavContent>
-            <app-cadastre-info [properties]="properties" [history]="history" [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
-          </ng-template>
-        </li>
-        <li [ngbNavItem]="2" *ngIf="isUserLogged">
-          <a ngbNavLink (click)="refreshFavorites();">My Favorites</a>
-          <ng-template ngbNavContent>
-            <app-history [history]="history"  (buildingSelectedFromHistoryEmitter)="receivePropFromHistory($event)" (historyFilteredEmitter)="receiveHistoryFiltered($event)"></app-history>
-          </ng-template>
-        </li>
-      </ul>
-      <div [ngbNavOutlet]="nav" class="mt-2"></div>
+  <div class="row">
+    <div class="col-md-1 options-panel">
+      <div class="buttons-panel">
+        <button *ngIf="!isUserLogged" class="btn login-button float-right" (click)="openModal()">
+          <i class="fa fa-user-o fa-2x"></i>
+        </button>
+        <div *ngIf="isUserLogged" class="row userLogged" >
+          <div class="col-md-9 square-container">
+            <a>
+              <h2 >{{currentUser.name.substring(0, 1)}}</h2>
+            </a>
+          </div>
+          <!--div class="cursor-pointer flex justify-center items-center h-16 col-md-3" (click)="logOut()">
+            <div class="borderFade">
+              <i class="fa fa-sign-out" aria-hidden="true"></i>
+              Log out
+            </div>
+          </div-->
+        </div>
+        <!--app-history *ngIf="active ===1" [history]="history"  (buildingSelectedFromHistoryEmitter)="receivePropFromHistory($event)" (historyFilteredEmitter)="receiveHistoryFiltered($event)"></app-history-->
+      </div>
+      <div class="buttons-panel">
+        <a href="#" (click)="showTypology=false; showEnergy=false; showMap = false;" >
+          <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="buttons-panel">
+        <a>
+          <i class="fa fa-sliders fa-2x" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="buttons-panel">
+        <a>
+          <i class="fa fa-bookmark-o fa-2x" aria-hidden="true"></i>
+        </a>
+      </div>
     </div>
-    <div [hidden]="!showMap" class="col-md-9">
+    <div [ngClass]="showMap ? 'col-md-6' : ''" [hidden]="!showMap || showEnergy"  class="information" >
+      <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+      <div [hidden]="showTypology || showEnergy">
+        <app-cadastre-info [properties]="properties" [history]="history" [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
+      </div>
+      <div *ngIf="showTypology" class="buildInfoSection">
+        <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)"> </app-typology>
+      </div>
+    </div>
+    <div *ngIf="showEnergy" [ngClass]="showEnergy ? 'col-md-11' : ''"  class="energySection information">
+      <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+      <app-score [building]="building" [history]="history"></app-score>
+    </div>
+    <div [ngClass]="showMap ? 'col-md-5' : 'col-md-11'"  *ngIf="!showEnergy">
       <app-map (buildingEmitter)="receiveBuildingFromMap($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
                [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory" [active]="active" [totalHistory]="totalHistory"></app-map>
-    </div>
-    <div *ngIf="showTypology && !showMap && !energyScore" id="typology" class="col-md-9" >
-      <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)"> </app-typology>
-    </div>
-    <div *ngIf="energyScore && !showTypology && !showMap" id="energyScore" class="col-md-9" >
-      <app-score [building]="building" [history]="history"></app-score>
     </div>
   </div>
 
