@@ -32,6 +32,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   mapControl: boolean;
   ruralBuilding: boolean;
   selectBuilding: boolean;
+  errorLocation: boolean;
 
   textSpinner: string;
   // Variables temp for 3 cases
@@ -65,7 +66,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
 
   ngOnInit(){
     this.years = [];
-    for (let i = 1950; i <= new Date().getFullYear(); i++) {
+    for (let i = new Date().getFullYear(); i >= 1000; i--) {
       const year = String( i);
       this.years.push( year);
     }
@@ -133,6 +134,23 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
   }
 
+  showErrorLocation() {
+    const buildingTmp  = this.building;
+    //this.building = null;
+    this.spinner.show();
+    this.errorLocation = true;
+    this.selectBuilding = false;
+    this.hasError = true;
+    this.error = 'There is not information in this point, please move inside building ';
+    this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
+      '', buildingTmp.region, buildingTmp.provinceCode,
+      buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
+      [], null, '', null, null, false, null, []);
+    this.properties = [];
+    this.propertiesFilter = [];
+    this.spinner.hide();
+  }
+
   showYearSelection() {
     const buildingTmp  = this.building;
     this.building = null;
@@ -142,7 +160,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
       '', buildingTmp.region, buildingTmp.provinceCode,
       buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
-      [], null, '', null, null, false, null);
+      [], null, '', null, null, false, null, []);
     this.properties = [];
     this.propertiesFilter = [];
     this.spinner.hide();
@@ -401,18 +419,30 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     });
   }
   getInfoFromCadastre_ES(getTypology: boolean) {
+    this.errorLocation = false;
+    this.selectYear = false;
     const buildingTmp = this.building;
     this.cadastreServiceES.getRCByCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
-      this.building = null;
+      this.selectBuilding = false;
+      //this.building = null;
       const parser = new DOMParser();
       const dataFile = parser.parseFromString(data, 'text/xml');
       const err = dataFile.getElementsByTagName('err')[0];
       if ( err ){
         const desError = dataFile.getElementsByTagName('des')[0].textContent;
-        this.hasError = true;
+        const codError = dataFile.getElementsByTagName('cod')[0].textContent;
+        if ( codError === '16') {
+          this.showErrorLocation();
+          this.spinner.hide();
+        } else {
+          this.showYearSelection();
+          this.spinner.hide();
+        }
+        /*this.hasError = true;
         this.error = desError;
-        this.spinner.hide();
+        this.spinner.hide();*/
       } else {
+        this.selectBuilding = true;
         const rc1 = dataFile.getElementsByTagName('pc1').length > 0 ? dataFile.getElementsByTagName('pc1')[0].textContent : '';
         const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
         const rcGeneral = rc1.concat(rc2);
@@ -470,11 +500,24 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
               }
             });
           } else {
+            this.selectBuilding = false;
             this.buildingCompleteEmitter.emit(this.building);
             this.spinner.hide();
           }
         });
       }
+    }, error => {
+      this.spinner.show();
+      this.building = buildingTmp;
+      if ( !this.errorLocation ) {
+        this.selectYear = true;
+        this.selectBuilding = true;
+      } else {
+        this.selectBuilding = false;
+      }
+      this.properties = [];
+      this.propertiesFilter = [];
+      this.spinner.hide();
     });
   }
 }

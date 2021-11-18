@@ -55,6 +55,7 @@ export class HomeComponent implements OnInit {
   energyScore: boolean;
 
   modalRef: BsModalRef;
+  optionSelected: number;
 
   SPAIN = 'ES';
   constructor( public afAuth: AngularFireAuth,
@@ -68,14 +69,15 @@ export class HomeComponent implements OnInit {
     this.totalHistory = [];
 
     this.building =  new Building('', '', '',  null, '', '', '', '',
-      {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false, null);
-    this.userService.getAllHistory().subscribe( hist => {
+      {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false, null, []);
+    // GET the entire history
+    /*this.userService.getAllHistory().subscribe( hist => {
       const totalHistoryTmp = [];
       for (let histKey in hist) {
         //totalHistoryTmp.push(this.convertBuildingFromRequest(hist[histKey]));
       }
       this.totalHistory = totalHistoryTmp;
-    });
+    });*/
   }
 
   ngOnInit(): void {
@@ -142,7 +144,7 @@ export class HomeComponent implements OnInit {
       this.building = null;
       this.building = new Building(country, climateZone, climateSubZone, $event.year,
         $event.region, provinceCode, $event.address, altitude, $event.coordinates, $event.point, $event.properties, $event.rc,
-        $event.use, null, null, false, null);
+        $event.use, null, null, false, null, []);
     }
     else if ( $event.typology && $event.favorite) {
       this.building = $event;
@@ -165,7 +167,6 @@ export class HomeComponent implements OnInit {
   }
   receiveCoordinates($event): void {
     this.calculateGeoData($event);
-    console.log('DAtA!!!!!!! ', this.building, $event);
     this.active = 1;
     this.showMap = true;
     this.showBuildingInfo = true;
@@ -173,6 +174,7 @@ export class HomeComponent implements OnInit {
   }
   calculateTypology($event): void{
     this.typologies = [];
+    this.subcategoriesTypo = [];
     //this.showTypology =  !($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
     if ($event.selected) {
       this.showTypology = true;
@@ -240,10 +242,17 @@ export class HomeComponent implements OnInit {
     this.showBuildingInfo = false;
     this.fromHistory = false;
     this.showMap = false;
+    this.optionSelected = 0;
   }
   calculateGeoData(elementsFromMap): void {
     const coordinates = elementsFromMap.latlng;
-    const buildingTmp = this.building;
+    let buildingTmp = null;
+    if ( this.building ) {
+      buildingTmp =  this.building;
+    } else {
+      buildingTmp = new Building('', '', '',  null, '', '', '', '',
+        {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false,  null, []);
+    }
     buildingTmp.address = elementsFromMap.address;
     Observable.forkJoin([
       this.geodataService.getCountries(coordinates.lat, coordinates.lng) ,
@@ -270,7 +279,7 @@ export class HomeComponent implements OnInit {
               this.building =  new Building(country, climateZone, climateSubZoneRes, '',
                 nameRegion , region, buildingTmp.address,
                 altitude, coordinates, point, [], buildingTmp.rc,
-                '', 0, null, false, null);
+                '', 0, null, false, null, []);
             });
           });
         } else if ( country === 'NL') {
@@ -278,14 +287,13 @@ export class HomeComponent implements OnInit {
           this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
             nameRegion, region, buildingTmp.address,
             buildingTmp.altitudeCode, coordinates, point, [], buildingTmp.rc,
-            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null);
+            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null, []);
         } else {
           point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
-          console.log('DATOS ANTES!!!!!! ', region);
           this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
             nameRegion, region, buildingTmp.address,
             buildingTmp.altitudeCode, coordinates, point, [], buildingTmp.rc,
-            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null);
+            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null, []);
         }
       });
   }
@@ -321,37 +329,15 @@ export class HomeComponent implements OnInit {
       this.history.push( new Building( buildingData.country, buildingData.climate_zone, buildingData.climate_sub_zone, history['year'],
         buildingData.province_name, buildingData.province_code, buildingData.address, buildingData.altitude_code,
         { lat: buildingData.lat, lng: buildingData.lng}, { x: buildingData.x, y: buildingData.y}, [], buildingData.rc,
-        buildingData.use, buildingData.surface, typology, true, null));
+        buildingData.use, buildingData.surface, typology, true, null, []));
     });
   }
   receiveCalculateEnergy($event): void {
     this.showEnergy = true;
     this.showTypology = false;
-    this.calculateEnergyEfficiency($event);
-  }
-  calculateEnergyEfficiency(buildingIn: Building): void {
-    console.log('El building en el home!!! ', buildingIn);
-    if ( !buildingIn.climateSubZone ) {
-      buildingIn.climateSubZone = 'NA';
+    if ( !$event.climateSubZone ) {
+      $event.climateSubZone = 'NA';
     }
-    this.typologyService.getEnergyScore(buildingIn.country, buildingIn.climateZone,
-      buildingIn.climateSubZone, buildingIn.typology.yearCode, buildingIn.typology.categoryCode).subscribe( res => {
-      const energyScore = res && res['energy_score_code'] ? res['energy_score_code'] : '-';
-      const emissionRanking = res && res['emission_ranking'] ? res['emission_ranking'] : '-';
-      const consumptionRanking = res && res['consumption_ranking'] ? res['consumption_ranking'] : '-';
-      this.typologyService.getScoreChart(energyScore).subscribe( dataScore => {
-        const energytmp = [];
-        Object.values(dataScore).forEach( sys => {
-          energytmp.push(new ScoreSystem(sys.score_chart_code, +sys.demand,
-            +sys.final_energy, +sys.primary_energy, +sys.emissions, sys.system));
-        });
-        this.building.typology = buildingIn.typology;
-        this.building.typology.energy = new Energy(energyScore, emissionRanking, consumptionRanking, energytmp);
-        this.energyScore = true;
-        //this.showMap = false;
-        //this.showTypology = false;
-      });
-    });
   }
 
   /****
@@ -365,7 +351,7 @@ export class HomeComponent implements OnInit {
       [], record.building.rc, record.building.use, record.building.surface, new Typology( record.typology_code,
         record.typology_name, '', '', record.year_code, '',
         record.building_code, [], null, new Energy(record.energy_scores[0].energy_score_code,
-          record.energy_scores[0].emission_ranking, record.energy_scores[0].consumption_ranking, [])), true, null);
+          record.energy_scores[0].emission_ranking, record.energy_scores[0].consumption_ranking, [])), true, null, []);
     record.envelopeds.forEach( env => {
       const envelopeToAdd = new Envelope(env.enveloped_code, null, env.description, env.u_value, env.picture, '');
       building.typology.enveloped.push(envelopeToAdd);

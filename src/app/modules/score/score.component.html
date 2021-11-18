@@ -27,9 +27,672 @@
     </div>
   </div>
   <!-- Refurbishment section-->
-  <div class="row">
+  <div>
+    <div class="row" style="margin: 0;">
+      <div class="col-md-4 titleSectionToday">
+        <h2>
+          Today
+        </h2>
+      </div>
+      <div class="col-md-4 titleSectionStandard">
+        <h2>Standard</h2>
+      </div>
+      <div class="col-md-4 titleSectionAdvanced">
+        <h2>
+          Advanced
+        </h2>
+      </div>
+    </div>
+    <div class="accordion" id="today">
+      <div class="card ">
+        <div class="card-header" id="buildingData">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#components" aria-expanded="true" aria-controls="components">
+              <h3>Building Data</h3>
+            </button>
+          </h2>
+        </div>
+
+        <div id="components" class="collapse" aria-labelledby="buildingData" data-parent="#today">
+          <div class="card-body">
+            <div class="accordion" id="enveloped">
+              <div class="card" >
+                <div class="card-header" id="floorHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#floorData" aria-expanded="true" aria-controls="floorData">
+                      Floor
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="floorData" class="collapse" aria-labelledby="floorHeader" data-parent="#enveloped">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedToday.floor">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.floor.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedToday.floor.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="envelopedStandard.floor">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.floor.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedStandard.floor.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedAdvanced.floor">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.floor.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedAdvanced.floor.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="roofHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed " type="button" data-toggle="collapse" data-target="#roofData" aria-expanded="true" aria-controls="roofData">
+                      Roof
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="roofData" class="collapse" aria-labelledby="roofHeader" data-parent="#enveloped">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedToday.roof">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.roof.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedToday.roof.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="envelopedStandard.roof">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.roof.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedStandard.roof.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedAdvanced.roof">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.roof.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedAdvanced.roof.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="wallHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#wallData" aria-expanded="true" aria-controls="wallData">
+                      Wall
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="wallData" class="collapse" aria-labelledby="wallHeader" data-parent="#enveloped">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedToday.wall">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.wall.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedToday.wall.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="envelopedStandard.wall">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.wall.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedStandard.wall.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedAdvanced.wall">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.wall.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedAdvanced.wall.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="windowHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#windowData" aria-expanded="true" aria-controls="windowData">
+                      Window
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="windowData" class="collapse" aria-labelledby="windowHeader" data-parent="#enveloped">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedToday.window">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.window.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedToday.window.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="envelopedStandard.window">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.window.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedStandard.window.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedAdvanced.window">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.window.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedAdvanced.window.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="doorHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#doorData" aria-expanded="true" aria-controls="doorData">
+                      Door
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="doorData" class="collapse" aria-labelledby="doorHeader" data-parent="#enveloped">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedToday.door">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.door.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedToday.door.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="envelopedStandard.door">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.door.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedStandard.door.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedAdvanced.door">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.door.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedAdvanced.door.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="cellingHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#cellingData" aria-expanded="true" aria-controls="cellingData">
+                      Celling
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="cellingData" class="collapse" aria-labelledby="cellingHeader" data-parent="#enveloped">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedToday.celling">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.celling.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedToday.celling.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="envelopedStandard.celling">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.celling.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedStandard.celling.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="envelopedAdvanced.celling">
+                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.celling.picture}}" width="240" height="170"/>
+                        <p>
+                          {{envelopedAdvanced.celling.typeConstruction}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" id="systemData">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="true" aria-controls="systems">
+              <h3>System Data</h3>
+            </button>
+          </h2>
+        </div>
+
+        <div id="systems" class="collapse" aria-labelledby="systemData" data-parent="#today">
+          <div class="card-body">
+            <div class="accordion" id="system">
+              <div class="card">
+                <div class="card-header" id="heatingHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#heatingData" aria-expanded="true" aria-controls="heatingData">
+                      Heating
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="heatingData" class="collapse" aria-labelledby="heatingHeader" data-parent="#system">
+                  <div class="card-body row">
+                    <div class="card-body row">
+                      <div class="col-md-4 ">
+                        <div *ngIf="systemsToday.heating">
+                          <img src="./assets/img/system/{{building.country}}/{{systemsToday.heating.picture}}" width="240" height="170"/>
+                          <p>
+                            {{systemsToday.heating.description}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div *ngIf="systemsStandard.heating">
+                          <img src="./assets/img/system/{{building.country}}/{{systemsStandard.heating.picture}}" width="240" height="170"/>
+                          <p>
+                            {{systemsStandard.heating.description}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div *ngIf="systemsAdvanced.heating">
+                          <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.heating.picture}}" width="240" height="170"/>
+                          <p>
+                            {{systemsAdvanced.heating.description}}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="waterHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#waterData" aria-expanded="true" aria-controls="waterData">
+                      Water
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="waterData" class="collapse" aria-labelledby="waterHeader" data-parent="#system">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="systemsToday.water">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsToday.water.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsToday.water.description}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="systemsStandard.water">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsStandard.water.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsStandard.water.description}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="systemsAdvanced.water">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.water.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsAdvanced.water.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="ventilationHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#ventilationData" aria-expanded="true" aria-controls="ventilationData">
+                      Ventilation
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="ventilationData" class="collapse" aria-labelledby="ventilationHeader" data-parent="#system">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="systemsToday.ventilation">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsToday.ventilation.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsToday.ventilation.description}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="systemsStandard.ventilation">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsStandard.ventilation.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsStandard.ventilation.description}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="systemsAdvanced.ventilation">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.ventilation.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsAdvanced.ventilation.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="pvHeader">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#pvData" aria-expanded="true" aria-controls="pvData">
+                      PV
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="pvData" class="collapse" aria-labelledby="pvHeader" data-parent="#system">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div *ngIf="systemsToday.pv">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsToday.pv.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsToday.pv.description}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div *ngIf="systemsStandard.pv">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsStandard.pv.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsStandard.pv.description}}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div *ngIf="systemsAdvanced.pv">
+                        <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.pv.picture}}" width="240" height="170"/>
+                        <p>
+                          {{systemsAdvanced.pv.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header" id="energyEfficiency">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#energySection" aria-expanded="true" aria-controls="energySection">
+              <h3>Energy Efficiency</h3>
+            </button>
+          </h2>
+        </div>
+
+        <div id="energySection" class="collapse" aria-labelledby="energyEfficiency" data-parent="#today">
+          <div class="card-body">
+            <div class="accordion" id="charts">
+              <div class="card">
+                <div class="card-header" id="demand">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#demandData" aria-expanded="true" aria-controls="demandData">
+                      Demand per year
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="demandData" class="collapse" aria-labelledby="demand" data-parent="#charts">
+                  <div class="card-body row">
+                    <div class="card-body row">
+                      <div class="col-md-4 row">
+                        <div class="col-md-7" *ngIf="chartOptionsDemandActual">
+                          <highcharts-chart
+                            [Highcharts]="DemandChartActual"
+                            [options]="chartOptionsDemandActual" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px;">
+                            <div class="rounded-section">
+                              <p>{{demandData.total | number: '1.2-2'}} Total Demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandData.other | number: '1.2-2'}}% Other system demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandData.heating | number: '1.2-2'}}% Heating demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandData.recovered | number: '1.2-2'}}% Recovered Heating</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div class="col-md-7"  *ngIf="chartOptionsDemandStd">
+                          <highcharts-chart
+                            [Highcharts]="DemandChartStd"
+                            [options]="chartOptionsDemandStd" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px;">
+                            <div class="rounded-section">
+                              <p>{{demandDataStd.total | number: '1.2-2'}} Total Demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandDataStd.other | number: '1.2-2'}}% Other system demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandDataStd.heating | number: '1.2-2'}}% Heating demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandDataStd.recovered | number: '1.2-2'}}% Recovered Heating</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 row">
+                        <div class="col-md-7"  *ngIf="chartOptionsDemandAdv">
+                          <highcharts-chart
+                            [Highcharts]="DemandChartAdv"
+                            [options]="chartOptionsDemandAdv" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px;">
+                            <div class="rounded-section">
+                              <p>{{demandDataAdv.total | number: '1.2-2'}} Total Demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandDataAdv.other | number: '1.2-2'}}% Other system demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandDataAdv.heating | number: '1.2-2'}}% Heating demand</p>
+                            </div>
+                            <div class="rounded-section">
+                              <p>{{demandDataAdv.recovered | number: '1.2-2'}}% Recovered Heating</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="energy">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#energyData" aria-expanded="true" aria-controls="energyData">
+                      Final energy consumed
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="energyData" class="collapse" aria-labelledby="energy" data-parent="#charts">
+                  <div class="card-body row">
+                    <div class="col-md-4 row">
+                      <div class="col-md-7" *ngIf="chartOptionsFinalEnergyActual">
+                        <highcharts-chart
+                          [Highcharts]="FinalEnergyChartActual"
+                          [options]="chartOptionsFinalEnergyActual" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px;">
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.total | number: '1.2-2'}} Total</p>
+                          </div>
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.fossils | number: '1.2-2'}}% Fossils</p>
+                          </div>
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.biomass | number: '1.2-2'}}% Biomass</p>
+                          </div>
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.electricity | number: '1.2-2'}}% Electricity</p>
+                          </div>
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.district | number: '1.2-2'}}% District Heating</p>
+                          </div>
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.other | number: '1.2-2'}}% Other</p>
+                          </div>
+                          <div class="rounded-section">
+                            <p>{{finalEnergyData.produced | number: '1.2-2'}}% Produced electricity</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+
+                    </div>
+                    <div class="col-md-4 ">
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="emissions">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#emissionsData" aria-expanded="true" aria-controls="emissionsData">
+                      CO2 Emissions per year nRE PE
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="emissionsData" class="collapse" aria-labelledby="emissions" data-parent="#charts">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+
+                    </div>
+                    <div class="col-md-4 ">
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="res">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#resData" aria-expanded="true" aria-controls="resData">
+                      % RES
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="resData" class="collapse" aria-labelledby="res" data-parent="#charts">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+
+
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+
+
+                    </div>
+                    <div class="col-md-4 ">
+
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="cost">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#costData" aria-expanded="true" aria-controls="costData">
+                      ENERGY COST
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="costData" class="collapse" aria-labelledby="cost" data-parent="#charts">
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+
+
+                    </div>
+                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+
+
+                    </div>
+                    <div class="col-md-4 ">
+
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--div class="row">
     <div class="col-md-4">
-      <div class="titleSection">
+      <div class="titleSectionToday">
         Today
       </div>
       <div class="accordion" id="today">
@@ -64,7 +727,7 @@
                       </div>
                       <div class="col-md-5">
                         <p>
-                          {{typ.description}}
+                          {{typ.typeConstruction}}
                         </p>
                       </div>
                     </div>
@@ -133,137 +796,214 @@
       </div>
     </div>
     <div class="col-md-4">
-
-    </div>
-    <div class="col-md-4">
-
-    </div>
-
-  </div>
-  <!--div  fxLayout="row" fxLayoutAlign="end center" class="favoriteSection">
-    <div *ngIf="isUserLogged && !searchFromHistory" >
-      <a href="#" (click)="addToFavorites(building);" *ngIf="!building.favorite"> Save to history
-        <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
-      </a>
-      <a href="#" (click)="removeFromFavorites(building);" *ngIf="building.favorite"> Saved to history
-        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-      </a>
-    </div>
-    <div *ngIf="isUserLogged && searchFromHistory" >
-      <a href="#" style="text-align: right;" (click)="removeFromFavorites(building);" *ngIf="building.favorite"> Saved to history
-        <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-      </a>
-    </div>
-  </div-->
-  <!--div>
-    <div class="card card-accent-info">
-      <div class="card-header">
-        <h6>Building Information </h6>
+      <div class="titleSectionStandard">
+        Standard
       </div>
-      <div class="card-body" style="background-color: #faf9f8">
-        <p>Building type: {{building.typology.categoryName}}</p>
-        <p>Year of construction: {{building.year}}</p>
-
-          <div fxLayout="row" fxLayoutAlign="space-around center" >
-            <button type="button" class="btn btn-type active" (click)="informationSelection = 1;"> BUILDING DATA </button>
-            <button type="button" class="btn btn-type " (click)="informationSelection = 2;"> SYSTEM DATA </button>
-            <button type="button" class="btn btn-type" (click)="informationSelection = 3;"> CHART 1 </button>
+      <div class="accordion" id="standard">
+        <div class="card">
+          <div class="card-header" id="buildingDataStd">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#componentsStd" aria-expanded="true" aria-controls="componentsStd">
+                Building Data
+              </button>
+            </h2>
           </div>
-      </div>
-      <div fxLayout="row" fxLayoutAlign="space-around end" >
-        <button type="button" class="btn btn-states btn-today active btn-lg" > TODAY </button>
-        <button type="button" class="btn btn-states btn-low btn-lg" > LOW REFURBISHMENT </button>
-        <button type="button" class="btn btn-states btn-high btn-lg" > HIGH REFURBISHMENT </button>
-      </div>
-    </div>
-  </div-->
-  <!--div class="row" [hidden]="informationSelection !== 1">
-      <div class="col-md-4">
-        <ng-container *ngFor="let env of building.typology.enveloped ">
-          <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
-            <div class="card-header">
-              <h4>{{env.componentType}}</h4>
-            </div>
-              <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{env.picture}}">
 
+          <div id="componentsStd" class="collapse" aria-labelledby="buildingDataStd" data-parent="#standard">
             <div class="card-body">
-              <p>{{env.description}}</p>
-              <p>{{env.typeConstruction}}</p>
-              <p>{{env.uValue}}</p>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-      <div class="col-md-4">
-        <ng-container *ngFor="let ref of building.refurbishment.envelopedStandard ">
-          <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
-            <div class="card-header">
-              <h4>{{ref.componentType}}</h4>
-            </div>
-              <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{ref.picture}}">
-            <div class="card-body">
-              <p>{{ref.description}}</p>
-              <p>{{ref.uValue}}</p>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-      <div class="col-md-4">
-        <ng-container *ngFor="let ref of building.refurbishment.envelopedAdvanced ">
-          <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
-            <div class="card-header">
-              <h4>{{ref.componentType}}</h4>
-            </div>
-            <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{ref.picture}}">
-            <div class="card-body">
-              <p>{{ref.description}}</p>
-              <p>{{ref.uValue}}</p>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-  </div-->
-  <!--div class="row" [hidden]="informationSelection !== 2">
-    <div class="col-md-4">
-      <ng-container *ngFor="let sys of building.typology.system.systems ">
-        <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
-          <div class="card-header">
-            <h4>{{sys.name}}</h4>
-          </div>
-          <img class="card-img-top" alt="Envelope image"  src="./assets/img/system/{{building.country}}/{{sys.picture}}">
+              <div class="accordion" id="buildingComponentsStd">
+                <div class="card" *ngFor="let typ of building.refurbishment.envelopedStandard; let i = index">
+                  <div class="card-header" id="headerStd-{{i}}">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#componentStd-'+i" aria-expanded="true" [attr.aria-controls]="'#componentStd-'+i" >
+                        {{typ.componentType}}
+                      </button>
+                    </h2>
+                  </div>
 
-          <div class="card-body">
-            <p>{{sys.descriptionOriginal}}</p>
+                  <div id="componentStd-{{i}}" class="collapse" [attr.aria-labelledby]="'headerStd-'+i" data-parent="#buildingComponentsStd">
+                    <div class="card-body row">
+                      <div class="col-md-6">
+                        <img src="./assets/img/envelope/{{building.country}}/{{typ.picture}}" width="240" height="170"/>
+                      </div>
+                      <div class="col-md-1">
+
+                      </div>
+                      <div class="col-md-5">
+                        <p>
+                          {{typ.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </ng-container>
-    </div>
-    <div class="col-md-4">
-      <ng-container *ngFor="let sys of building.refurbishment.systemStandard.systems ">
-        <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
-          <div class="card-header">
-            <h4>{{sys.name}}</h4>
+
+        <div class="card">
+          <div class="card-header" id="systemDataStd">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#systemsStd" aria-expanded="true" aria-controls="systemsStd">
+                System Data
+              </button>
+            </h2>
           </div>
-          <img class="card-img-top" alt="System image"  src="./assets/img/system/{{building.country}}/{{sys.picture}}">
-          <div class="card-body">
-            <p>{{sys.descriptionOriginal}}</p>
+
+          <div id="systemsStd" class="collapse" aria-labelledby="systemDataStd" data-parent="#standard">
+            <div class="card-body">
+              <div class="accordion" id="systemComponentStd">
+                <div class="card" *ngFor="let sys of building.refurbishment.systemStandard.systems; let i = index">
+                  <div class="card-header" id="header-system-std{{i}}">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-system-std'+i" aria-expanded="true" [attr.aria-controls]="'#component-system-std'+i" >
+                        {{sys.name}}
+                      </button>
+                    </h2>
+                  </div>
+
+                  <div id="component-system-std{{i}}" class="collapse" [attr.aria-labelledby]="'header-system-std'+i" data-parent="#systemComponentStd">
+                    <div class="card-body row">
+                      <div class="col-md-6">
+                        <img src="./assets/img/system/{{building.country}}/{{sys.picture}}" width="240" height="170"/>
+                      </div>
+                      <div class="col-md-6">
+                        <p>
+                          {{sys.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </ng-container>
-    </div>
-    <div class="col-md-4">
-      <ng-container *ngFor="let sys of building.refurbishment.systemAdvanced.systems  ">
-        <div class="card"  fxLayout="column" fxLayoutAlign="space-between center">
-          <div class="card-header">
-            <h4>{{sys.name}}</h4>
+
+        <div class="card">
+          <div class="card-header" id="energyEfficiencyStd">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyDataStd" aria-expanded="true" aria-controls="energyDataStd">
+                Energy Efficiency
+              </button>
+            </h2>
           </div>
-          <img class="card-img-top" alt="System image"  src="./assets/img/system/{{building.country}}/{{sys.picture}}">
-          <div class="card-body">
-            <p>{{sys.descriptionOriginal}}</p>
+
+          <div id="energyDataStd" class="collapse" aria-labelledby="energyEfficiency" data-parent="#standard">
+            <div class="card-body">
+
+            </div>
           </div>
         </div>
-      </ng-container>
+
+      </div>
     </div>
+    <div class="col-md-4">
+      <div class="titleSectionAdvanced">
+        Advanced
+      </div>
+      <div class="accordion" id="advanced">
+        <div class="card">
+          <div class="card-header" id="buildingDataAdv">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#componentsAdv" aria-expanded="true" aria-controls="componentsAdv">
+                Building Data
+              </button>
+            </h2>
+          </div>
+
+          <div id="componentsAdv" class="collapse" aria-labelledby="buildingDataAdv" data-parent="#advanced">
+            <div class="card-body">
+              <div class="accordion" id="buildingComponentsAdv">
+                <div class="card" *ngFor="let typ of building.refurbishment.envelopedAdvanced; let i = index">
+                  <div class="card-header" id="headerAdv-{{i}}">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#componentAdv-'+i" aria-expanded="true" [attr.aria-controls]="'#componentAdv-'+i" >
+                        {{typ.componentType}}
+                      </button>
+                    </h2>
+                  </div>
+
+                  <div id="componentAdv-{{i}}" class="collapse" [attr.aria-labelledby]="'headerStd-'+i" data-parent="#buildingComponentsAdv">
+                    <div class="card-body row">
+                      <div class="col-md-6">
+                        <img src="./assets/img/envelope/{{building.country}}/{{typ.picture}}" width="240" height="170"/>
+                      </div>
+                      <div class="col-md-1">
+
+                      </div>
+                      <div class="col-md-5">
+                        <p>
+                          {{typ.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" id="systemDataAdv">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#systemsAdv" aria-expanded="true" aria-controls="systemsAdv">
+                System Data
+              </button>
+            </h2>
+          </div>
+
+          <div id="systemsAdv" class="collapse" aria-labelledby="systemDataAdv" data-parent="#advanced">
+            <div class="card-body">
+              <div class="accordion" id="systemComponentAdv">
+                <div class="card" *ngFor="let sys of building.refurbishment.systemAdvanced.systems; let i = index">
+                  <div class="card-header" id="header-system-Adv{{i}}">
+                    <h2 class="mb-0">
+                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-system-Adv'+i" aria-expanded="true" [attr.aria-controls]="'#component-system-Adv'+i" >
+                        {{sys.name}}
+                      </button>
+                    </h2>
+                  </div>
+
+                  <div id="component-system-Adv{{i}}" class="collapse" [attr.aria-labelledby]="'header-system-Adv'+i" data-parent="#systemComponentAdv">
+                    <div class="card-body row">
+                      <div class="col-md-6">
+                        <img src="./assets/img/system/{{building.country}}/{{sys.picture}}" width="240" height="170"/>
+                      </div>
+                      <div class="col-md-6">
+                        <p>
+                          {{sys.description}}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" id="energyEfficiencyAdv">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyDataAdv" aria-expanded="true" aria-controls="energyDataAdv">
+                Energy Efficiency
+              </button>
+            </h2>
+          </div>
+
+          <div id="energyDataAdv" class="collapse" aria-labelledby="energyEfficiency" data-parent="#afvanced">
+            <div class="card-body">
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div-->
 
 </div>

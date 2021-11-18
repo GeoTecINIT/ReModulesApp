@@ -28,6 +28,7 @@ export class TypologyComponent implements OnInit, OnChanges {
   selectedYear: string;
   years: string[];
   enableCalculate: boolean;
+  hasSubCategories: boolean;
 
   buildingSelection: { };
   buildingDataCount: {
@@ -64,13 +65,14 @@ export class TypologyComponent implements OnInit, OnChanges {
       this.building = changes.building.currentValue;
       this.selectTypology = false;
       this.selectCategory(false);
-      setTimeout(() => {
-        this.selectComponent('Floor', 1);
-        console.log('Enveloped!!!! ', this.building.typology.enveloped);
-        this.showTypoSelect = true;
-      }, 1000);
     }
     else if ( changes.typologies ) {
+      if ( changes.subcategoriesTypo.currentValue &&  changes.subcategoriesTypo.currentValue.AB &&
+        changes.subcategoriesTypo.currentValue.AB.category_pic_code !== '' ){
+        this.hasSubCategories = true;
+      } else {
+        this.hasSubCategories = false;
+      }
       this.typologies = changes.typologies.currentValue;
       this.selectTypology = true;
       this.categoryIsSelected  = false;
@@ -79,7 +81,11 @@ export class TypologyComponent implements OnInit, OnChanges {
     }
   }
   selectCategory( fromSelection: boolean ) {
+    console.log('Select category!!!');
     this.buildingSelection = [];
+    this.systems = [];
+    this.systemSelected = null;
+    this.categorySystem = null;
     let category = null;
     if ( !fromSelection ) {
       category = this.building.typology;
@@ -95,6 +101,7 @@ export class TypologyComponent implements OnInit, OnChanges {
     if (  category.categoryCode ) {
       this.building.typology = category;
       this.building.typology.enveloped = [];
+      this.systems = [];
       this.typologyService.getEnvelope(this.building.typology.yearCode, this.building.country,
         this.building.climateZone, this.building.typology.categoryPicCode ).subscribe(res => {
           this.buildingDataCount = {
@@ -117,6 +124,11 @@ export class TypologyComponent implements OnInit, OnChanges {
               this.buildingSelection[cat] = this.buildingDataCount[cat] ;
             }
           });
+          console.log('Hola!!!', this.buildingSelection);
+          const value = this.buildingSelection['Door'] ? this.buildingSelection['Door'] : this.buildingSelection['Floor'];
+          const component =  this.buildingSelection['Door'] ? 'Door'  : 'Floor';
+            this.selectComponent(component, value);
+          this.showTypoSelect = true;
       });
       this.typologyService.getSystem(this.building.typology.categoryPicCode).subscribe( res => {
           Object.values( res ).forEach( sysType => {
@@ -148,14 +160,10 @@ export class TypologyComponent implements OnInit, OnChanges {
   selectTypo(typo: Typology) {
     this.typologySelected = typo;
   }
-  selectComponent( component: string, value: any ) {
+  selectComponent( component: any, value: any ) {
     this.componentSelected = { component, value};
+    console.log('entre!!! ', this.componentSelected);
     this.envelopedSelected = [];
-    const buttons = document.getElementsByClassName('componentEnv') as HTMLCollectionOf<HTMLElement>;
-    for( let i = 0; i < buttons.length; i++ ) {
-      buttons[i].style.color = '#d8d5d5';
-    }
-    document.getElementById(component).style.color = 'white';
     this.building.typology.enveloped.forEach( env => {
       if ( env.componentType === component ){
         this.envelopedSelected.push(env);

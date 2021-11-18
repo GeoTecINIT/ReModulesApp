@@ -35,16 +35,13 @@ export class TypologyService {
   getClimateSubZone( altitude, province , climateZone, country ){
     return this.http.get(`${this.baseUrlBuilding}/climateSubZone/country/${country}/climate/${climateZone}/province/${province}/altitude/${altitude}`);
   }
-  getEnergyScore(country, climateCode, ClimateZone, yearCode, categoryCode){
-    return this.http.get(`${this.baseUrlTypology}/energyScore/year_code/${yearCode}/country/${country}/climate_code/${climateCode}/climate_zone/${ClimateZone}/category_code/${categoryCode}`);
-  }
-  getScoreChart( energyScore ) {
-    return this.http.get(`${this.baseUrlTypology}/scoreChart/energy_score/${energyScore}`);
-  }
   getRefurbishment( categoryPicCode ) {
     return this.http.get(`${this.baseUrlTypology}/refurbishment/enveloped/category_pic_code/${categoryPicCode}`);
   }
   getSystemRefurbishment( categoryPicCode, codeMeasure ) {
     return this.http.get(`${this.baseUrlTypology}/refurbishment/systems/category_pic_code/${categoryPicCode}/system_measure/${codeMeasure}`);
+  }
+  getEfficiency( categoryPicCode, codeMeasure ) {
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/efficiency/category_pic_code/${categoryPicCode}/system_measure/${codeMeasure}`);
   }
 }

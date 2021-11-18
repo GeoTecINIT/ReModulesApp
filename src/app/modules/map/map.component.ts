@@ -45,8 +45,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() active: number;
   @Input() totalHistory: Building[];
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
-  CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
-  ZOOM = 8;
+  CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of Valencia
+  ZOOM = 5.22;
   private map;
 
   constructor() { }
@@ -64,25 +64,38 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if ( this.active === 1 ) {
-      if (changes.building && changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
-        changes.building.currentValue[0].error_service )) {
-        this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
+      if (changes.building && changes.building.currentValue.length > 0 && (changes.building.currentValue[0].error ||
+        changes.building.currentValue[0].error_service)) {
+        this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available';
       }
-      if ( changes.active && changes.active.previousValue !== 1) {
+      if (changes.active && changes.active.previousValue !== 1) {
         this.removeOverlays();
         this.removeGroupMarkers();
         this.removeClusterMarkers();
         this.markersGroup = [];
         this.currentLayer = '';
       }
-      if (changes.building && changes.building.currentValue
-        && changes.building.currentValue.year === '' ){ // when year is required
-        this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
-        const textPopup = '<h6> ' + this.building.address  + '</h6>';
-        this.marker.bindPopup(textPopup).openPopup();
+
+
+      if (changes.building && changes.building.currentValue && changes.building.currentValue.address) {
+        if ( this.map) {
+          this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 17);
+          const textPopup = '<h6> ' + this.building.address + '</h6>';
+          this.marker.bindPopup(textPopup).openPopup();
+        }
       }
-      if (  (changes.building && changes.building.currentValue && !changes.building.firstChange &&  changes.building.currentValue.year !== '')
+
+
+          /*if (changes.building && changes.building.currentValue
+            && changes.building.currentValue.year === '' ){ // when year is required
+            console.log('Entre!!!1', changes);
+            this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
+            const textPopup = '<h6> ' + this.building.address  + '</h6>';
+            this.marker.bindPopup(textPopup).openPopup();
+          }*/
+      /*if (  (changes.building && changes.building.currentValue && !changes.building.firstChange &&  changes.building.currentValue.year !== '')
         || (!changes.building && this.building.country && this.building.country !== '') ) {
+        console.log('Entre!!!2', changes);
         if ( changes.building && changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
           changes.building.currentValue[0].error_service )) {
           this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
@@ -99,7 +112,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
             this.marker.bindPopup(textPopup).openPopup();
           }
        }
-      }
+      }*/
       if (this.map && ( !this.building.country || changes.active && changes.active.previousValue !== 1)) {
         if ( this.legend ) {
           this.map.removeControl(this.legend);
@@ -170,6 +183,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       center: this.CENTER_POINT,
       zoom: this.ZOOM,
     });
+    this.map.zoomControl.setPosition('topright');
+
+    /*const mapControlsContainer = document.getElementsByClassName("leaflet-control")[0];
+    const logoContainer = document.getElementById("logoContainer");
+
+    mapControlsContainer.appendChild(logoContainer);*/
+
     L.esri = esri;
     const basemapTopo = L.esri.basemapLayer('Topographic');
     const basemapOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

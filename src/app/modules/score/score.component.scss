@@ -1,6 +1,35 @@
-.titleSection {
+.titleSectionToday {
   border-radius: 10px 10px 0 0;
-  background-color: #1a80b6;
+  background-color: #f5a9a9;
   color: white;
   text-align: center;
+}
+.titleSectionStandard {
+  border-radius: 10px 10px 0 0;
+  background-color: #ffbd04;
+  color: white;
+  text-align: center;
+}
+.titleSectionAdvanced {
+  border-radius: 10px 10px 0 0;
+  background-color: #bce39e;
+  color: white;
+  text-align: center;
+}
+.card-header {
+  background-color: #e5e5e5;
+}
+.rounded-section {
+  border: none;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 30px;
+  padding: 10px;
+  background-color: #b3b0b0;
+  margin-bottom: 10px;
+  color: white;
+}
+.card-body {
+  padding-right: 0;
+  padding-left: 0;
 }

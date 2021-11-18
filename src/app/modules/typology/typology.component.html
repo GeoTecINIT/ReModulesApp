@@ -55,7 +55,15 @@
       </div>
 
       <div id="collapseOne" class="collapse show " aria-labelledby="typologySelectSection" data-parent="#accordionExample">
-        <div class="d-flex bd-highlight">
+        <div class="d-flex bd-highlight" *ngIf="!hasSubCategories">
+          <div *ngFor="let typ of typologies" class="d-flex bd-highlight">
+            <a href="#" (click)="calculateEnvelopedSystems(typ);" >
+              <img class="card-img-top typologyIcon p-2 flex-fill bd-highlight" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{typ.picName}}" >
+            </a>
+            <h6 class="p-2 flex-fill bd-highlight">{{typ.categoryName}}</h6>
+          </div>
+        </div>
+        <div class="d-flex bd-highlight" *ngIf="hasSubCategories">
           <div *ngFor="let typ of typologies" class="d-flex bd-highlight">
             <a href="#" (click)="selectTypo(typ);" >
               <img class="card-img-top typologyIcon p-2 flex-fill bd-highlight" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{typ.picName}}" >
@@ -63,11 +71,11 @@
             <h6 class="p-2 flex-fill bd-highlight">{{typ.categoryName}}</h6>
           </div>
         </div>
-        <div class="typoSelected d-flex bd-highlight" *ngIf="typologySelected">
+        <div class="typoSelected d-flex bd-highlight" *ngIf="hasSubCategories && typologySelected">
           <div class=" p-2 flex-fill bd-highlight typologyImageCont">
             <img class="card-img-top typologyImage" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{typologySelected.picName}}" >
           </div>
-          <div class=" p-2 flex-fill bd-highlight">
+          <div class=" p-2 flex-fill bd-highlight" *ngIf="subcategoriesTypo && subcategoriesTypo[typologySelected.categoryCode]">
             <div class="form-check" *ngFor="let sub of subcategoriesTypo[typologySelected.categoryCode].subcats">
               <input class="form-check-input" type="radio" name="flexRadioDefault" id="{{sub.category_pic_code}}" value="{{typologySelected}}" (click)="calculateEnvelopedSystems(typologySelected = sub.info)">
               <label class="form-check-label" for="{{sub.category_pic_code}}">
@@ -95,10 +103,10 @@
         </div>
       </div>
 
-      <div id="collapseTwo" class="collapse show" aria-labelledby="buildingDataSection" data-parent="#accordionExample">
+      <div id="collapseTwo" class="collapse" aria-labelledby="buildingDataSection" data-parent="#accordionExample" [ngClass]="building.typology && building.typology.categoryCode ? 'show' : ''">
         <div class="d-flex bd-highlight" >
           <div *ngFor="let env of buildingSelection | keyvalue" class="p-2 flex-fill bd-highlight" [hidden]="!showTypoSelect" >
-              <a class="componentEnv" href="#" (click)="selectComponent(env.key, env.value);" *ngIf="env.value > 0" id="{{env.key}}">
+              <a class="componentEnv" [ngClass]="componentSelected.component === env.key ? 'env-selected' : ''" href="#" (click)="selectComponent(env.key, env.value);" *ngIf="env.value > 0" id="{{env.key}}">
                 <i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
                 <span> {{env.key}}</span>
               </a>
@@ -108,15 +116,19 @@
             <h6 class="p-2 flex-fill bd-highlight">{{env.componentType}}</h6>
           </div-->
         </div>
-        <div class="envelopeSelected d-flex bd-highlight" *ngIf="componentSelected && componentSelected.value === 1">
-          <div class=" p-2 flex-fill bd-highlight typologyImageCont">
-            <img class="card-img-top typologyImage" alt="Building image"  src="./assets/img/envelope/{{building.country}}/{{envelopedSelected[0].picture}}" >
-          </div>
-          <div class=" p-2 flex-fill bd-highlight">
-            <p> {{envelopedSelected[0].typeConstruction}}</p>
+        <div class="envelopeSelected  d-flex justify-content-center " *ngIf="componentSelected && componentSelected.value === 1">
+          <div class="row" *ngIf="envelopedSelected && envelopedSelected.length > 0">
+            <img class="card-img-top col-md col-sm col-lg typologyImage" alt="Building image"  src="./assets/img/envelope/{{building.country}}/{{envelopedSelected[0].picture}}" >
+            <p class="col-md col-sm col-lg"> {{envelopedSelected[0].typeConstruction}}</p>
           </div>
         </div>
-        <div class="carousel-px-wide">
+        <div class="envelopeSelected d-flex justify-content-center row" *ngIf="componentSelected && componentSelected.value > 1">
+          <div class="row col-md col-sm " *ngFor="let env of envelopedSelected;">
+            <img class="card-img-top typologyImage col-md col-sm col-lg" alt="Building image"  src="./assets/img/envelope/{{building.country}}/{{env.picture}}" alt="{{env.componentType}}">
+            <p class=" col-md col-sm col-lg"> {{env.typeConstruction}}</p>
+          </div>
+        </div>
+        <!--div class="carousel-px-wide">
           <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" *ngIf="componentSelected && componentSelected.value > 1">
             <ol class="carousel-indicators">
               <li data-target="#carouselExampleIndicators" data-slide-to="0" [ngClass]="i < 1 ? ' active' : ''" *ngFor="let env of envelopedSelected; let i = index"></li>
@@ -139,7 +151,7 @@
               <span class="sr-only">Next</span>
             </a>
           </div>
-        </div>
+        </div-->
       </div>
     </div>
     <div class="card">
@@ -192,138 +204,6 @@
       </div>
     </div>
   </div>
-  <!--ul  ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-    <li [ngbNavItem]="1" class="nav-item" *ngIf="selectTypology">
-      <a ngbNavLink >Typology</a>
-      <ng-template ngbNavContent>
-        <div *ngIf="building.typology">
-          <p><b>Building:</b> {{building.typology.categoryName}}</p>
-          <hr>
-        </div>
-        <div>
-          <h3>
-            Selection Building
-          </h3>
-          <p>
-            1. Choose the building most similar to the one you are looking for
-          </p>
-          <hr>
-        </div>
-        <div  fxLayout="row" fxLayoutAlign="end center" >
-          <button (click)="selectCategory(true);" class="btn calculateTyp" [disabled]="!typologySelected">
-            Continue
-          </button>
-        </div>
-        <div fxLayout="row"
-             fxLayout.lt-sm="column"
-             fxLayoutGap="5px"
-             fxLayoutAlign="space-between " class="form-group">
-          <ng-container *ngFor="let cat of typologies " >
-            <div class="card" fxFlex="0 1 calc(100% - 5px)"
-                 fxFlex.lt-md="0 1 calc(100% - 5px)"
-                 fxFlex.lt-sm="100%" id="{{cat.categoryCode}}" >
-              <div class="card-header">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox"  id="check-{{cat.categoryPicCode}}" value="{{typologySelected}}"
-                         (click)="typologySelected = cat" [hidden]="building.country === 'NL' ">
-                  <label class="form-check-label" for="check-{{cat.categoryPicCode}}">
-                    <h4>{{cat.categoryName}}</h4>
-                  </label>
-                </div>
-              </div>
-              <div class="card-body" [hidden]=" building.country !== 'NL' " *ngIf="subcategoriesTypo && subcategoriesTypo[cat.categoryCode] && subcategoriesTypo[cat.categoryCode].subcats">
-                <div class="form-check" *ngFor="let sub of subcategoriesTypo[cat.categoryCode].subcats">
-                  <input class="form-check-input" type="radio" name="flexRadioDefault" id="{{sub.category_pic_code}}" value="{{typologySelected}}" (click)="typologySelected = sub.info">
-                  <label class="form-check-label" for="{{sub.category_pic_code}}">
-                    {{sub.description}}
-                  </label>
-                </div>
-              </div>
-                  <img class="card-img-top" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{cat.picName}}">
-              </div>
-          </ng-container>
-        </div>
-      </ng-template>
-    </li>
-    <li [ngbNavItem]="2" class="nav-item" [disabled]="!building.typology.categoryName" *ngIf="building.typology">
-      <a ngbNavLink >Building Data</a>
-      <ng-template ngbNavContent>
-        <div >
-          <p><b>Building:</b> {{building.typology.categoryName}}</p>
-          <hr>
-        </div>
-        <div>
-          <h3>
-            Building Data
-          </h3>
-          <hr>
-        </div>
-        <div fxLayout="row"
-             fxLayout.lt-sm="column"
-             fxLayoutGap="5px"
-             fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let env of building.typology.enveloped ">
-            <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
-                 fxFlex.lt-md="0 1 calc(33.3% - 5px)"
-                 fxFlex.lt-sm="100%">
-              <div class="card-header">
-                <h4>{{env.componentType}}</h4>
-              </div>
-              <a>
-                <img class="card-img-top" alt="Envelope image"  src="./assets/img/envelope/{{building.country}}/{{env.picture}}">
-              </a>
-              <div class="card-body">
-                <p>{{env.description}}</p>
-                <p>{{env.typeConstruction}}</p>
-                <p>{{env.uValue}}</p>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-      </ng-template>
-    </li>
-    <li [ngbNavItem]="3" class="nav-item" [disabled]="!building.typology.categoryName" *ngIf="building.typology">
-      <a ngbNavLink>System Type</a>
-      <ng-template ngbNavContent>
-        <div>
-          <p><b>Building:</b> {{building.typology.categoryName}}</p>
-          <hr>
-        </div>
-        <div>
-          <h3>
-            System Type
-          </h3>
-          <hr>
-        </div>
-        <div class="systems">
-          <ng-select [(ngModel)]="systemSelected">
-            <ng-option *ngFor="let sys of systems" [value]="sys">{{sys.description}}</ng-option>
-          </ng-select>
-        </div>
-        <div fxLayout="row"
-             fxLayout.lt-sm="column"
-             fxLayoutGap="5px"
-             fxLayoutAlign="space-between ">
-          <ng-container *ngFor="let systems of systemSelected.systems ">
-            <div class="card" fxFlex="0 1 calc(33.3% - 5px)"
-                 fxFlex.lt-md="0 1 calc(33.3% - 5px)"
-                 fxFlex.lt-sm="100%">
-              <div class="card-header">
-                <h4>{{systems.name}}</h4>
-              </div>
-              <a>
-                <img class="card-img-top" alt="System image"  src="./assets/img/system/{{building.country}}/{{systems.picture}}">
-              </a>
-              <div class="card-body">
-                <p>{{systems.systemCode}}</p>
-                <p>{{systems.description}}</p>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-      </ng-template>
-    </li>
-  </ul-->
 
   <div class="typologyInfo" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="30px" >
     <button role="button" (click)="calculateEfficiency();" class="btn calculateTyp" [disabled]="!enableCalculate">

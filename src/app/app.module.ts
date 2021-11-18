@@ -37,6 +37,7 @@ import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {NgxSpinnerModule} from 'ngx-spinner';
 import {TranslateModule} from '@ngx-translate/core';
+import {HighchartsChartModule} from 'highcharts-angular';
 
 @NgModule({
   declarations: [
@@ -51,26 +52,27 @@ import {TranslateModule} from '@ngx-translate/core';
     TypologyComponent,
     ScoreComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule,
-    ModalModule.forRoot(),
-    HttpClientModule,
-    HttpClientJsonpModule,
-    NgbModule,
-    NgSelectModule,
-    NgxSliderModule,
-    FlexLayoutModule,
-    NgxChartsModule,
-    BrowserAnimationsModule,
-    NoopAnimationsModule,
-    NgxSpinnerModule,
-    TranslateModule.forRoot()
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFirestoreModule,
+        AngularFireAuthModule,
+        ModalModule.forRoot(),
+        HttpClientModule,
+        HttpClientJsonpModule,
+        NgbModule,
+        NgSelectModule,
+        NgxSliderModule,
+        FlexLayoutModule,
+        NgxChartsModule,
+        BrowserAnimationsModule,
+        NoopAnimationsModule,
+        NgxSpinnerModule,
+        TranslateModule.forRoot(),
+        HighchartsChartModule
+    ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
     AngularFireAuthGuard,
