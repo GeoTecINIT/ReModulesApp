@@ -5,11 +5,13 @@ import { FormsModule, FormBuilder, Validator } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MapComponent } from './modules/map/map.component';
+
 // Import firebase-firestore
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
+
 import {environment} from '../environments/environment';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import { LoginComponent } from './modules/login/login.component';
@@ -27,10 +29,24 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { TypologyComponent } from './modules/typology/typology.component';
 
 import { UserService} from './core/authentication/user.service';
-import { CadastreService} from './core/cadastre/cadastre.service';
+import { CadastreESService} from './core/cadastre/ES/cadastreES.service';
 import { TypologyService } from './core/typology/typology.service';
 import {AuthenticationService} from './core/authentication/authentication.service';
 import {GeodataService} from './core/wfs/geodata.service';
+import {OpendataService} from './core/opendata/opendata.service';
+import { ScoreComponent } from './modules/score/score.component';
+import {NgxChartsModule} from '@swimlane/ngx-charts';
+import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {NgxSpinnerModule} from 'ngx-spinner';
+import {TranslateModule} from '@ngx-translate/core';
+import {HighchartsChartModule} from 'highcharts-angular';
+import {
+  FacebookLoginProvider,
+  GoogleLoginProvider,
+  SocialAuthService,
+  SocialAuthServiceConfig,
+  SocialLoginModule
+} from 'angularx-social-login';
 
 @NgModule({
   declarations: [
@@ -42,31 +58,40 @@ import {GeodataService} from './core/wfs/geodata.service';
     CadastreInfoComponent,
     HistoryComponent,
     FooterComponent,
-    TypologyComponent
+    TypologyComponent,
+    ScoreComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFirestoreModule,
-    AngularFireAuthModule,
-    ModalModule.forRoot(),
-    HttpClientModule,
-    HttpClientJsonpModule,
-    NgbModule,
-    NgSelectModule,
-    NgxSliderModule,
-    FlexLayoutModule,
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        ModalModule.forRoot(),
+        HttpClientModule,
+        HttpClientJsonpModule,
+        NgbModule,
+        NgSelectModule,
+        NgxSliderModule,
+        FlexLayoutModule,
+        NgxChartsModule,
+        BrowserAnimationsModule,
+        NoopAnimationsModule,
+        NgxSpinnerModule,
+        TranslateModule.forRoot(),
+        HighchartsChartModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFirestoreModule,
+        AngularFireAuthModule,
+
+    ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    AngularFireAuthGuard,
     AuthenticationService,
     UserService,
-    CadastreService,
+    CadastreESService,
     TypologyService,
-    GeodataService
+    GeodataService,
+    AngularFireAuthGuard,
+    OpendataService
   ],
   bootstrap: [AppComponent]
 })

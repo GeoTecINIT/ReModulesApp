@@ -3,18 +3,7 @@
 
   </div>
   <div class="account-section col-md-3">
-    <button *ngIf="!isUserLogged" class="btn login-button float-right" (click)="openModal()">
-      <i class="fa fa-user-o fa-2x"></i>
-    </button>
-    <div *ngIf="isUserLogged" class="row userLogged" >
-      <div class="col-md-9" ><h6>Hello!  {{currentUser.name}}</h6></div>
-      <div class="cursor-pointer flex justify-center items-center h-16 col-md-3" (click)="logOut()">
-        <div class="borderFade">
-          <i class="fa fa-sign-out" aria-hidden="true"></i>
-            Log out
-        </div>
-      </div>
-    </div>
+
   </div>
 </div>
 

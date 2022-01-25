@@ -7,18 +7,41 @@ import {GlobalConstants} from '../../shared/GlobalConstants';
 })
 export class TypologyService {
 
-  private baseUrl = GlobalConstants.backendURL + '/api/typology';
+  private baseUrlTypology = GlobalConstants.backendURL + '/api/typology';
+  private baseUrlBuilding = GlobalConstants.backendURL + '/api/geoData';
   constructor(private http: HttpClient) { }
 
   getTypologyPics(year, country, zone ){
-    return this.http.get(`${this.baseUrl}/pics/year/${year}/country/${country}/zone/${zone}`);
+    return this.http.get(`${this.baseUrlTypology}/pics/year/${year}/country/${country}/zone/${zone}`);
+  }
+
+  getTypologyCode(year, country, zone, categoryCode ){
+    return this.http.get(`${this.baseUrlBuilding}/year/${year}/country/${country}/zone/${zone}/category/${categoryCode}`);
   }
 
   getEnvelope(yearCode, country, zone, category ){
-    return this.http.get(`${this.baseUrl}/envelope/year/${yearCode}/country/${country}/zone/${zone}/category/${category}`);
+    return this.http.get(`${this.baseUrlTypology}/envelope/country/${country}/category/${category}`);
   }
 
-  getSystem(yearCode, country, zone, buildingCode ){
-    return this.http.get(`${this.baseUrl}/system/year/${yearCode}/country/${country}/zone/${zone}/building/${buildingCode}`);
+  getSystem(categoryPicCode ){
+    return this.http.get(`${this.baseUrlTypology}/system/category_pic_code/${categoryPicCode}`);
+  }
+  getYearCode( year ){
+    return this.http.get(`${this.baseUrlBuilding}/year/${year}`);
+  }
+  getAltitude( elevation , climateZone, country ){
+    return this.http.get(`${this.baseUrlBuilding}/altitude/country/${country}/climate/${climateZone}/height/${elevation}`);
+  }
+  getClimateSubZone( altitude, province , climateZone, country ){
+    return this.http.get(`${this.baseUrlBuilding}/climateSubZone/country/${country}/climate/${climateZone}/province/${province}/altitude/${altitude}`);
+  }
+  getRefurbishment( categoryPicCode ) {
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/enveloped/category_pic_code/${categoryPicCode}`);
+  }
+  getSystemRefurbishment( categoryPicCode, codeMeasure ) {
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/systems/category_pic_code/${categoryPicCode}/system_measure/${codeMeasure}`);
+  }
+  getEfficiency( categoryPicCode, codeMeasure ) {
+    return this.http.get(`${this.baseUrlTypology}/refurbishment/efficiency/category_pic_code/${categoryPicCode}/system_measure/${codeMeasure}`);
   }
 }

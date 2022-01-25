@@ -24,12 +24,21 @@ export class HistoryComponent implements OnInit, OnChanges {
     value: any}];
   yearSelected: any;
 
+  typologyControl: boolean;
+  typologyFilter: [{ value: string,
+    name: string}];
+  typologySelected: string;
+
+  emissionControl: boolean;
+  emissionFilter: string[];
+  emissionSelected: string;
+
   surfaceFilter: Options;
   surfaceSelected: any;
 
   filterApplied: string[];
   @Input() history: Building[];
-  @Output() itemSelectedFromHistoryEmitter = new EventEmitter<any>();
+  @Output() buildingSelectedFromHistoryEmitter = new EventEmitter<any>();
   @Output() historyFilteredEmitter = new EventEmitter<any>();
   constructor(public afAuth: AngularFireAuth) {
     this.afAuth.onAuthStateChanged(user => {
@@ -57,19 +66,25 @@ export class HistoryComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ( changes.history.currentValue ) {
       this.history = changes.history.currentValue;
-      this.historyFiltered = this.history;
-      this.buildFilterByUses();
-      this.buildFilterByYear();
+      this.historyFiltered =  changes.history.currentValue;
+      this.buildFilters();
       this.buildFilterBySurface();
     }
   }
 
-  getInfoByRC(building: Building): void {
-    this.itemSelectedFromHistoryEmitter.emit(building);
+  buildFilters(): void {
+    this.buildFilterByUses();
+    this.buildFilterByYear();
+    this.buildFilterByTypology();
+    this.buildFilterByEnergyScore();
+  }
+
+  getInfoByRC(buildingToEmit): void {
+    this.buildingSelectedFromHistoryEmitter.emit(buildingToEmit);
   }
 
   buildFilterByUses(): void {
-    this.usesFilter = null;
+    this.usesFilter = [];
     this.historyFiltered.forEach( (data: Building) => {
       if ( data.use ){
         const index = this.usesFilter.indexOf(data.use);
@@ -137,7 +152,7 @@ export class HistoryComponent implements OnInit, OnChanges {
     let disable = true;
     let floor = 0;
     let ceil = 10000;
-    this.history.forEach(data => {
+    this.historyFiltered.forEach(data => {
       if ( data.surface ) {
         surfaces.push(data.surface);
       }
@@ -157,6 +172,44 @@ export class HistoryComponent implements OnInit, OnChanges {
     };
   }
 
+  buildFilterByTypology(): void {
+    this.typologyFilter = null;
+    this.historyFiltered.forEach( (data: Building) => {
+      const valueToAdd = {
+        value: data.typology.categoryCode,
+        name: data.typology.categoryName
+      };
+      if ( this.typologyFilter === null ) {
+        this.typologyFilter = [valueToAdd];
+      } else {
+        const indexYear = this.typologyFilter.findIndex((item, i) => {
+          return item.value === data.typology.categoryCode;
+        });
+        if ( indexYear < 0 ){
+          this.typologyFilter.push(valueToAdd);
+        }
+      }
+    });
+    if ( this.typologyFilter && this.typologyFilter.length > 0 ) {
+      this.typologyControl = true;
+    }
+  }
+
+  buildFilterByEnergyScore(): void {
+    this.emissionFilter = [];
+    this.historyFiltered.forEach( (data: Building) => {
+      if ( data.typology.energy.emissionRanking ){
+        const index = this.emissionFilter.indexOf(data.typology.energy.emissionRanking);
+        if (index < 0) {
+          this.emissionFilter.push(data.typology.energy.emissionRanking);
+        }
+      }
+    });
+    if ( this.usesFilter && this.usesFilter.length > 0 ) {
+      this.emissionControl = true;
+    }
+  }
+
   cleanFilter(type: string) {
     const indexFilterApplied = this.filterApplied.indexOf(type);
     if (indexFilterApplied > -1) {
@@ -167,7 +220,9 @@ export class HistoryComponent implements OnInit, OnChanges {
   filter(type: string): void {
     if ( ( type === 'use' && this.useSelected !== null ) ||
       ( type === 'year' && this.yearSelected !== null ) ||
-      ( type === 'surface' && this.surfaceSelected !== null )  ){
+      ( type === 'surface' && this.surfaceSelected !== null ) ||
+      ( type === 'typology' && this.typologySelected !== null ) ||
+      ( type === 'emission' && this.emissionSelected !== null ) ){
 
       const indexFilterApplied = this.filterApplied.indexOf(type);
       if (indexFilterApplied < 0) {
@@ -203,10 +258,27 @@ export class HistoryComponent implements OnInit, OnChanges {
         });
         arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterBySurface);
       }
+      if (filter === 'typology') {
+        const filterByTypology  = [];
+        this.history.forEach( hist => {
+          if ( hist.typology.categoryCode === this.typologySelected) {
+            filterByTypology.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByTypology);
+      }
+      if (filter === 'emission') {
+        const filterByEmission  = [];
+        this.history.forEach( hist => {
+          if ( hist.typology.energy.emissionRanking === this.emissionSelected) {
+            filterByEmission.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByEmission);
+      }
     });
     this.historyFiltered = arrayFiltered;
-    this.buildFilterByUses();
-    this.buildFilterByYear();
+    this.buildFilters();
     this.historyFilteredEmitter.emit(arrayFiltered);
   }
 

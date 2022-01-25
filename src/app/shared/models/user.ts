@@ -3,6 +3,7 @@ export class User extends Object {
   public uid: string;
   public name: string;
   public email: string;
+  public role: string;
   public organizations: string[];
   public id: string;
 

@@ -1,47 +1,63 @@
 <div *ngIf="!hasError">
-  <div *ngIf="!propIsSelected && properties.length > 0" class="information">
-      <div *ngIf="properties[0].type === RURAL_TYPE" style="text-align: center;">
+  <div>
+      <div *ngIf="ruralBuilding" style="text-align: center;" >
         <h4>Rural property. Please try with another location</h4>
       </div>
-    <div *ngIf="properties[0].type === URBAN_TYPE && building" >
-      <div *ngIf="building && building.country" fxLayoutAlign="end">
-        <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();">
+    <div *ngIf="building && !ruralBuilding && selectBuilding" class="buildingInfo">
+      <!--div [hidden]="!building || ( building && !building.country) || ( building && !building.year)" fxLayoutAlign="end">
+        <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();"  routerLink='/home' routerLinkActive='active' >
           <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
         </button>
         <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">
           <span>Calculate energy efficiency</span>
         </a>
-      </div>
-      <div >
-        <div class="card">
-          <div class="card-body">
-            <h5> Province: {{ building.region }} </h5>
-            <p>Address: <i class="fa fa-map-marker" aria-hidden="true"></i> {{building.address}}
+      </div-->
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col">
+            <div [hidden]="properties.length < 1">
+              <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' *ngIf=" properties.length > 0 && properties[0].image" />
+            </div>
+          </div>
+          <div class="col">
+            <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
+            <p> <i class="fa fa-map-marker" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
             </p>
-            <p>Year of construction: {{building.year}}</p>
-            <p>{{properties.length}} PROPERTIES</p>
-            <div style="text-align: center" *ngIf="properties[0].image">
-              <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' />
-            </div>
-            <div style="text-align: right">
-              <div *ngIf="isUserLogged && !searchFromHistory" >
-                <a href="#" (click)="addToFavorites(building);" *ngIf="!isAFavProperty"> Save to history
-                  <span><i class="fa fa-heart-o" aria-hidden="true"></i></span>
-                </a>
-                <a href="#" (click)="removeFromFavorites(building);" *ngIf="isAFavProperty"> Saved to history
-                  <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-                </a>
-              </div>
-              <div *ngIf="isUserLogged && searchFromHistory" >
-                <a href="#" style="text-align: right;" (click)="removeFromFavorites(building);" *ngIf="isAFavProperty"> Saved to history
-                  <span><i class="fa fa-heart" aria-hidden="true"></i></span>
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
-      <div  class="seeMore">
+      <div class="container cadastreInfo">
+        <div class="d-flex bd-highlight">
+          <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
+            <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; &#13217; </span>
+          </div>
+          <div class="p-2 flex-fill bd-highlight" *ngIf="building.year">
+            <span><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
+          </div>
+        </div>
+        <div class="d-flex bd-highlight">
+          <div class="p-2 flex-fill bd-highlight" *ngIf="building.rc">
+            <p> Cadastre Reference:</p>
+            <p><strong> {{building.rc}}</strong></p>
+          </div>
+          <div class="p-2 flex-fill bd-highlight" *ngIf="building.use">
+            <p>Primary use:</p>
+            <p><strong> {{building.use}}</strong></p>
+          </div>
+        </div>
+        <div class="col-md-6" [hidden]="!selectYear">
+          <label for="selectYear">Select year</label>
+          <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();" [bindValue]="selectedYear"></ng-select>
+        </div>
+      </div>
+      <div class="d-flex flex-row bd-highlight">
+        <button class="calculateEnergy btn btn-large"  role="button" (click)="calculateTypology();" [disabled]="!selectBuilding">
+          <i class="fa fa-battery-full fa-4x" aria-hidden="true" style="width: 70px;"></i> <span  class="align-middle"><strong> CALCULATE THE ENERGY COST  &#62;</strong></span>
+        </button>
+      </div>
+
+
+      <!--div [hidden]="properties.length < 1" class="seeMore">
         <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
           <div class="arrowFromLeft">
             <svg xmlns="http://www.w3.org/2000/svg" width="5.002" height="8.576" viewBox="0 0 5.002 8.576">
@@ -49,13 +65,13 @@
             </svg><span>See Properties</span>
           </div>
         </div>
-      </div>
-      <div class="collapse" id="propertiesInfo">
+      </div-->
+      <!--div class="collapse" id="propertiesInfo">
         <div style="text-align: right">
           <a class="btn filterButton" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">
-      <span>
-        <i class="fa fa-filter" aria-hidden="true"></i>
-      </span>Filters</a>
+        <span>
+          <i class="fa fa-filter" aria-hidden="true"></i>
+        </span>Filters</a>
         </div>
 
         <div class="collapse card filtersBuilding" id="filters">
@@ -88,37 +104,13 @@
             </div>
           </li>
         </ul>
-      </div>
-    </div>
-
+      </div-->
   </div>
-  <div class="detail"  *ngIf="propIsSelected && propSelected !== null">
-    <div class="row">
-      <button *ngIf="!searchFromHistory" type="button" class="btn col-md-4" (click)="propIsSelected = false;"><i class="fa fa-arrow-left"></i> RETURN</button>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <h5>DESCRIPTIVE DATA OF THE PROPERTY</h5>
-      </div>
-      <div style="text-align: center">
-        <img class="card-img-top" [src]='facadeImage' alt="Facade image" />
-      </div>
-      <div class="card-body">
-        <p class="card-text"> Cadastre Reference: {{ propSelected.rc}}</p>
-        <p class="card-text"> Location: {{ propSelected.completeAddress}}</p>
-        <p class="card-text"> Primary use: {{ propSelected.use}}</p>
-        <p class="card-text"> Surface: {{ propSelected.surfaceCons}} &#13217;</p>
-        <p class="card-text"> Construction year: {{ propSelected.yearConstruction}}</p>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">CATASTRAL PLOT</div>
-      <div class="card-body">
-        <p class="card-text"> Property participation: {{ propSelected.participation}} %</p>
-      </div>
-    </div>
   </div>
 </div>
+<ngx-spinner [fullScreen]="false" type="ball-clip-rotate-multiple" size="medium">
+  <p class="loading">{{textSpinner}}</p>
+</ngx-spinner>
 <div *ngIf="hasError">
   <div class="container">
     <h6> {{error}}</h6>

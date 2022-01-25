@@ -8,3 +8,33 @@
 .showMap:hover{
   background-color: #f7f7f7;
 }
+.square-container {
+  border-radius: 10px;
+  background: #abafa6;
+  width: 40px !important;
+  height: 40px;
+  color: white;
+  text-align: center;
+}
+.options-panel {
+  padding-left: 60px;
+  padding-top: 20px;
+}
+.buttons-panel {
+  width: fit-content;
+  height: 12.5%;
+}
+.information {
+  height: 100vh;
+  overflow: auto;
+}
+.buildInfoSection {
+  background-color: #797979;
+  border-radius: 30px;
+  margin-top: 80px;
+  padding: 30px;
+  color: white;
+}
+.energySection {
+  padding: 10px;
+}

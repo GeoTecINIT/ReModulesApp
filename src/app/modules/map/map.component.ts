@@ -4,11 +4,13 @@ import * as esri from 'esri-leaflet';
 import 'proj4leaflet';
 import 'proj4';
 import 'leaflet.markercluster';
+import 'leaflet.awesome-markers';
+import 'leaflet-groupedlayercontrol';
 import * as esri_geo from 'esri-leaflet-geocoder';
 import {Property} from '../../shared/models/property';
-import {CadastreService} from '../../core/cadastre/cadastre.service';
-import {DomSanitizer} from '@angular/platform-browser';
 import {Building} from '../../shared/models/building';
+import {GlobalConstants} from '../../shared/GlobalConstants';
+import {Crs} from '../../shared/models/crs';
 
 @Component({
   selector: 'app-map',
@@ -19,26 +21,41 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
 
   error: any;
   marker: any;
-  point: any;
+  point: Crs;
   markerClusterGroup: L.MarkerClusterGroup;
+  layersControl: any;
+  historyLayer: any;
+  buildingTypesLayer: any;
+  emissionsLayer: any;
+  yearLayer: any;
+  legend: any;
+  currentLayer: string;
+  markersGroup: any[];
+  historyMarkers: any[];
+  typologyMarkers: any[];
+  emissionsMarkers: any[];
+  yearsMarkers: any[];
   @Output() buildingEmitter = new EventEmitter<any>();
-  @Output() propSelectFromMapEmitter = new EventEmitter<any>();
   @Output() coordinatesEmitter = new EventEmitter<any>();
-  @Input() itemSelectedFromHistory: Building;
   @Input() properties: Property[];
   @Input() history: Building[];
   @Input() historyFilteredFromList: any;
   @Input() building: Building;
+  @Input() fromHistory: boolean;
+  @Input() active: number;
+  @Input() totalHistory: Building[];
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
-  CENTER_POINT = [ 39.723488, -0.3601076 ]; // center of Valencia
-  ZOOM = 8;
+  CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of Valencia
+  ZOOM = 5.22;
   private map;
 
-  constructor(public cadastreService: CadastreService, private sanitizer: DomSanitizer) { }
+  constructor() { }
 
   ngOnInit(): void {
     this.properties = [];
     this.markerClusterGroup = L.markerClusterGroup({removeOutsideVisibleBounds: true});
+    this.currentLayer = 'History';
+    this.point = new Crs(null, null);
   }
 
   ngAfterViewInit(): void {
@@ -46,59 +63,119 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.history && changes.history.currentValue &&
-      (changes.history.currentValue !== changes.history.previousValue)){
-      this.history = [];
-      this.history = changes.history.currentValue;
-      this.addMarkersHistory();
-    }
-    if (changes.itemSelectedFromHistory && changes.itemSelectedFromHistory.currentValue &&
-      (changes.itemSelectedFromHistory.currentValue !== changes.itemSelectedFromHistory.previousValue)){
-      this.itemSelectedFromHistory = changes.itemSelectedFromHistory.currentValue;
-      this.removeGroupMarkers();
-      this.history.forEach( (prop: Building) => {
-        if ( prop.rc === this.itemSelectedFromHistory.rc ) {
-          const textPopup = '<h6> ' + prop.address
-            + '</h6>' + '<p> Cadastre reference: ' + prop.rc + '</p>';
-          this.marker = L.marker(L.latLng(prop.coordinates.lat, prop.coordinates.lng)).addTo(this.map);
-          this.map.setView(L.latLng(prop.coordinates.lat, prop.coordinates.lng), 15);
+    if ( this.active === 1 ) {
+      if (changes.building && changes.building.currentValue.length > 0 && (changes.building.currentValue[0].error ||
+        changes.building.currentValue[0].error_service)) {
+        this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available';
+      }
+      if (changes.active && changes.active.previousValue !== 1) {
+        this.removeOverlays();
+        this.removeGroupMarkers();
+        this.removeClusterMarkers();
+        this.markersGroup = [];
+        this.currentLayer = '';
+      }
+
+
+      if (changes.building && changes.building.currentValue && changes.building.currentValue.address) {
+        if ( this.map) {
+          this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 17);
+          const textPopup = '<h6> ' + this.building.address + '</h6>';
           this.marker.bindPopup(textPopup).openPopup();
         }
-      });
-    }
-    if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
-      this.history = changes.historyFilteredFromList.currentValue;
-      this.addMarkersHistory();
-      if ( this.history.length > 0 ){
-        const newBound = this.markerClusterGroup.getBounds();
-        this.map.fitBounds(newBound);
+      }
+
+
+          /*if (changes.building && changes.building.currentValue
+            && changes.building.currentValue.year === '' ){ // when year is required
+            console.log('Entre!!!1', changes);
+            this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
+            const textPopup = '<h6> ' + this.building.address  + '</h6>';
+            this.marker.bindPopup(textPopup).openPopup();
+          }*/
+      /*if (  (changes.building && changes.building.currentValue && !changes.building.firstChange &&  changes.building.currentValue.year !== '')
+        || (!changes.building && this.building.country && this.building.country !== '') ) {
+        console.log('Entre!!!2', changes);
+        if ( changes.building && changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
+          changes.building.currentValue[0].error_service )) {
+          this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
+        } else{
+          const rcInfo =  '<p> Cadastre reference: ' + this.building.rc + '</p>';
+          const textPopup = '<h6> ' + this.building.address  + '</h6>';
+          if ( this.map && !this.map.hasLayer( this.marker)) {
+            this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
+          }
+          this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
+          if ( this.building.rc && this.building.rc.length > 1) {
+            this.marker.bindPopup(textPopup + rcInfo).openPopup();
+          } else {
+            this.marker.bindPopup(textPopup).openPopup();
+          }
+       }
+      }*/
+      if (this.map && ( !this.building.country || changes.active && changes.active.previousValue !== 1)) {
+        if ( this.legend ) {
+          this.map.removeControl(this.legend);
+        }
+        this.addLayersEnergyEfficiencyPersonal(this.totalHistory, false, false);
+        this.map.on( 'overlayadd', (overla) => {
+          this.addOverlayAction(overla);
+        });
+        this.markersGroup = this.totalHistory;
+        this.addMarkersHistory(this.totalHistory, false);
       }
     }
-    if ( changes.building && changes.building.currentValue){
-      this.building = changes.building.currentValue;
+   // this.removeMarkerFromMap();
+    else  if (changes.active && changes.active.currentValue === 2 || this.active === 2) {
+      const markerTmp = this.marker;
+      this.removeMarkerFromMap(markerTmp);
+      this.removeOverlays();
+      this.removeGroupMarkers();
+      this.removeClusterMarkers();
+      if (changes.history && changes.history.currentValue &&
+        (changes.history.currentValue !== changes.history.previousValue ) && this.active === 2 ){
+        this.history = [];
+        this.history = changes.history.currentValue;
+        if ( this.legend ) {
+          this.map.removeControl(this.legend);
+        }
+        this.addMarkersHistory(this.history, true);
+        this.map.on( 'overlayadd', (overla) => {
+          this.addOverlayAction(overla);
+        });
+      }
+      if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
+        this.history = changes.historyFilteredFromList.currentValue;
+        this.addMarkersFilters(this.currentLayer);
+      }
     }
+
   }
 
   private initMap(): void {
-    const iconRetinaUrl = 'assets/marker-icon-2x.png';
-    const iconUrl = 'assets/marker-icon.png';
-    const shadowUrl = 'assets/marker-shadow.png';
-    L.Marker.prototype.options.icon = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      tooltipAnchor: [16, -28],
-      shadowSize: [41, 41]
+    L.Marker.prototype.options.icon = L.AwesomeMarkers.icon({
+      prefix: 'fa',
+      markerColor: 'blue',
+      icon: 'circle',
+      iconColor: 'white'
     });
 
-    // Reference system EPSG:25830 to get info from cadastre
-    const crs = new L.Proj.CRS('EPSG:25830',
+    // Reference system EPSG:25830 to get info from cadastre Spain
+    const crs25830 = new L.Proj.CRS('EPSG:25830',
       '+proj=utm +zone=30 +ellps=GRS80 +units=m +no_defs',
       {
         resolutions: [2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1, 0.5],
+        origin: [0, 0]
+      });
+
+    // Reference system EPSG:28992 to get info from cadastre Nederlands
+    const crs28992 = new L.Proj.CRS('EPSG:28992',
+      '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs',
+      {
+        resolutions: [3251.206502413005, 1625.6032512065026, 812.8016256032513, 406.40081280162565,
+          203.20040640081282, 101.60020320040641, 50.800101600203206,
+          25.400050800101603, 12.700025400050801, 6.350012700025401, 3.1750063500127004,
+          1.5875031750063502, 0.7937515875031751, 0.39687579375158755, 0.19843789687579377, 0.09921894843789689, 0.04960947421894844],
         origin: [0, 0]
       });
 
@@ -106,6 +183,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       center: this.CENTER_POINT,
       zoom: this.ZOOM,
     });
+    this.map.zoomControl.setPosition('topright');
+
+    /*const mapControlsContainer = document.getElementsByClassName("leaflet-control")[0];
+    const logoContainer = document.getElementById("logoContainer");
+
+    mapControlsContainer.appendChild(logoContainer);*/
+
     L.esri = esri;
     const basemapTopo = L.esri.basemapLayer('Topographic');
     const basemapOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -123,31 +207,41 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       transparent: true,
       tileSize: 2080,
     });
-    const overlayMaps = {
-      Cadastre: cadastreLayer
+    const options = {
+      exclusiveGroups: ['Energy Efficiency']
     };
-    L.control.layers(baseMaps, overlayMaps).addTo(this.map);
+    const overlayMaps = {
+      Cadastre: {
+        'Cadastre Layer': cadastreLayer
+      },
+      'Energy Efficiency': {
+      }
+    };
+    this.layersControl = L.control.groupedLayers(baseMaps, overlayMaps, options).addTo(this.map);
 
     const results = L.layerGroup().addTo(this.map);
     // event click position in map
     this.map.on('click', (ev) => {
-      const geocodeService = esri_geo.geocodeService();
-      this.removeGroupMarkers();
-      this.properties = [];
+      this.removeMarkerFromMap(this.marker);
       if ( this.marker !== undefined ) {
         this.map.removeLayer(this.marker);
       }
-      this.marker = L.marker(ev.latlng);
+      results.clearLayers();
+      const geocodeService = esri_geo.geocodeService();
+      this.properties = [];
+      this.marker = L.marker(ev.latlng).addTo(this.map);
       results.addLayer(this.marker);
-      this.point = crs.project(ev.latlng);
+      this.point.ESPG25830 = crs25830.project(ev.latlng);
+      this.point.ESPG28992 = crs28992.project(ev.latlng);
       let address = '';
       geocodeService.reverse().latlng(ev.latlng).run((error, result) => {
         if (error) {
           return;
         }
         address = result.address.Address;
-        this.coordinatesEmitter.emit(ev.latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, ev.latlng, address);
+        if ( this.building.rc ) this.building.rc = '';
+        this.coordinatesEmitter.emit({latlng: ev.latlng, x: this.point.ESPG25830.x, y: this.point.ESPG25830.y,
+          address, point: this.point, region: result.address.Region});
       });
     });
 
@@ -156,159 +250,291 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       placeholder: 'Search your address'}).addTo(this.map);
 
     searchControl.on('results',  (data) => {
-      this.removeGroupMarkers();
+      this.removeMarkerFromMap(this.marker);
       this.properties = [];
       if ( this.marker !== undefined ) {
         this.map.removeLayer(this.marker);
       }
       results.clearLayers();
       for ( let i = data.results.length - 1; i >= 0; i--) {
-        this.marker = L.marker(data.results[i].latlng);
+        this.marker = L.marker(data.results[i].latlng).addTo(this.map);
         results.addLayer(this.marker);
-        this.point = crs.project(data.results[i].latlng);
-        this.coordinatesEmitter.emit(data.results[i].latlng);
-        this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
+        this.point.ESPG25830 = crs25830.project(data.results[i].latlng);
+        this.point.ESPG28992 = crs28992.project(data.results[i].latlng);
+        if ( this.building.rc ) this.building.rc = '';
+        let address = '';
+        address = data.results[i].text;
+        this.coordinatesEmitter.emit({latlng: data.results[i].latlng,
+          x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point, region: ''});
+        //this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
       }
     });
   }
 
-  /**
-   * Add to properties array the list returned by cadastre service requested by the x and y value
-   * @param x: value in x of the point
-   * @param y: value in y of the point
-   * @param latLng: point as coordinates
-   * @param address: address to add in popup
-   */
-  getInfoFromCadastre( x: string, y: string , latLng: [], address: string) {
-    this.cadastreService.getRCByCoordinates(x, y).then( (data) => {
-      const parser = new DOMParser();
-      const dataFile = parser.parseFromString(data, 'text/xml');
-      const err = dataFile.getElementsByTagName('err')[0];
-      if ( err ) {
-        let textToShow = '';
-        textToShow = '<h6> ' + address + '</h6>';
-        this.marker.bindPopup(textToShow).openPopup();
-        const desError = dataFile.getElementsByTagName('des')[0].textContent;
-        this.buildingEmitter.emit([{error_service: desError}]);
-      } else {
-        const rc1 = dataFile.getElementsByTagName('pc1')[0].textContent;
-        const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
-        const rcGeneral = rc1.concat(rc2);
-        const addressMain = dataFile.getElementsByTagName('ldt')[0].textContent;
-        this.cadastreService.getBuildingDetailsByRC(rcGeneral).subscribe((prop) => {
-          const parser2 = new DOMParser();
-          const dataXML = parser2.parseFromString(prop, 'text/xml');
-          // case: when request is only one property
-          const propertyOnly = dataXML.getElementsByTagName('bico')[0];
-          this.properties = [];
-          if ( propertyOnly !== undefined ){
-            const property = this.getInfoPropGeneral(propertyOnly, addressMain);
-            this.properties.push(property);
-          } else {
-            // case: when request are many properties
-            const properties = dataXML.getElementsByTagName('rcdnp');
-            // tslint:disable-next-line:prefer-for-of
-            for ( let i = 0; i < properties.length ; i++){
-              const detail = properties[i];
-              const property = this.getInfoPropGeneral(detail, addressMain);
-              this.properties.push(property);
-            }
-          }
-          let textToShow = '';
-          textToShow = '<h6> ' + this.properties[0].address
-            + '</h6>' + '<p> Number of properties: ' + this.properties.length + '</p>';
-          this.marker.bindPopup(textToShow).openPopup();
-
-          this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
-            const urlCreator = window.URL;
-            this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
-            this.properties[0].latlng = latLng;
-            this.building = new Building('', '', this.properties[0].yearConstruction, this.properties[0].province,
-              this.properties[0].address, {lat: latLng['lat'], lng: latLng['lng']}, this.properties, rcGeneral, '', '');
-            this.buildingEmitter.emit(this.building);
-          });
-        });
+  addOverlayAction( overla ) {
+      this.markerClusterGroup.clearLayers();
+      if ( this.legend ) {
+        this.map.removeControl(this.legend);
       }
-    })
-      .catch((error) => {
-        this.buildingEmitter.emit([ { error} ]);
-      });
+
+      this.legend = L.control({position: 'bottomright'});
+      if ( overla.name === 'Building type') {
+        this.legend.onAdd = () => {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4> Building Type</h4>';
+          // loop through our density intervals and generate a label with a colored square for each interval
+          Object.keys( GlobalConstants.colorsTypo).forEach( key => {
+            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsTypo[key] + '"></i> ' +
+              '<span>' + key + '</span><br>' ;
+          });
+
+          return div;
+        };
+
+        this.legend.addTo(this.map);
+        this.currentLayer = 'typology';
+        this.markersGroup = this.typologyMarkers;
+      }
+      if ( overla.name === 'Emissions') {
+        this.legend.onAdd = () => {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4>Emissions Ranking</h4>';
+          // loop through our density intervals and generate a label with a colored square for each interval
+          Object.keys( GlobalConstants.colorsEmissionsLayer).forEach( key => {
+            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsEmissionsLayer[key] + '"></i> ' +
+              '<span>' + key + '</span><br>' ;
+          });
+
+          return div;
+        };
+        this.legend.addTo(this.map);
+        this.currentLayer = 'emissions';
+        this.markersGroup = this.emissionsMarkers;
+      }
+
+      if ( overla.name === 'Year of construction') {
+        this.legend.onAdd = () => {
+          const div = L.DomUtil.create('div', 'legend');
+          div.innerHTML += '<h4>Years Ranking</h4>';
+          // loop through our density intervals and generate a label with a colored square for each interval
+          Object.keys( GlobalConstants.colorsYears).forEach( key => {
+            let textLabel = '';
+            switch (key) {
+              case '01': {
+                textLabel = '0 - 1900';
+                break;
+              }
+              case '02': {
+                textLabel = '1901- 1936';
+                break;
+              }
+              case '03': {
+                textLabel = '1937 - 1959';
+                break;
+              }
+              case '04': {
+                textLabel = '1960 - 1979';
+                break;
+              }
+              case '05': {
+                textLabel = '1980 - 2006';
+                break;
+              }
+              case '06': {
+                textLabel = '2007 - ';
+                break;
+              }
+            }
+            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsYears[key] + '"></i> ' +
+              '<span>' + textLabel + '</span><br>' ;
+          });
+          return div;
+        };
+        this.legend.addTo(this.map);
+        this.currentLayer = 'year';
+        this.markersGroup = this.yearsMarkers;
+      }
   }
 
-  /**
-   * Convert info from xml format to Property object
-   * @param prop: property information in xml format
-   * @param addressMain: complete Address with detail of indoor location
-   */
-  getInfoPropGeneral(prop: any, addressMain: string) {
-    const rc1 = prop.getElementsByTagName('pc1')[0].textContent;
-    const rc2 = prop.getElementsByTagName('pc2')[0].textContent;
-    const rc3 = prop.getElementsByTagName('car')[0].textContent;
-    const rc4 = prop.getElementsByTagName('cc1')[0].textContent;
-    const rc5 = prop.getElementsByTagName('cc2')[0].textContent;
-    let rc = '';
-    rc = rc.concat( rc1, rc2, rc3, rc4, rc5);
-    const propType = prop.getElementsByTagName('cn').length > 0 ? prop.getElementsByTagName('cn')[0].textContent : 'urban';
-
-    if ( propType === 'RU') {
-      return new Property(rc, addressMain, '', '', '', '', '', '', '', 'rural',
-        '', '', '', '', '', [], '', '', '');
-    } else {
-      const tagLocInt = prop.getElementsByTagName('loint')[0];
-      const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
-        tagLocInt.getElementsByTagName('bq')[0].textContent.split(': ')[0] : '';
-      const stair = tagLocInt.getElementsByTagName('es').length > 0 ?
-        tagLocInt.getElementsByTagName('es')[0].textContent.split(': ')[0] : '';
-      const plant = tagLocInt.getElementsByTagName('pt').length > 0 ?
-        tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
-      const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
-        tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
-      const postalCode = prop.getElementsByTagName('dp')[0].textContent;
-      const prov = prop.getElementsByTagName('np')[0].textContent;
-      const town = prop.getElementsByTagName('nm')[0].textContent;
-      let logInt = '';
-      const textBlock = block !== '' ? 'Bloque: ' + block : '';
-      const textStair = stair !== '' ? 'Escalera: ' + stair : '';
-      const textPlant = plant !== '' ? 'Planta: ' + plant : '';
-      const textDoor = door !== '' ? 'Puerta: ' + door : '';
-      logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
-      return new Property(rc, addressMain, plant, logInt, '', postalCode, prov, town, '', 'urban',
-        '', '', '', '', '', [], block, stair, door);
+  removeMarkerFromMap(marker) {
+    if ( marker !== undefined ) {
+      this.map.removeLayer(marker);
     }
-
   }
 
-  removeGroupMarkers(){
+  removeClusterMarkers(){
     if (this.markerClusterGroup){
       this.markerClusterGroup.clearLayers();
     }
-    if ( this.marker !== undefined ) {
-      this.map.removeLayer(this.marker);
+  }
+  removeOverlays() {
+    if ( this.layersControl) {
+      this.layersControl._layers.forEach( layer => {
+        if ( layer.group.name === 'Energy Efficiency' ) {
+          const index = this.layersControl._layers.indexOf(layer, 0);
+          if ( index > -1){
+            this.layersControl._layers.splice( index);
+          }
+        }
+      });
+      this.layersControl._update();
     }
   }
-
-  addMarkersHistory() {
-    this.removeGroupMarkers();
-    this.map.setView(this.CENTER_POINT, this.ZOOM);
-    const markerGroup = [];
-    const latLngs = [];
-    if (this.history && this.history.length > 0 ){
-      this.history.forEach( propHistory => {
-        if ( +propHistory.coordinates.lat > 0 ){
-          const latlngToMark = L.latLng(propHistory.coordinates.lat, propHistory.coordinates.lng);
-          const textPopup = '<h6> ' + propHistory.address
-            + '</h6>' + '<p> Cadastre reference: ' + propHistory.rc + '</p>';
-          const markers = L.marker(latlngToMark).bindPopup(textPopup).openPopup();
-          markers.on('click', () => {
-            this.propSelectFromMapEmitter.emit(propHistory);
-          });
-          this.markerClusterGroup.addLayer(markers);
-          markerGroup.push(markers);
-          latLngs.push([+propHistory.coordinates.lat, +propHistory.coordinates.lng]);
+  removeGroupMarkers() {
+    if ( this.markersGroup && this.markersGroup.length > 0 ) {
+      this.markersGroup.forEach( marker => {
+        if ( this.marker !== marker ) {
+          this.map.removeLayer(marker);
         }
       });
     }
-    this.markerClusterGroup.addTo(this.map);
   }
 
+  createMarker(sourceColor: string, building: Building, showOnlyPopup: boolean, idPopup: string ) {
+    let markers = null;
+    const markerStyleHistory = L.AwesomeMarkers.icon({
+      markerColor: sourceColor,
+      prefix: 'fa',
+      icon: 'circle',
+      iconColor: 'white'
+    });
+    const markerStyle = {
+      radius: 8,
+      fillColor: sourceColor,
+      color: '#000',
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 1
+    };
+    let buildingInfo = '';
+    const buttonBuilding = '<button id="' + idPopup + '" style="color: #2888BA; background: transparent; font-weight: 700; border: 0;"> See more ...</button>';
+    if ( ! showOnlyPopup ) {
+      buildingInfo = '<p> Cadastre reference: ' + building.rc + '</p>';
+      const textPopup = '<h6> ' + building.address
+        + '</h6>' + buildingInfo + buttonBuilding;
+
+      const latlngToMark = L.latLng(building.coordinates.lat, building.coordinates.lng);
+      markers = L.marker(latlngToMark, { icon: markerStyleHistory}).bindPopup(textPopup).openPopup();
+    }
+    else {
+      buildingInfo = '<p> Typology: ' + building.typology.categoryName + '</p>'
+        + '<p>Year: ' + building.year + '</p>'
+      + '<p> Emissions: ' + building.typology.energy.emissionRanking + '</p>';
+      const textPopup = '<h6> ' + building.address
+        + '</h6>' + buildingInfo + buttonBuilding;
+
+      const latlngToMark = L.latLng(building.coordinates.lat, building.coordinates.lng);
+      markers = L.circleMarker(latlngToMark,  /*{ icon: markerStyle}*/ markerStyle).bindPopup(textPopup).openPopup();
+    }
+    markers.on('popupopen', mark => {
+      L.DomEvent.on(L.DomUtil.get(idPopup),
+        'click',
+        (ev ) => {
+          this.removeMarkerFromMap(this.marker);
+          this.marker = mark.target;
+          this.building = building;
+          this.buildingEmitter.emit(this.building);
+        });
+    });
+    return markers;
+  }
+
+  addMarkersHistory(listHistory: Building[], showCluster: boolean) {
+    this.removeClusterMarkers();
+    this.removeGroupMarkers();
+    this.removeOverlays();
+    this.addLayersEnergyEfficiencyPersonal(listHistory, false, showCluster);
+    this.markerClusterGroup.addTo(this.map);
+    this.markersGroup = this.historyMarkers;
+  }
+
+  addLayersEnergyEfficiencyPersonal(listProperties: Building[], fromFilters: boolean, showCluster: boolean) {
+    const markerGroup = [];
+    const arrayTypology = [];
+    const arrayEmissions = [];
+    const arrayYear = [];
+    const showOnlyPopup = !showCluster;
+    if (listProperties && listProperties.length > 0 ){
+      let cont = 1;
+      listProperties.forEach( propHistory => {
+
+        const idPopup = 'marker-popup' + +cont;
+        const markerHistory = this.createMarker('blue', propHistory, showOnlyPopup, idPopup);
+       if (!fromFilters && showCluster) this.markerClusterGroup.addLayer(markerHistory);
+        markerGroup.push(markerHistory);
+
+        // pins for building type
+        const buildingMarker = this.createMarker(GlobalConstants.colorsTypo[propHistory.typology.categoryCode], propHistory,
+          showOnlyPopup, idPopup);
+        arrayTypology.push(buildingMarker);
+
+        // pins for emissions
+        const emissionMarker = this.createMarker(GlobalConstants.colorsEmissionsLayer[propHistory.typology.energy.emissionRanking],
+          propHistory, showOnlyPopup, idPopup);
+        arrayEmissions.push(emissionMarker);
+
+        // pins for year
+        const yearMarker = this.createMarker(GlobalConstants.colorsYears[propHistory.typology.yearCode],
+          propHistory, showOnlyPopup, idPopup);
+        arrayYear.push(yearMarker);
+
+        cont ++;
+      });
+
+      this.historyLayer = L.layerGroup(markerGroup);
+      this.layersControl.addOverlay( this.historyLayer, 'History', 'Energy Efficiency');
+
+      this.buildingTypesLayer = L.layerGroup(arrayTypology);
+      this.layersControl.addOverlay( this.buildingTypesLayer, 'Building type', 'Energy Efficiency');
+
+      this.emissionsLayer = L.layerGroup(arrayEmissions);
+      this.layersControl.addOverlay( this.emissionsLayer, 'Emissions', 'Energy Efficiency');
+
+      this.yearLayer = L.layerGroup(arrayYear);
+      this.layersControl.addOverlay( this.yearLayer, 'Year of construction', 'Energy Efficiency');
+
+    }
+    this.historyMarkers = markerGroup;
+    this.typologyMarkers = arrayTypology;
+    this.emissionsMarkers = arrayEmissions;
+    this.yearsMarkers = arrayYear;
+  }
+
+  addMarkersFilters(currentLayer) {
+    this.removeGroupMarkers();
+    this.removeClusterMarkers();
+    this.removeOverlays();
+    this.map.setView(this.CENTER_POINT, this.ZOOM);
+    this.addLayersEnergyEfficiencyPersonal(this.history, true, true);
+    switch ( currentLayer) {
+      case 'History' : {
+        this.historyMarkers.forEach( marker => {
+          marker.addTo(this.map);
+        });
+        this.markersGroup = this.historyMarkers;
+        break;
+      }
+      case 'typology' : {
+        this.typologyMarkers.forEach( marker => {
+          marker.addTo(this.map);
+        });
+        this.markersGroup = this.typologyMarkers;
+        break;
+      }
+      case 'emissions' : {
+        this.emissionsMarkers.forEach( marker => {
+          marker.addTo(this.map);
+        });
+        this.markersGroup = this.emissionsMarkers;
+        break;
+      }
+      case 'year' : {
+        this.yearsMarkers.forEach( marker => {
+          marker.addTo(this.map);
+        });
+        this.markersGroup = this.yearsMarkers;
+        break;
+      }
+    }
+  }
 }

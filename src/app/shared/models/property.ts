@@ -15,7 +15,7 @@ export class Property extends Object {
     public surfaceGraph: string,
     public participation: string,
     public image: any,
-    public latlng: [],
+    public latlng: { lng: any | number; lat: any },
     public block: string,
     public stair: string,
     public door: string,

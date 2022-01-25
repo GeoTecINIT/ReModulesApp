@@ -1,11 +1,16 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Property} from '../../shared/models/property';
-import {CadastreService} from '../../core/cadastre/cadastre.service';
+import { CadastreESService } from '../../core/cadastre/ES/cadastreES.service';
 import {DomSanitizer} from '@angular/platform-browser';
 import {UserService} from '../../core/authentication/user.service';
 import {User} from '../../shared/models/user';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {Building} from '../../shared/models/building';
+import {Typology} from '../../shared/models/typology';
+import {TypologyService} from '../../core/typology/typology.service';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {CadastreNLService} from '../../core/cadastre/NL/cadastre-nl.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-cadastre-info',
@@ -24,18 +29,31 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   searchFromHistory: boolean;
   modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
   propertiesFilter: Property[];
-  RURAL_TYPE = 'rural';
-  URBAN_TYPE = 'urban';
   mapControl: boolean;
-  @Input() propSelectFromMap: Building;
+  ruralBuilding: boolean;
+  selectBuilding: boolean;
+  errorLocation: boolean;
+
+  textSpinner: string;
+  // Variables temp for 3 cases
+  selectYear = false;
+  years: string[];
+  selectedYear: string;
+
   @Input() history: Building[];
-  @Input() itemSelectedFromHistory: Building;
   @Input() properties: Property[];
   @Input() building: Building;
+  @Input() active: number;
   @Output() showMapEmitter = new EventEmitter<boolean>();
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
-  constructor(private cadastreService: CadastreService, private sanitizer: DomSanitizer,
-              public afAuth: AngularFireAuth, private userService: UserService) {
+  @Output() buildingCompleteEmitter = new EventEmitter<any>();
+  constructor(private cadastreServiceES: CadastreESService,
+              private cadastreNLService: CadastreNLService,
+              private sanitizer: DomSanitizer,
+              public afAuth: AngularFireAuth,
+              private userService: UserService,
+              private typologyService: TypologyService,
+              private spinner: NgxSpinnerService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.currentUser = new User(user);
@@ -47,100 +65,119 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(){
+    this.years = [];
+    for (let i = new Date().getFullYear(); i >= 1000; i--) {
+      const year = String( i);
+      this.years.push( year);
+    }
+    this.textSpinner = 'Loading ...';
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( changes.properties ) {
-      if ( changes.properties.currentValue.length > 0 && ( changes.properties.currentValue[0].error ||
-        changes.properties.currentValue[0].error_service )) {
+    if ( this.active === 1 && changes.building && changes.building.currentValue
+      && changes.building.currentValue.country ) {
+      if (  changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
+        changes.building.currentValue[0].error_service )) {
         this.hasError = true;
-        this.error = changes.properties.currentValue[0].error_service ? changes.properties.currentValue[0].error_service : 'Cadastre Service is not available' ;
+        this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
       } else {
-        this.propertiesFilter = changes.properties.currentValue;
-        this.properties = changes.properties.currentValue;
+        this.propertiesFilter = changes.building.currentValue.properties;
+        this.properties = changes.building.currentValue.properties;
         this.hasError = false;
-        if ( !changes.properties.firstChange ) {
+        this.error = '';
+        if ( !changes.building.firstChange ) {
           this.propSelected = null;
           this.propIsSelected = false;
         }
-        if ( this.properties.length > 0 ) {
-          this.cadastreService.getBuildingDetailsByRC(this.properties[0].rc).subscribe(( pro) => {
-            const parser2 = new DOMParser();
-            const dataXML = parser2.parseFromString(pro, 'text/xml');
-            const data = dataXML.getElementsByTagName('bico')[0];
-            this.building.year  = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
-            this.building.rc = this.properties[0].rc.slice(0, -6);
-          });
+        this.selectYear = false;
+        this.selectedYear = null;
+        this.ruralBuilding = false;
+        if ( this.building.year ) this.selectedYear = this.building.year;
+        if ( !this.building.favorite ) {
+          this.building.typology = new Typology('', '', '', '', '', '',
+            '', null, null, null);
+          if ( this.building.country  === 'ES') {
+            // Best case: Services gives all
+            //if ( this.building.provinceCode === '46') {
+            this.spinner.show();
+            this.textSpinner = 'Waiting for the cadastre service ... ';
+            this.selectBuilding = true;
+            this.getInfoFromCadastre_ES(true);
+            //}
+            // Case when services only get year
+            /*else if ( this.building.provinceCode === '12') {
+              this.spinner.show();
+              this.textSpinner = 'Waiting for the cadastre service ... ';
+              this.selectBuilding = true;
+              this.getInfoFromCadastre_ES(false);
+            }
+            // Case everything is request to user
+            else if ( this.building.provinceCode === '03') {
+              this.showYearSelection();
+            }*/
+          } else if ( this.building.country  === 'NL' ) {
+            this.spinner.show();
+            this.selectBuilding = true;
+            this.getInfoFromCadastre_NL();
+          } else {
+            this.showYearSelection();
+          }
+        } else {
+          this.selectBuilding = true;
         }
       }
-    }
-    if (changes.history && changes.history.currentValue &&
-      (changes.history.currentValue.length > this.history.length)){
-      this.propSelected = null;
-      this.history = changes.history.currentValue;
-    }
-    if (changes.itemSelectedFromHistory && changes.itemSelectedFromHistory.currentValue &&
-      (changes.itemSelectedFromHistory.currentValue !== changes.itemSelectedFromHistory.previousValue)){
-      this.itemSelectedFromHistory = changes.itemSelectedFromHistory.currentValue;
-      this.searchFromHistory = true;
-      this.getInfoBuilding(this.itemSelectedFromHistory);
-    }
-    if (changes.propSelectFromMap && changes.propSelectFromMap.currentValue &&
-      changes.propSelectFromMap.currentValue !== changes.propSelectFromMap.previousValue){
-      this.searchFromHistory = true;
-      this.propSelectFromMap = changes.propSelectFromMap.currentValue;
-      this.getInfoBuilding(this.propSelectFromMap);
+      if ( changes.error && changes.error.currentValue) {
+        this.error = changes.error.currentValue;
+        this.hasError = true;
+      }
     }
   }
 
+  showErrorLocation() {
+    const buildingTmp  = this.building;
+    //this.building = null;
+    this.spinner.show();
+    this.errorLocation = true;
+    this.selectBuilding = false;
+    this.hasError = true;
+    this.error = 'There is not information in this point, please move inside building ';
+    this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
+      '', buildingTmp.region, buildingTmp.provinceCode,
+      buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
+      [], null, '', null, null, false, null, []);
+    this.properties = [];
+    this.propertiesFilter = [];
+    this.spinner.hide();
+  }
+
+  showYearSelection() {
+    const buildingTmp  = this.building;
+    this.building = null;
+    this.spinner.show();
+    this.selectBuilding = true;
+    this.selectYear = true;
+    this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
+      '', buildingTmp.region, buildingTmp.provinceCode,
+      buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
+      [], null, '', null, null, false, null, []);
+    this.properties = [];
+    this.propertiesFilter = [];
+    this.spinner.hide();
+  }
   initialData(): void{
     this.propSelected = null;
     this.propIsSelected = true;
     this.isAFavProperty = false;
   }
 
-  getInfoBuilding( building: Building) {
-    this.cadastreService.getBuildingDetailsByRC(building.rc).subscribe((prop) => {
-      this.propSelected = null;
-      this.propIsSelected = false;
-      const parser2 = new DOMParser();
-      const dataXML = parser2.parseFromString(prop, 'text/xml');
-      // case: when request is only one property
-      const propertyOnly = dataXML.getElementsByTagName('bico')[0];
-      this.properties = [];
-      if ( propertyOnly !== undefined ){
-        const property = this.getInfoPropGeneral(propertyOnly, building.address);
-        this.properties.push(property);
-      } else {
-        // case: when request are many properties
-        const properties = dataXML.getElementsByTagName('rcdnp');
-        // tslint:disable-next-line:prefer-for-of
-        for ( let i = 0; i < properties.length ; i++){
-          const detail = properties[i];
-          const property = this.getInfoPropGeneral(detail, building.address);
-          this.properties.push(property);
-        }
-      }
-      this.propertiesFilter = this.properties;
-      this.cadastreService.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
-        const urlCreator = window.URL;
-        this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
-        // @ts-ignore
-        this.properties[0].latlng = { lat: building.lat, lng: building.lng};
-        this.properties[0].type = this.URBAN_TYPE;
-        this.isAFavoriteProperty(building);
-        this.building = building;
-        this.building.region = this.properties[0].province;
-      });
-    });
-  }
   /**
    * Assign to property selected the entire information from Cadastre service
    * @param rc: Property selected from the list
    */
   getDetailFromRC(rc: any): void{
     this.initialData();
-    this.cadastreService.getBuildingDetailsByRC(rc).subscribe(( pro) => {
+    this.cadastreServiceES.getBuildingDetailsByRC(rc).subscribe(( pro) => {
       const parser2 = new DOMParser();
       const dataXML = parser2.parseFromString(pro, 'text/xml');
       const data = dataXML.getElementsByTagName('bico')[0];
@@ -160,59 +197,14 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
     const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
-    this.cadastreService.getFacadeImage(rc).subscribe( (baseImage: any) => {
+    this.cadastreServiceES.getFacadeImage(rc).subscribe( (baseImage: any) => {
       const urlCreator = window.URL;
       this.facadeImage = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
     });
-    return new Property(rc, '', '', '', surfaceCons, '', '', '', year, '', address, use, surfaceGraph, participation, this.facadeImage, [], '', '', '');
+    return new Property(rc, '', '', '', surfaceCons, '', '', '', year, '', address, use,
+      surfaceGraph, participation, this.facadeImage, null, '', '', '');
   }
 
-  /**
-   *  Added the property selected as a favorite in user history
-   * @param building
-   */
-  addToFavorites( building: Building ): void{
-    const propToSave = {
-      country: building.country,
-      climate_zone: building.climateZone,
-      year: building.year,
-      rc: building.rc,
-      address: building.address,
-      uid: this.currentUser.uid,
-      lat: +building.coordinates.lat,
-      lng: +building.coordinates.lng,
-    };
-    if ( this.isUserLogged ) {
-      this.userService.addPropertyToHistory(propToSave).subscribe( res => {
-        this.history.push( new Building(building.country, building.climateZone, building.year,
-          building.region, building.address, building.coordinates, [], building.rc, building.use, ''));
-        this.isAFavProperty = true;
-      });
-    }
-  }
-
-  removeFromFavorites( building: Building): void{
-    if ( this.isUserLogged ) {
-      this.userService.removePropertyFromHistory( building.rc,  this.currentUser.uid).subscribe( res => {
-        this.history.forEach( prop => {
-          if ( prop.rc === building.rc ) {
-            const index = this.history.indexOf(prop, 0);
-            this.history.splice(index, 1);
-            this.isAFavProperty = false;
-            return;
-          }
-        });
-      });
-    }
-  }
-
-  isAFavoriteProperty(property: Building): void {
-    if ( this.history ) {
-      this.history.forEach(prop => {
-        this.isAFavProperty = prop.rc === property.rc;
-      });
-    }
-  }
 
   filterBuilding(): void {
     if ( this.modelFilters.filtBl !== '' ||  this.modelFilters.filtEs !== '' ||
@@ -246,7 +238,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   calculateTypology(): void {
     this.mapControl = true;
     this.showMapEmitter.emit(false);
-    this.calculateTypologyEmitter.emit(this.building);
+    this.calculateTypologyEmitter.emit({ building: this.building, selected: true});
   }
 
   clearFilters(): void {
@@ -270,8 +262,9 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     const propType = prop.getElementsByTagName('cn').length > 0 ? prop.getElementsByTagName('cn')[0].textContent : 'urban';
 
     if ( propType === 'RU') {
+      this.ruralBuilding = true;
       return new Property(rc, addressMain, '', '', '', '', '', '', '', 'rural',
-        '', '', '', '', '', [], '', '', '');
+        '', '', '', '', '', null, '', '', '');
     } else {
       const tagLocInt = prop.getElementsByTagName('loint')[0];
       const block = tagLocInt.getElementsByTagName('bq').length > 0 ?
@@ -292,12 +285,239 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       const textDoor = door !== '' ? 'Pt: ' + door : '';
       logInt = logInt.concat(textBlock, ' ' , textStair, ' ' , textPlant , ' ' , textDoor);
       return new Property(rc, addressMain, plant, logInt, '', postalCode, prov, town, '', 'urban',
-        '', '', '', '', '', [], block, stair, door);
+        '', '', '', '', '', null, block, stair, door);
     }
   }
 
   showMap(): void{
     this.mapControl = false;
     this.showMapEmitter.emit(true);
+  }
+  getYearFromCadastre(): void {
+    this.cadastreServiceES.getBuildingDetailsByRC(this.properties[0].rc).subscribe((pro) => {
+      const parser2 = new DOMParser();
+      const dataXML = parser2.parseFromString(pro, 'text/xml');
+      const data = dataXML.getElementsByTagName('bico')[0];
+      if ( !this.building.year ) {
+        this.building.year = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
+      }
+      this.typologyService.getYearCode( this.building.year ).subscribe(resYear => {
+        this.building.typology.yearCode = resYear['year_code'];
+        this.buildingCompleteEmitter.emit(this.building);
+        this.spinner.hide();
+      });
+    });
+  }
+  getInfoFromParcel(information: string): any{
+    const domParser = new DOMParser();
+    const dataXML = domParser.parseFromString(information, 'text/xml');
+    const use = dataXML.getElementsByTagName('bu-ext2d:currentUse').length > 0 ?
+      dataXML.getElementsByTagName('bu-ext2d:currentUse')[0].textContent : '';
+    const numberOfUnits = dataXML.getElementsByTagName('bu-ext2d:numberOfBuildingUnits').length > 0 ?
+      dataXML.getElementsByTagName('bu-ext2d:numberOfBuildingUnits')[0].textContent : '';
+    const numberOfResidentUnits = dataXML.getElementsByTagName('bu-ext2d:numberOfDwellings').length > 0 ?
+      dataXML.getElementsByTagName('bu-ext2d:numberOfDwellings')[0].textContent : '';
+    const area = dataXML.getElementsByTagName('bu-ext2d:OfficialArea').length > 0 ?
+      dataXML.getElementsByTagName('bu-ext2d:OfficialArea')[0].getElementsByTagName('bu-ext2d:value')[0].textContent : '';
+    return {
+      use,
+      numberOfUnits,
+      numberOfResidentUnits,
+      area
+    };
+  }
+  getNumberOfFloorFromXML(information: string): number{
+    const domParser = new DOMParser();
+    const dataXML = domParser.parseFromString(information, 'text/xml');
+    const floorsInTotal = dataXML.getElementsByTagName('bu-ext2d:numberOfFloorsAboveGround');
+    let floors = 0;
+    for ( let i = 0; i < floorsInTotal.length; i++){
+      const numberInPart = +floorsInTotal[i].textContent;
+      if ( floors < numberInPart){
+        floors = +numberInPart;
+      }
+    }
+    return floors;
+  }
+  getTypologyAutomatic(floors: number, dwellings: number ): void {
+    const typology = { code: '', name: ''};
+    if ( dwellings === 1 ) { typology.code = 'SFH'; typology.name = 'Single Family Home'; }
+    else if ( dwellings > 1 ) {
+      if ( floors === 1) { typology.code = 'TH'; typology.name = 'Terraced House'; }
+      else if ( floors > 1 && floors <= 4 ) { typology.code = 'MFH'; typology.name = 'MultiFamily Home'; }
+      else if ( floors > 4 ) { typology.code = 'AB'; typology.name = 'Apartment block'; }
+    }
+    this.building.typology.categoryCode = typology.code;
+    this.building.typology.categoryName = typology.name;
+    this.typologyService.getTypologyCode( this.building.year, this.building.country, this.building.climateZone,
+      this.building.typology.categoryCode ).subscribe( resTypo => {
+        const dataRes = resTypo[0];
+        if ( dataRes ) {
+          this.building.typology.categoryPicCode = dataRes.category_pic_code;
+          this.building.typology.buildingCode = dataRes.category.building_code;
+          this.building.typology.picName = dataRes.name;
+          this.typologyService.getYearCode( this.building.year ).subscribe(resYear => {
+            this.building.typology.yearCode = resYear['year_code'];
+            this.calculateTypologyEmitter.emit({ building: this.building, selected: false});
+          });
+        } else {
+          this.hasError = true;
+          this.error = 'We do not have data in this climate zone';
+        }
+    });
+  }
+  getDataBuildingFromINSPIRE( parcel, partParcel ): void {
+    const infoFromParcel = this.getInfoFromParcel(parcel);
+    const infoFromPartOfParcel = this.getNumberOfFloorFromXML(partParcel);
+    const useCut = infoFromParcel.use.split('_');
+    const use = useCut[useCut.length - 1];
+    if (use === 'residential' ) {
+      if ( this.properties.length > 0   && !this.building.year) {
+        this.cadastreServiceES.getBuildingDetailsByRC(this.properties[0].rc).subscribe((pro) => {
+          const parser2 = new DOMParser();
+          const dataXML = parser2.parseFromString(pro, 'text/xml');
+          const data = dataXML.getElementsByTagName('bico')[0];
+          const year = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
+          this.typologyService.getYearCode( year ).subscribe(resYear => {
+            this.building.use = use;
+            this.building.surface = +infoFromParcel.area;
+            this.building.year = year;
+            this.building.typology.yearCode = resYear['year_code'];
+            this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+            this.buildingCompleteEmitter.emit(this.building);
+            this.spinner.hide();
+          });
+        });
+      } else {
+        this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+        this.buildingCompleteEmitter.emit(this.building);
+        this.spinner.hide();
+      }
+    } else {
+      if ( infoFromParcel.area === '' && infoFromParcel.numberOfResidentUnits === '' &&
+        infoFromParcel.numberOfUnits === ''  && infoFromParcel.use === '' ) {
+        this.hasError = true;
+        this.error = 'This Building is not residential';
+      }
+      this.building.typology.categoryName = 'Typology not available';
+      this.spinner.hide();
+    }
+  }
+  selectYearOption() {
+    this.building.year = String(this.selectedYear);
+  }
+  getInfoFromCadastre_NL( ) {
+    const buildingTmp = this.building;
+    this.cadastreNLService.getGeneralInfoBuildingBYCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
+      const buildingInfo = JSON.parse(data).features[0].properties;
+      buildingTmp.year = buildingInfo.bouwjaar;
+      buildingTmp.use =  buildingInfo.gebruiksdoel;
+      buildingTmp.rc = buildingInfo.identificatie;
+      this.building = buildingTmp;
+      this.buildingCompleteEmitter.emit(this.building);
+      this.spinner.hide();
+    });
+  }
+  getInfoFromCadastre_ES(getTypology: boolean) {
+    this.errorLocation = false;
+    this.selectYear = false;
+    const buildingTmp = this.building;
+    this.cadastreServiceES.getRCByCoordinates(this.building.point.x, this.building.point.y).then( (data) => {
+      this.selectBuilding = false;
+      //this.building = null;
+      const parser = new DOMParser();
+      const dataFile = parser.parseFromString(data, 'text/xml');
+      const err = dataFile.getElementsByTagName('err')[0];
+      if ( err ){
+        const desError = dataFile.getElementsByTagName('des')[0].textContent;
+        const codError = dataFile.getElementsByTagName('cod')[0].textContent;
+        if ( codError === '16') {
+          this.showErrorLocation();
+          this.spinner.hide();
+        } else {
+          this.showYearSelection();
+          this.spinner.hide();
+        }
+        /*this.hasError = true;
+        this.error = desError;
+        this.spinner.hide();*/
+      } else {
+        this.selectBuilding = true;
+        const rc1 = dataFile.getElementsByTagName('pc1').length > 0 ? dataFile.getElementsByTagName('pc1')[0].textContent : '';
+        const rc2 = dataFile.getElementsByTagName('pc2')[0].textContent;
+        const rcGeneral = rc1.concat(rc2);
+        const addressMain = dataFile.getElementsByTagName('ldt')[0].textContent;
+        this.cadastreServiceES.getBuildingDetailsByRC(rcGeneral).subscribe((prop) => {
+          const parser2 = new DOMParser();
+          const dataXML = parser2.parseFromString(prop, 'text/xml');
+          // case: when request is only one property
+          const propertyOnly = dataXML.getElementsByTagName('bico')[0];
+          this.properties = [];
+          if ( propertyOnly !== undefined ){
+            const property = this.getInfoPropGeneral(propertyOnly, addressMain);
+            this.properties.push(property);
+          } else {
+            // case: when request are many properties
+            const properties = dataXML.getElementsByTagName('rcdnp');
+            // tslint:disable-next-line:prefer-for-of
+            for ( let i = 0; i < properties.length ; i++){
+              const detail = properties[i];
+              const property = this.getInfoPropGeneral(detail, addressMain);
+              this.properties.push(property);
+            }
+            this.propertiesFilter = this.properties;
+          }
+          if ( !this.ruralBuilding ) {
+            this.cadastreServiceES.getFacadeImage(this.properties[0].rc).subscribe( (baseImage: any) => {
+              const urlCreator = window.URL;
+              this.properties[0].image = this.sanitizer.bypassSecurityTrustUrl(urlCreator.createObjectURL(baseImage));
+              this.properties[0].latlng = buildingTmp.coordinates;
+              buildingTmp.year = this.properties[0].yearConstruction;
+              buildingTmp.region = this.properties[0].province;
+              buildingTmp.address = this.properties[0].address;
+              buildingTmp.rc = rcGeneral;
+              buildingTmp.properties = this.properties;
+              this.building = buildingTmp;
+              if ( getTypology ) {
+                let getInfoFromINSPIRE = true;
+                // Best case: Request info from Inspire
+                const requestINSPIRE = this.cadastreServiceES.getBuildingInfoINSPIREParcel(this.building.rc).subscribe( parcel => {
+                  this.cadastreServiceES.getBuildingInfoINSPIREPartParcel(this.building.rc).subscribe( partParcel => {
+                    this.getDataBuildingFromINSPIRE(parcel, partParcel);
+                  });
+                }, (error) => {
+                  getInfoFromINSPIRE = false;
+                });
+                // Case: Select Typology
+                setTimeout(() => {
+                  requestINSPIRE.unsubscribe();
+                  if ( !getInfoFromINSPIRE && this.properties.length > 0 && !this.building.year) {
+                    this.getYearFromCadastre();
+                  }
+                }, 1500);
+              } else {
+                this.getYearFromCadastre();
+              }
+            });
+          } else {
+            this.selectBuilding = false;
+            this.buildingCompleteEmitter.emit(this.building);
+            this.spinner.hide();
+          }
+        });
+      }
+    }, error => {
+      this.spinner.show();
+      this.building = buildingTmp;
+      if ( !this.errorLocation ) {
+        this.selectYear = true;
+        this.selectBuilding = true;
+      } else {
+        this.selectBuilding = false;
+      }
+      this.properties = [];
+      this.propertiesFilter = [];
+      this.spinner.hide();
+    });
   }
 }

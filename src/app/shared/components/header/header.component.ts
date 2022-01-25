@@ -47,12 +47,12 @@ export class HeaderComponent implements OnInit {
         this.userService.getByUid(user.uid).subscribe(userFromDB => {
           if (userFromDB) {
             this.currentUser = new User(user);
-            this.currentUser.name = userFromDB['name'];
+            this.currentUser.name = userFromDB['user'].name;
           }
         });
       } else {
         this.isUserLogged = false;
       }
-    })
+    });
    }
 }
