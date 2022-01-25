@@ -44,6 +44,7 @@ export class LoginComponent implements OnInit {
       // User is signed in.
       this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
     }
+
   }
 
   login() {
@@ -61,6 +62,7 @@ export class LoginComponent implements OnInit {
     if (this.afAuth.currentUser) {
       this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
     }
+
   }
 
   loginWithGoogle() {
@@ -117,12 +119,12 @@ export class LoginComponent implements OnInit {
         });
       this.afAuth.onAuthStateChanged(user => {
         if (user) {
-         const newUser = {
-           uid: user.uid != null ? user.uid : user.uid != null ? user.uid : '',
-           email: user.email != null ? user.email : '',
-           name: this.newUser.name ? this.newUser.name : user.displayName,
-         };
-         this.userService.getByUid(newUser.uid).subscribe( data => {
+          const newUser = {
+            uid: user.uid != null ? user.uid : user.uid != null ? user.uid : '',
+            email: user.email != null ? user.email : '',
+            name: this.newUser.name ? this.newUser.name : user.displayName,
+          };
+          this.userService.getByUid(newUser.uid).subscribe( data => {
             if (!data) {
               this.userService.create(newUser).subscribe(
                 response => {

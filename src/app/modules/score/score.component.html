@@ -23,50 +23,76 @@
     </div>
 
     <div  class="p-2 flex-fill bd-highlight" >
-      <span> <i class="fa fa-battery-empty" aria-hidden="true"></i> ACTUAL ENERGY COST VS REFURBISHMENT</span>
+      <span> <i class="fa fa-battery-empty" aria-hidden="true"></i> ACTUAL FINAL ENERGY CONSUMED VS REFURBISHMENT</span>
+      <div class="row">
+        <div class="col-md-7" *ngIf="chartOptionsSummary" style="margin-right: 20px;">
+          <highcharts-chart
+            [Highcharts]="SummaryChart"
+            [options]="chartOptionsSummary" ></highcharts-chart>
+        </div>
+        <div class="col-md-4">
+          <div style="margin-top: 20px; color: white">
+            <div class="rounded-section"  style="background-color: #f5a9a9">
+              <h5>{{finalEnergyData.total | number: '1.2-2'}} Total Today</h5>
+            </div>
+            <div class="rounded-section" style="background-color: #ffbd04">
+              <h5>{{finalEnergyDataStd.total | number: '1.2-2'}} {{textTotalStd}}</h5>
+            </div>
+            <div class="rounded-section" style="background-color: #bce39e">
+              <h5>{{finalEnergyDataAdv.total | number: '1.2-2'}} {{textTotalAdv}}</h5>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Refurbishment section-->
   <div>
     <div class="row" style="margin: 0;">
-      <div class="col-md-4 titleSectionToday">
-        <h2>
-          Today
-        </h2>
+      <div class="col-md-4 ">
+        <div class="titleSectionToday" style="margin-right: 10px;">
+          <h2>
+            Today
+          </h2>
+        </div>
       </div>
-      <div class="col-md-4 titleSectionStandard">
-        <h2>Standard</h2>
+      <div class="col-md-4 ">
+        <div class="titleSectionStandard" style="margin-right: 10px;">
+          <h2>Standard</h2>
+        </div>
       </div>
-      <div class="col-md-4 titleSectionAdvanced">
-        <h2>
-          Advanced
-        </h2>
+      <div class="col-md-4 ">
+        <div class="titleSectionAdvanced">
+          <h2>
+            Advanced
+          </h2>
+        </div>
       </div>
     </div>
     <div class="accordion" id="today">
       <div class="card ">
-        <div class="card-header" id="buildingData">
+        <div class="card-header header-principal" id="buildingData">
           <h2 class="mb-0">
-            <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#components" aria-expanded="true" aria-controls="components">
+            <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#components" aria-expanded="false" aria-controls="components">
               <h3>Building Data</h3>
             </button>
           </h2>
         </div>
 
-        <div id="components" class="collapse" aria-labelledby="buildingData" data-parent="#today">
+        <div id="components" class="collapse" aria-labelledby="buildingData">
           <div class="card-body">
             <div class="accordion" id="enveloped">
               <div class="card" >
                 <div class="card-header" id="floorHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#floorData" aria-expanded="true" aria-controls="floorData">
+                    <button class="btn btn-link btn-block collapsed text-left" type="button" data-toggle="collapse" data-target="#floorData" aria-expanded="false" aria-controls="floorData">
                       Floor
                     </button>
                   </h2>
                 </div>
 
-                <div id="floorData" class="collapse" aria-labelledby="floorHeader" data-parent="#enveloped">
-                  <div class="card-body row">
+                <div id="floorData" class="collapse" aria-labelledby="floorHeader">
+                  <div class="card-body row"  style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="envelopedToday.floor">
                         <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.floor.picture}}" width="240" height="170"/>
@@ -97,14 +123,14 @@
               <div class="card">
                 <div class="card-header" id="roofHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed " type="button" data-toggle="collapse" data-target="#roofData" aria-expanded="true" aria-controls="roofData">
+                    <button class="btn btn-link btn-block text-left collapsed " type="button" data-toggle="collapse" data-target="#roofData" aria-expanded="false" aria-controls="roofData">
                       Roof
                     </button>
                   </h2>
                 </div>
 
-                <div id="roofData" class="collapse" aria-labelledby="roofHeader" data-parent="#enveloped">
-                  <div class="card-body row">
+                <div id="roofData" class="collapse" aria-labelledby="roofHeader">
+                  <div class="card-body row" style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="envelopedToday.roof">
                         <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.roof.picture}}" width="240" height="170"/>
@@ -135,14 +161,14 @@
               <div class="card">
                 <div class="card-header" id="wallHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#wallData" aria-expanded="true" aria-controls="wallData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#wallData" aria-expanded="false" aria-controls="wallData">
                       Wall
                     </button>
                   </h2>
                 </div>
 
-                <div id="wallData" class="collapse" aria-labelledby="wallHeader" data-parent="#enveloped">
-                  <div class="card-body row">
+                <div id="wallData" class="collapse" aria-labelledby="wallHeader">
+                  <div class="card-body row" style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="envelopedToday.wall">
                         <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.wall.picture}}" width="240" height="170"/>
@@ -173,14 +199,14 @@
               <div class="card">
                 <div class="card-header" id="windowHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#windowData" aria-expanded="true" aria-controls="windowData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#windowData" aria-expanded="false" aria-controls="windowData">
                       Window
                     </button>
                   </h2>
                 </div>
 
-                <div id="windowData" class="collapse" aria-labelledby="windowHeader" data-parent="#enveloped">
-                  <div class="card-body row">
+                <div id="windowData" class="collapse" aria-labelledby="windowHeader">
+                  <div class="card-body row" style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="envelopedToday.window">
                         <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.window.picture}}" width="240" height="170"/>
@@ -211,14 +237,14 @@
               <div class="card">
                 <div class="card-header" id="doorHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#doorData" aria-expanded="true" aria-controls="doorData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#doorData" aria-expanded="false" aria-controls="doorData">
                       Door
                     </button>
                   </h2>
                 </div>
 
-                <div id="doorData" class="collapse" aria-labelledby="doorHeader" data-parent="#enveloped">
-                  <div class="card-body row">
+                <div id="doorData" class="collapse" aria-labelledby="doorHeader">
+                  <div class="card-body row" style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="envelopedToday.door">
                         <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.door.picture}}" width="240" height="170"/>
@@ -249,15 +275,15 @@
               <div class="card">
                 <div class="card-header" id="cellingHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#cellingData" aria-expanded="true" aria-controls="cellingData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#cellingData" aria-expanded="false" aria-controls="cellingData">
                       Celling
                     </button>
                   </h2>
                 </div>
 
-                <div id="cellingData" class="collapse" aria-labelledby="cellingHeader" data-parent="#enveloped">
-                  <div class="card-body row">
-                    <div class="col-md-4 ">
+                <div id="cellingData" class="collapse" aria-labelledby="cellingHeader">
+                  <div class="card-body row" style="margin-left: 0;">
+                    <div class="col-md-4 " >
                       <div *ngIf="envelopedToday.celling">
                         <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.celling.picture}}" width="240" height="170"/>
                         <p>
@@ -290,29 +316,29 @@
       </div>
 
       <div class="card">
-        <div class="card-header" id="systemData">
+        <div class="card-header  header-principal" id="systemData">
           <h2 class="mb-0">
-            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="true" aria-controls="systems">
+            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="false" aria-controls="systems">
               <h3>System Data</h3>
             </button>
           </h2>
         </div>
 
-        <div id="systems" class="collapse" aria-labelledby="systemData" data-parent="#today">
+        <div id="systems" class="collapse" aria-labelledby="systemData">
           <div class="card-body">
             <div class="accordion" id="system">
               <div class="card">
                 <div class="card-header" id="heatingHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#heatingData" aria-expanded="true" aria-controls="heatingData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#heatingData" aria-expanded="false" aria-controls="heatingData">
                       Heating
                     </button>
                   </h2>
                 </div>
 
-                <div id="heatingData" class="collapse" aria-labelledby="heatingHeader" data-parent="#system">
+                <div id="heatingData" class="collapse" aria-labelledby="heatingHeader" >
                   <div class="card-body row">
-                    <div class="card-body row">
+                    <div class="card-body row" style="margin-left: 0;">
                       <div class="col-md-4 ">
                         <div *ngIf="systemsToday.heating">
                           <img src="./assets/img/system/{{building.country}}/{{systemsToday.heating.picture}}" width="240" height="170"/>
@@ -344,14 +370,14 @@
               <div class="card">
                 <div class="card-header" id="waterHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#waterData" aria-expanded="true" aria-controls="waterData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#waterData" aria-expanded="false" aria-controls="waterData">
                       Water
                     </button>
                   </h2>
                 </div>
 
-                <div id="waterData" class="collapse" aria-labelledby="waterHeader" data-parent="#system">
-                  <div class="card-body row">
+                <div id="waterData" class="collapse" aria-labelledby="waterHeader" >
+                  <div class="card-body row"  style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="systemsToday.water">
                         <img src="./assets/img/system/{{building.country}}/{{systemsToday.water.picture}}" width="240" height="170"/>
@@ -382,14 +408,14 @@
               <div class="card">
                 <div class="card-header" id="ventilationHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#ventilationData" aria-expanded="true" aria-controls="ventilationData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#ventilationData" aria-expanded="false" aria-controls="ventilationData">
                       Ventilation
                     </button>
                   </h2>
                 </div>
 
-                <div id="ventilationData" class="collapse" aria-labelledby="ventilationHeader" data-parent="#system">
-                  <div class="card-body row">
+                <div id="ventilationData" class="collapse" aria-labelledby="ventilationHeader">
+                  <div class="card-body row" style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="systemsToday.ventilation">
                         <img src="./assets/img/system/{{building.country}}/{{systemsToday.ventilation.picture}}" width="240" height="170"/>
@@ -420,15 +446,15 @@
               <div class="card">
                 <div class="card-header" id="pvHeader">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#pvData" aria-expanded="true" aria-controls="pvData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#pvData" aria-expanded="false" aria-controls="pvData">
                       PV
                     </button>
                   </h2>
                 </div>
 
-                <div id="pvData" class="collapse" aria-labelledby="pvHeader" data-parent="#system">
-                  <div class="card-body row">
-                    <div class="col-md-4 ">
+                <div id="pvData" class="collapse" aria-labelledby="pvHeader" >
+                  <div class="card-body row" style="margin-left: 0;">
+                    <div class="col-md-4 " >
                       <div *ngIf="systemsToday.pv">
                         <img src="./assets/img/system/{{building.country}}/{{systemsToday.pv.picture}}" width="240" height="170"/>
                         <p>
@@ -461,27 +487,27 @@
       </div>
 
       <div class="card">
-        <div class="card-header" id="energyEfficiency">
+        <div class="card-header header-principal" id="energyEfficiency">
           <h2 class="mb-0">
-            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#energySection" aria-expanded="true" aria-controls="energySection">
+            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#energySection" aria-expanded="false" aria-controls="energySection">
               <h3>Energy Efficiency</h3>
             </button>
           </h2>
         </div>
 
-        <div id="energySection" class="collapse" aria-labelledby="energyEfficiency" data-parent="#today">
+        <div id="energySection" class="collapse" aria-labelledby="energyEfficiency">
           <div class="card-body">
             <div class="accordion" id="charts">
               <div class="card">
                 <div class="card-header" id="demand">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#demandData" aria-expanded="true" aria-controls="demandData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#demandData" aria-expanded="false" aria-controls="demandData">
                       Demand per year
                     </button>
                   </h2>
                 </div>
 
-                <div id="demandData" class="collapse" aria-labelledby="demand" data-parent="#charts">
+                <div id="demandData" class="collapse" [ngClass]="" aria-labelledby="demand" >
                   <div class="card-body row">
                     <div class="card-body row">
                       <div class="col-md-4 row">
@@ -491,18 +517,18 @@
                             [options]="chartOptionsDemandActual" ></highcharts-chart>
                         </div>
                         <div class="col-md-5">
-                          <div style="margin-top: 20px;">
-                            <div class="rounded-section">
-                              <p>{{demandData.total | number: '1.2-2'}} Total Demand</p>
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #f5a9a9">
+                              <h5>{{demandData.total | number: '1.2-2'}} Total Demand</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandData.other | number: '1.2-2'}}% Other system demand</p>
+                            <div class="rounded-section"  style="background-color: #7cb5ec">
+                              <h5>{{demandData.other | number: '1.2-2'}}% Other system demand</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandData.heating | number: '1.2-2'}}% Heating demand</p>
+                            <div class="rounded-section" style="background-color: black">
+                              <h5>{{demandData.heating | number: '1.2-2'}}% Heating demand</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandData.recovered | number: '1.2-2'}}% Recovered Heating</p>
+                            <div class="rounded-section" style="background-color: #90ed7d">
+                              <h5>{{demandData.recovered | number: '1.2-2'}}% Recovered Heating</h5>
                             </div>
                           </div>
                         </div>
@@ -514,18 +540,18 @@
                             [options]="chartOptionsDemandStd" ></highcharts-chart>
                         </div>
                         <div class="col-md-5">
-                          <div style="margin-top: 20px;">
-                            <div class="rounded-section">
-                              <p>{{demandDataStd.total | number: '1.2-2'}} Total Demand</p>
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #ffbd04">
+                              <h5>{{demandDataStd.total | number: '1.2-2'}} {{textTotalDemandStd}}</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandDataStd.other | number: '1.2-2'}}% Other system demand</p>
+                            <div class="rounded-section" style="background-color: #7cb5ec">
+                              <h5>{{demandDataStd.other | number: '1.2-2'}} {{textOtherDemandStd}}</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandDataStd.heating | number: '1.2-2'}}% Heating demand</p>
+                            <div class="rounded-section" style="background-color: black">
+                              <h5>{{demandDataStd.heating | number: '1.2-2'}} {{textHeatingDemandStd}} </h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandDataStd.recovered | number: '1.2-2'}}% Recovered Heating</p>
+                            <div class="rounded-section" style="background-color: #90ed7d">
+                              <h5>{{demandDataStd.recovered | number: '1.2-2'}} {{textRecoveredDemandStd}}</h5>
                             </div>
                           </div>
                         </div>
@@ -537,18 +563,18 @@
                             [options]="chartOptionsDemandAdv" ></highcharts-chart>
                         </div>
                         <div class="col-md-5">
-                          <div style="margin-top: 20px;">
-                            <div class="rounded-section">
-                              <p>{{demandDataAdv.total | number: '1.2-2'}} Total Demand</p>
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #bce39e">
+                              <h5>{{demandDataAdv.total | number: '1.2-2'}} {{textTotalDemandAdv}}</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandDataAdv.other | number: '1.2-2'}}% Other system demand</p>
+                            <div class="rounded-section" style="background-color: #7cb5ec">
+                              <h5>{{demandDataAdv.other | number: '1.2-2'}} {{textOtherDemandAdv}}</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandDataAdv.heating | number: '1.2-2'}}% Heating demand</p>
+                            <div class="rounded-section" style="background-color: black">
+                              <h5>{{demandDataAdv.heating | number: '1.2-2'}} {{textHeatingDemandAdv}}</h5>
                             </div>
-                            <div class="rounded-section">
-                              <p>{{demandDataAdv.recovered | number: '1.2-2'}}% Recovered Heating</p>
+                            <div class="rounded-section" style="background-color: #90ed7d">
+                              <h5>{{demandDataAdv.recovered | number: '1.2-2'}}{{textRecoveredDemandAdv}}</h5>
                             </div>
                           </div>
                         </div>
@@ -560,13 +586,13 @@
               <div class="card">
                 <div class="card-header" id="energy">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#energyData" aria-expanded="true" aria-controls="energyData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyData" aria-expanded="false" aria-controls="energyData">
                       Final energy consumed
                     </button>
                   </h2>
                 </div>
 
-                <div id="energyData" class="collapse" aria-labelledby="energy" data-parent="#charts">
+                <div id="energyData" class="collapse" aria-labelledby="energy" >
                   <div class="card-body row">
                     <div class="col-md-4 row">
                       <div class="col-md-7" *ngIf="chartOptionsFinalEnergyActual">
@@ -575,59 +601,186 @@
                           [options]="chartOptionsFinalEnergyActual" ></highcharts-chart>
                       </div>
                       <div class="col-md-5">
-                        <div style="margin-top: 20px;">
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.total | number: '1.2-2'}} Total</p>
+                        <div style="margin-top: 20px; color: white">
+                          <div class="rounded-section"  style="background-color: #f5a9a9">
+                            <h5>{{finalEnergyData.total | number: '1.2-2'}} Total</h5>
                           </div>
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.fossils | number: '1.2-2'}}% Fossils</p>
+                          <div class="rounded-section" style="background-color: #7cb5ec">
+                            <h5>{{finalEnergyData.fossils | number: '1.2-2'}}% Fossils</h5>
                           </div>
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.biomass | number: '1.2-2'}}% Biomass</p>
+                          <div class="rounded-section" style="background-color: black">
+                            <h5>{{finalEnergyData.biomass | number: '1.2-2'}}% Biomass</h5>
                           </div>
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.electricity | number: '1.2-2'}}% Electricity</p>
+                          <div class="rounded-section" style="background-color: #90ed7d">
+                            <h5>{{finalEnergyData.electricity | number: '1.2-2'}}% Electricity</h5>
                           </div>
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.district | number: '1.2-2'}}% District Heating</p>
+                          <div class="rounded-section" style="background-color: #f6a35b">
+                            <h5>{{finalEnergyData.district | number: '1.2-2'}}% District Heating</h5>
                           </div>
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.other | number: '1.2-2'}}% Other</p>
+                          <div class="rounded-section" style="background-color: #7f85e9">
+                            <h5>{{finalEnergyData.other | number: '1.2-2'}}% Other</h5>
                           </div>
-                          <div class="rounded-section">
-                            <p>{{finalEnergyData.produced | number: '1.2-2'}}% Produced electricity</p>
+                          <div class="rounded-section" style="background-color: #f15c80">
+                            <h5>{{finalEnergyData.produced | number: '1.2-2'}}% Produced electricity</h5>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-
+                    <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div class="col-md-7" *ngIf="chartOptionsFinalEnergyStd">
+                        <highcharts-chart
+                          [Highcharts]="FinalEnergyChartStd"
+                          [options]="chartOptionsFinalEnergyStd" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #ffbd04">
+                            <h5>{{finalEnergyDataStd.total | number: '1.2-2'}} {{textTotalStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7cb5ec">
+                            <h5>{{finalEnergyDataStd.fossils | number: '1.2-2'}} {{textFossilStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: black">
+                            <h5>{{finalEnergyDataStd.biomass | number: '1.2-2'}} {{textBiomassStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #90ed7d">
+                            <h5>{{finalEnergyDataStd.electricity | number: '1.2-2'}} {{textElectricityStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f6a35b">
+                            <h5>{{finalEnergyDataStd.district | number: '1.2-2'}} {{textDistrictStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7f85e9">
+                            <h5>{{finalEnergyDataStd.other | number: '1.2-2'}} {{textOtherStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f15c80">
+                            <h5>{{finalEnergyDataStd.produced | number: '1.2-2'}} {{textProducedStd}}</h5>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-md-4 ">
-
+                    <div class="col-md-4 row">
+                      <div class="col-md-7" *ngIf="chartOptionsFinalEnergyAdv">
+                        <highcharts-chart
+                          [Highcharts]="FinalEnergyChartAdv"
+                        [options]="chartOptionsFinalEnergyAdv" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #bce39e">
+                            <h5>{{finalEnergyDataAdv.total | number: '1.2-2'}} {{textTotalAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7cb5ec">
+                            <h5>{{finalEnergyDataAdv.fossils | number: '1.2-2'}}{{textFossilAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: black">
+                            <h5>{{finalEnergyDataAdv.biomass | number: '1.2-2'}} {{textBiomassAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #90ed7d">
+                            <h5>{{finalEnergyDataAdv.electricity | number: '1.2-2'}} {{textElectricityAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f6a35b">
+                            <h5>{{finalEnergyDataAdv.district | number: '1.2-2'}} {{textDistrictAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7f85e9">
+                            <h5>{{finalEnergyDataAdv.other | number: '1.2-2'}} {{textOtherAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f15c80">
+                            <h5>{{finalEnergyDataAdv.produced | number: '1.2-2'}} {{textProducedAdv}}</h5>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     </div>
                   </div>
                 </div>
-              </div>
               <div class="card">
                 <div class="card-header" id="emissions">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#emissionsData" aria-expanded="true" aria-controls="emissionsData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#emissionsData" aria-expanded="false" aria-controls="emissionsData">
                       CO2 Emissions per year nRE PE
                     </button>
                   </h2>
                 </div>
 
-                <div id="emissionsData" class="collapse" aria-labelledby="emissions" data-parent="#charts">
+                <div id="emissionsData" class="collapse" aria-labelledby="emissions" >
                   <div class="card-body row">
                     <div class="col-md-4 ">
-
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3" style="background-color: grey;">
+                          <h3>
+                            {{co2EmissionsActual.co2.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9"  style="background-color: #f5a9a9;">
+                          <h3>
+                            {{co2EmissionsActual.co2.text}}
+                          </h3>
+                        </div>
+                      </div>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: #e7e7e7; color: grey;">
+                          <h3>
+                            {{co2EmissionsActual.nre.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9"  style="background-color: #f5a9a9;">
+                          <h3>
+                            {{co2EmissionsActual.nre.text}}
+                          </h3>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: grey;">
+                          <h3>
+                            {{co2EmissionsStd.co2.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9"  style="background-color: #ffbd04;">
+                          <h3>
+                            % {{co2EmissionsStd.co2.text}}
+                          </h3>
+                        </div>
+                      </div>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: #e7e7e7; color: grey;">
+                          <h3>
+                            {{co2EmissionsStd.nre.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9" style="background-color: #ffbd04;">
+                          <h3>
+                            % {{co2EmissionsStd.nre.text}}
+                          </h3>
+                        </div>
+                      </div>
                     </div>
                     <div class="col-md-4 ">
-
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: grey;">
+                          <h3>
+                            {{co2EmissionsAdv.co2.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9" style="background-color: #bce39e;">
+                          <h3>
+                            % {{co2EmissionsAdv.co2.text}}
+                          </h3>
+                        </div>
+                      </div>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: #e7e7e7; color: grey;">
+                          <h3>
+                            {{co2EmissionsAdv.nre.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9" style="background-color: #bce39e;">
+                          <h3>
+                            % {{co2EmissionsAdv.nre.text}}
+                          </h3>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -635,24 +788,60 @@
               <div class="card">
                 <div class="card-header" id="res">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#resData" aria-expanded="true" aria-controls="resData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#resData" aria-expanded="false" aria-controls="resData">
                       % RES
                     </button>
                   </h2>
                 </div>
 
-                <div id="resData" class="collapse" aria-labelledby="res" data-parent="#charts">
+                <div id="resData" class="collapse" aria-labelledby="res" >
                   <div class="card-body row">
-                    <div class="col-md-4 ">
-
+                    <div class="col-md-4 row">
+                      <div class="col-md-7" *ngIf="chartOptionsResActual">
+                        <highcharts-chart
+                          [Highcharts]="ResChartActual"
+                          [options]="chartOptionsResActual" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #f5a9a9">
+                            <h3>{{textResActual.res}}</h3>
+                          </div>
+                          <div class="rounded-section">
+                            <h3>{{textResActual.other}}</h3>
+                          </div>
+                        </div>
+                      </div>
 
                     </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-
+                    <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div class="col-md-7" *ngIf="chartOptionsResStd">
+                        <highcharts-chart
+                          [Highcharts]="ResChartStd"
+                          [options]="chartOptionsResStd" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #ffbd04">
+                            <h3>{{textResStd}}</h3>
+                          </div>
+                        </div>
+                      </div>
 
                     </div>
-                    <div class="col-md-4 ">
-
+                    <div class="col-md-4 row">
+                      <div class="col-md-7" *ngIf="chartOptionsResAdv">
+                        <highcharts-chart
+                          [Highcharts]="ResChartAdv"
+                          [options]="chartOptionsResAdv" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #bce39e">
+                            <h3>{{textResAdv}}</h3>
+                          </div>
+                        </div>
+                      </div>
 
                     </div>
                   </div>
@@ -661,25 +850,43 @@
               <div class="card">
                 <div class="card-header" id="cost">
                   <h2 class="mb-0">
-                    <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#costData" aria-expanded="true" aria-controls="costData">
+                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#costData" aria-expanded="false" aria-controls="costData">
                       ENERGY COST
                     </button>
                   </h2>
                 </div>
 
-                <div id="costData" class="collapse" aria-labelledby="cost" data-parent="#charts">
+                <div id="costData" class="collapse" aria-labelledby="cost" >
                   <div class="card-body row">
                     <div class="col-md-4 ">
-
-
+                      <div class="rounded-container" style="background-color: #f5a9a9;">
+                        <h2>{{energyCost | number: '1.2-2'}}<i class="fa fa-eur " aria-hidden="true"></i></h2>
+                      </div>
                     </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                    <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div class="col-md-6">
+                        <div class="rounded-container" style="background-color: #ffbd04;">
+                          <h2>{{energyCostStd.value | number: '1.2-2'}}<i class="fa fa-eur " aria-hidden="true"></i></h2>
 
-
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="rounded-section" style="background-color: #b3b0b0;">
+                          <h3>{{energyCostStd.text}}</h3>
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-md-4 ">
-
-
+                    <div class="col-md-4 row">
+                      <div class="col-md-6">
+                        <div class="rounded-container  col-md-6" style="background-color: #bce39e;">
+                          <h2>{{energyCostAdv.value | number: '1.2-2'}}<i class="fa fa-eur " aria-hidden="true"></i></h2>
+                        </div>
+                      </div>
+                      <div class="col-md-6" >
+                        <div class="rounded-section" style="background-color: #b3b0b0;">
+                          <h3>{{energyCostAdv.text}}</h3>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -690,320 +897,5 @@
       </div>
     </div>
   </div>
-  <!--div class="row">
-    <div class="col-md-4">
-      <div class="titleSectionToday">
-        Today
-      </div>
-      <div class="accordion" id="today">
-        <div class="card">
-          <div class="card-header" id="buildingData">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#components" aria-expanded="true" aria-controls="components">
-                Building Data
-              </button>
-            </h2>
-          </div>
-
-          <div id="components" class="collapse" aria-labelledby="buildingData" data-parent="#today">
-            <div class="card-body">
-              <div class="accordion" id="buildingComponents">
-                <div class="card" *ngFor="let typ of building.typology.enveloped; let i = index">
-                  <div class="card-header" id="header-{{i}}">
-                    <h2 class="mb-0">
-                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-'+i" aria-expanded="true" [attr.aria-controls]="'#component-'+i" >
-                        {{typ.componentType}}
-                      </button>
-                    </h2>
-                  </div>
-
-                  <div id="component-{{i}}" class="collapse" [attr.aria-labelledby]="'header-'+i" data-parent="#buildingComponents">
-                    <div class="card-body row">
-                      <div class="col-md-6">
-                        <img src="./assets/img/envelope/{{building.country}}/{{typ.picture}}" width="240" height="170"/>
-                      </div>
-                      <div class="col-md-1">
-
-                      </div>
-                      <div class="col-md-5">
-                        <p>
-                          {{typ.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" id="systemData">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="true" aria-controls="systems">
-                System Data
-              </button>
-            </h2>
-          </div>
-
-          <div id="systems" class="collapse" aria-labelledby="systemData" data-parent="#today">
-            <div class="card-body">
-              <div class="accordion" id="systemComponent">
-                <div class="card" *ngFor="let sys of building.typology.system.systems; let i = index">
-                  <div class="card-header" id="header-system-{{i}}">
-                    <h2 class="mb-0">
-                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-system-'+i" aria-expanded="true" [attr.aria-controls]="'#component-system-'+i" >
-                        {{sys.name}}
-                      </button>
-                    </h2>
-                  </div>
-
-                  <div id="component-system-{{i}}" class="collapse" [attr.aria-labelledby]="'header-system-'+i" data-parent="#systemComponent">
-                    <div class="card-body row">
-                      <div class="col-md-6">
-                        <img src="./assets/img/system/{{building.country}}/{{sys.picture}}" width="240" height="170"/>
-                      </div>
-                      <div class="col-md-6">
-                        <p>
-                          {{sys.description}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" id="energyEfficiency">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyData" aria-expanded="true" aria-controls="energyData">
-                Energy Efficiency
-              </button>
-            </h2>
-          </div>
-
-          <div id="energyData" class="collapse" aria-labelledby="energyEfficiency" data-parent="#today">
-            <div class="card-body">
-
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="titleSectionStandard">
-        Standard
-      </div>
-      <div class="accordion" id="standard">
-        <div class="card">
-          <div class="card-header" id="buildingDataStd">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#componentsStd" aria-expanded="true" aria-controls="componentsStd">
-                Building Data
-              </button>
-            </h2>
-          </div>
-
-          <div id="componentsStd" class="collapse" aria-labelledby="buildingDataStd" data-parent="#standard">
-            <div class="card-body">
-              <div class="accordion" id="buildingComponentsStd">
-                <div class="card" *ngFor="let typ of building.refurbishment.envelopedStandard; let i = index">
-                  <div class="card-header" id="headerStd-{{i}}">
-                    <h2 class="mb-0">
-                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#componentStd-'+i" aria-expanded="true" [attr.aria-controls]="'#componentStd-'+i" >
-                        {{typ.componentType}}
-                      </button>
-                    </h2>
-                  </div>
-
-                  <div id="componentStd-{{i}}" class="collapse" [attr.aria-labelledby]="'headerStd-'+i" data-parent="#buildingComponentsStd">
-                    <div class="card-body row">
-                      <div class="col-md-6">
-                        <img src="./assets/img/envelope/{{building.country}}/{{typ.picture}}" width="240" height="170"/>
-                      </div>
-                      <div class="col-md-1">
-
-                      </div>
-                      <div class="col-md-5">
-                        <p>
-                          {{typ.description}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" id="systemDataStd">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#systemsStd" aria-expanded="true" aria-controls="systemsStd">
-                System Data
-              </button>
-            </h2>
-          </div>
-
-          <div id="systemsStd" class="collapse" aria-labelledby="systemDataStd" data-parent="#standard">
-            <div class="card-body">
-              <div class="accordion" id="systemComponentStd">
-                <div class="card" *ngFor="let sys of building.refurbishment.systemStandard.systems; let i = index">
-                  <div class="card-header" id="header-system-std{{i}}">
-                    <h2 class="mb-0">
-                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-system-std'+i" aria-expanded="true" [attr.aria-controls]="'#component-system-std'+i" >
-                        {{sys.name}}
-                      </button>
-                    </h2>
-                  </div>
-
-                  <div id="component-system-std{{i}}" class="collapse" [attr.aria-labelledby]="'header-system-std'+i" data-parent="#systemComponentStd">
-                    <div class="card-body row">
-                      <div class="col-md-6">
-                        <img src="./assets/img/system/{{building.country}}/{{sys.picture}}" width="240" height="170"/>
-                      </div>
-                      <div class="col-md-6">
-                        <p>
-                          {{sys.description}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" id="energyEfficiencyStd">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyDataStd" aria-expanded="true" aria-controls="energyDataStd">
-                Energy Efficiency
-              </button>
-            </h2>
-          </div>
-
-          <div id="energyDataStd" class="collapse" aria-labelledby="energyEfficiency" data-parent="#standard">
-            <div class="card-body">
-
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="titleSectionAdvanced">
-        Advanced
-      </div>
-      <div class="accordion" id="advanced">
-        <div class="card">
-          <div class="card-header" id="buildingDataAdv">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#componentsAdv" aria-expanded="true" aria-controls="componentsAdv">
-                Building Data
-              </button>
-            </h2>
-          </div>
-
-          <div id="componentsAdv" class="collapse" aria-labelledby="buildingDataAdv" data-parent="#advanced">
-            <div class="card-body">
-              <div class="accordion" id="buildingComponentsAdv">
-                <div class="card" *ngFor="let typ of building.refurbishment.envelopedAdvanced; let i = index">
-                  <div class="card-header" id="headerAdv-{{i}}">
-                    <h2 class="mb-0">
-                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#componentAdv-'+i" aria-expanded="true" [attr.aria-controls]="'#componentAdv-'+i" >
-                        {{typ.componentType}}
-                      </button>
-                    </h2>
-                  </div>
-
-                  <div id="componentAdv-{{i}}" class="collapse" [attr.aria-labelledby]="'headerStd-'+i" data-parent="#buildingComponentsAdv">
-                    <div class="card-body row">
-                      <div class="col-md-6">
-                        <img src="./assets/img/envelope/{{building.country}}/{{typ.picture}}" width="240" height="170"/>
-                      </div>
-                      <div class="col-md-1">
-
-                      </div>
-                      <div class="col-md-5">
-                        <p>
-                          {{typ.description}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" id="systemDataAdv">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#systemsAdv" aria-expanded="true" aria-controls="systemsAdv">
-                System Data
-              </button>
-            </h2>
-          </div>
-
-          <div id="systemsAdv" class="collapse" aria-labelledby="systemDataAdv" data-parent="#advanced">
-            <div class="card-body">
-              <div class="accordion" id="systemComponentAdv">
-                <div class="card" *ngFor="let sys of building.refurbishment.systemAdvanced.systems; let i = index">
-                  <div class="card-header" id="header-system-Adv{{i}}">
-                    <h2 class="mb-0">
-                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" [attr.data-target]="'#component-system-Adv'+i" aria-expanded="true" [attr.aria-controls]="'#component-system-Adv'+i" >
-                        {{sys.name}}
-                      </button>
-                    </h2>
-                  </div>
-
-                  <div id="component-system-Adv{{i}}" class="collapse" [attr.aria-labelledby]="'header-system-Adv'+i" data-parent="#systemComponentAdv">
-                    <div class="card-body row">
-                      <div class="col-md-6">
-                        <img src="./assets/img/system/{{building.country}}/{{sys.picture}}" width="240" height="170"/>
-                      </div>
-                      <div class="col-md-6">
-                        <p>
-                          {{sys.description}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header" id="energyEfficiencyAdv">
-            <h2 class="mb-0">
-              <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#energyDataAdv" aria-expanded="true" aria-controls="energyDataAdv">
-                Energy Efficiency
-              </button>
-            </h2>
-          </div>
-
-          <div id="energyDataAdv" class="collapse" aria-labelledby="energyEfficiency" data-parent="#afvanced">
-            <div class="card-body">
-
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </div-->
 
 </div>

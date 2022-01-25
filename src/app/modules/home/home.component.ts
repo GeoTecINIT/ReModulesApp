@@ -292,7 +292,7 @@ export class HomeComponent implements OnInit {
           point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
           this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
             nameRegion, region, buildingTmp.address,
-            buildingTmp.altitudeCode, coordinates, point, [], buildingTmp.rc,
+            buildingTmp.altitudeCode, coordinates, point, [], '',
             buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null, []);
         }
       });
@@ -375,4 +375,5 @@ export class HomeComponent implements OnInit {
   generalTab() {
     this.active = 1;
   }
+
 }

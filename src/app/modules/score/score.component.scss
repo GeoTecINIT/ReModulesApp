@@ -16,7 +16,7 @@
   color: white;
   text-align: center;
 }
-.card-header {
+.header-principal {
   background-color: #e5e5e5;
 }
 .rounded-section {
@@ -25,11 +25,27 @@
   text-decoration: none;
   border-radius: 30px;
   padding: 10px;
-  background-color: #b3b0b0;
   margin-bottom: 10px;
   color: white;
 }
 .card-body {
   padding-right: 0;
   padding-left: 0;
+}
+.rounded-container {
+  border: none;
+  text-decoration: none;
+  border-radius: 50%;
+  height: 130px;
+  width: 130px;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+  color: white;
+}
+
+.co2-section {
+  margin-left: 50px;
+  padding: 0;
+  margin-right: 60px;
 }

@@ -5,11 +5,13 @@ import { FormsModule, FormBuilder, Validator } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MapComponent } from './modules/map/map.component';
+
 // Import firebase-firestore
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
+
 import {environment} from '../environments/environment';
 import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 import { LoginComponent } from './modules/login/login.component';
@@ -38,6 +40,13 @@ import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-b
 import {NgxSpinnerModule} from 'ngx-spinner';
 import {TranslateModule} from '@ngx-translate/core';
 import {HighchartsChartModule} from 'highcharts-angular';
+import {
+  FacebookLoginProvider,
+  GoogleLoginProvider,
+  SocialAuthService,
+  SocialAuthServiceConfig,
+  SocialLoginModule
+} from 'angularx-social-login';
 
 @NgModule({
   declarations: [
@@ -56,9 +65,6 @@ import {HighchartsChartModule} from 'highcharts-angular';
         BrowserModule,
         AppRoutingModule,
         FormsModule,
-        AngularFireModule.initializeApp(environment.firebase),
-        AngularFirestoreModule,
-        AngularFireAuthModule,
         ModalModule.forRoot(),
         HttpClientModule,
         HttpClientJsonpModule,
@@ -71,16 +77,20 @@ import {HighchartsChartModule} from 'highcharts-angular';
         NoopAnimationsModule,
         NgxSpinnerModule,
         TranslateModule.forRoot(),
-        HighchartsChartModule
+        HighchartsChartModule,
+        AngularFireModule.initializeApp(environment.firebase),
+        AngularFirestoreModule,
+        AngularFireAuthModule,
+
     ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
-    AngularFireAuthGuard,
     AuthenticationService,
     UserService,
     CadastreESService,
     TypologyService,
     GeodataService,
+    AngularFireAuthGuard,
     OpendataService
   ],
   bootstrap: [AppComponent]

@@ -26,14 +26,19 @@
         </a>
       </div>
       <div [ngClass]="optionSelected === 3 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
-        <a (click)="optionSelected = 3;">
+        <a (click)="optionSelected = 3;" >
           <i class="fa fa-sliders fa-2x" aria-hidden="true"></i>
         </a>
       </div>
+      <!--div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
+        <button (click)="test1();">
+          Prueba
+        </button>
+      </div-->
       <div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
-        <a (click)="optionSelected = 4;">
-          <i class="fa fa-bookmark-o fa-2x" aria-hidden="true"></i>
-        </a>
+        <!--input type="file" (change)="test($event)" placeholder="Upload file" accept=".png"-->
+
+        <i class="fa fa-bookmark-o fa-2x" aria-hidden="true"></i>
       </div>
     </div>
     <div [ngClass]="showMap ? 'col-md-6' : ''" [hidden]="!showMap || showEnergy"  class="information" >
