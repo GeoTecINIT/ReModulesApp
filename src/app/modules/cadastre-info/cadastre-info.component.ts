@@ -98,24 +98,11 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           this.building.typology = new Typology('', '', '', '', '', '',
             '', null, null, null);
           if ( this.building.country  === 'ES') {
-            // Best case: Services gives all
-            //if ( this.building.provinceCode === '46') {
             this.spinner.show();
             this.textSpinner = 'Waiting for the cadastre service ... ';
             this.selectBuilding = true;
             this.getInfoFromCadastre_ES(true);
-            //}
-            // Case when services only get year
-            /*else if ( this.building.provinceCode === '12') {
-              this.spinner.show();
-              this.textSpinner = 'Waiting for the cadastre service ... ';
-              this.selectBuilding = true;
-              this.getInfoFromCadastre_ES(false);
-            }
-            // Case everything is request to user
-            else if ( this.building.provinceCode === '03') {
-              this.showYearSelection();
-            }*/
+
           } else if ( this.building.country  === 'NL' ) {
             this.spinner.show();
             this.selectBuilding = true;
@@ -194,6 +181,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     const address = info.getElementsByTagName('ldt')[0].textContent;
     const use = info.getElementsByTagName('luso')[0].textContent;
     const surfaceCons = info.getElementsByTagName('sfc').length > 0 ? info.getElementsByTagName('sfc')[0].textContent : '';
+    console.log('DATA!!! ', info.getElementsByTagName('ant'));
     const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
     const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
@@ -326,6 +314,16 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       area
     };
   }
+
+  getInfoFromINSPIRECP(information: string): any{
+    const domParser = new DOMParser();
+    const dataXML = domParser.parseFromString(information, 'text/xml');
+    const buildedSurface = dataXML.getElementsByTagName('cp:areaValue').length > 0 ?
+      dataXML.getElementsByTagName('cp:areaValue')[0].textContent : '';
+
+    return buildedSurface;
+  }
+
   getNumberOfFloorFromXML(information: string): number{
     const domParser = new DOMParser();
     const dataXML = domParser.parseFromString(information, 'text/xml');
@@ -366,8 +364,9 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         }
     });
   }
-  getDataBuildingFromINSPIRE( parcel, partParcel ): void {
+  getDataBuildingFromINSPIRE( parcel, partParcel, cp ): void {
     const infoFromParcel = this.getInfoFromParcel(parcel);
+    const infoFromCadastralParcel = this.getInfoFromINSPIRECP(cp);
     const infoFromPartOfParcel = this.getNumberOfFloorFromXML(partParcel);
     const useCut = infoFromParcel.use.split('_');
     const use = useCut[useCut.length - 1];
@@ -377,16 +376,23 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           const parser2 = new DOMParser();
           const dataXML = parser2.parseFromString(pro, 'text/xml');
           const data = dataXML.getElementsByTagName('bico')[0];
-          const year = this.convertToProperty(data, this.properties[0].rc).yearConstruction;
-          this.typologyService.getYearCode( year ).subscribe(resYear => {
-            this.building.use = use;
-            this.building.surface = +infoFromParcel.area;
-            this.building.year = year;
-            this.building.typology.yearCode = resYear['year_code'];
-            this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
-            this.buildingCompleteEmitter.emit(this.building);
+          const infoProp0 = this.convertToProperty(data, this.properties[0].rc);
+          const year = infoProp0.yearConstruction;
+          if ( infoProp0.surfaceCons !== '0'){
+            this.typologyService.getYearCode( year ).subscribe(resYear => {
+              this.building.use = use;
+              this.building.surface = +infoFromParcel.area;
+              this.building.year = year;
+              this.building.typology.yearCode = resYear['year_code'];
+              this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+              this.buildingCompleteEmitter.emit(this.building);
+              this.spinner.hide();
+            });
+          } else {
+            this.hasError = true;
+            this.error = 'This Building is not residential';
             this.spinner.hide();
-          });
+          }
         });
       } else {
         this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
@@ -483,7 +489,12 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
                 // Best case: Request info from Inspire
                 const requestINSPIRE = this.cadastreServiceES.getBuildingInfoINSPIREParcel(this.building.rc).subscribe( parcel => {
                   this.cadastreServiceES.getBuildingInfoINSPIREPartParcel(this.building.rc).subscribe( partParcel => {
-                    this.getDataBuildingFromINSPIRE(parcel, partParcel);
+                    this.cadastreServiceES.getBuildingInfoINSPIRECadastralParcel(this.building.rc).subscribe( cp => {
+                        this.getDataBuildingFromINSPIRE(parcel, partParcel, cp);
+                      },
+                      err => {
+                        this.showYearSelection();
+                      });
                   });
                 }, (error) => {
                   getInfoFromINSPIRE = false;

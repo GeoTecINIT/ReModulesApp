@@ -7,7 +7,7 @@ import { GlobalConstants } from '../../shared/GlobalConstants';
   providedIn: 'root'
 })
 export class OpendataService {
-  apiRoot = '/v1/test-dataset?';
+  apiRoot = '/v1/etopo1?';
 
   constructor(private http: HttpClient) { }
 
