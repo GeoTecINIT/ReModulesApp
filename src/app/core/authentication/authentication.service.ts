@@ -8,15 +8,8 @@ export class AuthenticationService {
 
   constructor(private http: HttpClient) { }
 
-  loginWithGoogle( token: string): void {
-    this.http.post('http://localhost:3001/api/user/auth/google',
-      {
-        token
-      }
-    ).subscribe( onSuccess => {
-      console.log('Exito!!!! ', onSuccess);
-    }, onFail => {
-      console.log('fail!!!!!');
-    });
+  getToken( uid: string) {
+    return this.http.post('http://localhost:3000/api/user/token',
+      { uid });
   }
 }

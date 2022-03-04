@@ -1,4 +1,66 @@
-<div #modalLogin class="modal-dialog modal-lg" style="text-align: center">
+<div>
+  <section class="sign-in" *ngIf="!isRegistering">
+    <div class="container">
+      <div class="signin-content row">
+        <div class="signin-form col-md-6">
+          <h2 class="form-title">Login</h2>
+          <form  novalidate #loginForm="ngForm" (ngSubmit)="login()" class="needs-validation">
+            <div class="form-group">
+              <input type="email" placeholder="Email" [(ngModel)]="userLogin.email" name="email"  #email="ngModel" required />
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password" [(ngModel)]="userLogin.pwd" name="username"  #pwd="ngModel" required />
+            </div>
+            <div class="form-group">
+              <p class="text-center text-danger mt-4" [innerText]="errorLogin" [hidden]="!errorLogin">
+              </p>
+            </div>
+            <button type="submit" class="btn btn-primary active px-4" >Login</button>
+          </form>
+          <div class="social-login">
+            <span class="social-label">Or login with</span>
+            <ul class="socials">
+              <li><input type="image" name="signin" src="./assets/img/buttons/btn_google_signin_dark_normal_web.png" (click)="loginWithGoogle();"/></li>
+            </ul>
+          </div>
+          <button  class="btn btn-primary active px-4" (click)="openRegister()" >Create an account</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="signup " *ngIf="isRegistering">
+    <div class="container">
+      <div class="signup-content row">
+        <div class="signup-form col-md-6">
+          <h2 class="form-title">Sign up</h2>
+          <form  #signUpForm="ngForm" (ngSubmit)="register()">
+            <div class="form-group">
+              <input type="text" placeholder="Your Name" [(ngModel)]="newUser.name" name="name"  #name="ngModel" required/>
+            </div>
+            <div class="form-group">
+              <input type="email" placeholder="Your Email" [(ngModel)]="newUser.email" name="email"  #email="ngModel" required/>
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password" [(ngModel)]="newUser.pwd" name="pwd"  #pwd="ngModel" required/>
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Repeat Password" [(ngModel)]="newUser.repPwd" name="repPwd"  #repPwd="ngModel" required>
+            </div>
+            <div class="form-group">
+              <p class="text-center text-danger mt-4" [innerText]="errorRegister" [hidden]="!errorRegister">
+              </p>
+            </div>
+            <button type="submit" class="btn btn-primary active px-4" >Register</button>
+          </form>
+          <button  style="background: transparent; border: 0;" class="btn-link" (click)="openRegister()" >I am already member</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--div #modalLogin class="modal-dialog modal-lg" style="text-align: center">
   <div class="modal-content">
     <div class="modal-body">
       <section class="sign-in" *ngIf="!isRegistering">
@@ -13,10 +75,7 @@
               <h2 class="form-title">Login</h2>
               <form  novalidate #loginForm="ngForm" (ngSubmit)="login()" class="needs-validation">
                 <div class="form-group">
-                  <div class="input-group">
                   <input type="email" placeholder="Email" [(ngModel)]="userLogin.email" name="email"  #email="ngModel" required />
-
-                  </div>
                 </div>
                 <div class="form-group">
                   <input type="password" placeholder="Password" [(ngModel)]="userLogin.pwd" name="username"  #pwd="ngModel" required />
@@ -72,4 +131,4 @@
       </section>
     </div>
   </div>
-</div>
+</div-->

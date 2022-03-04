@@ -1,9 +1,10 @@
-import {Component, NgZone, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, NgZone, OnInit, Output} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {ActivatedRoute, Router} from '@angular/router';
 import firebase from 'firebase/app';
 import {BsModalService} from 'ngx-bootstrap/modal';
 import {UserService} from '../../core/authentication/user.service';
+import {AuthenticationService} from '../../core/authentication/authentication.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,8 @@ export class LoginComponent implements OnInit {
   isRegistering = false;
   submitted = false;
   return = '';
+  @Input() optionSelected: number;
+  @Output() loginEndedEmitter = new EventEmitter<any>();
 
   constructor(
     private afAuth: AngularFireAuth,
@@ -26,12 +29,12 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private modalService: BsModalService,
-    private userService: UserService
+    private userService: UserService,
+    private authService: AuthenticationService
   ) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
-        this.modalService.hide();
       }
     });
 
@@ -49,6 +52,12 @@ export class LoginComponent implements OnInit {
 
   login() {
     this.afAuth.signInWithEmailAndPassword(this.userLogin.email, this.userLogin.pwd)
+      .then( user => {
+        this.authService.getToken(user.user.uid).subscribe( token => {
+          localStorage.clear();
+          localStorage.setItem('auth-token', String(token));
+        } );
+      })
       .catch(error => {
         const errorCode = error.code;
         const errorMessage = error.message;
@@ -61,6 +70,7 @@ export class LoginComponent implements OnInit {
     this.route.queryParams.subscribe(params => this.return = params.return || '/home');
     if (this.afAuth.currentUser) {
       this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
+      this.loginEndedEmitter.emit(true);
     }
 
   }
@@ -75,6 +85,11 @@ export class LoginComponent implements OnInit {
       const id = user.uid;
       const name = user.displayName;
       const email = user.email;
+      this.loginEndedEmitter.emit(true);
+      this.authService.getToken(id).subscribe( params => {
+        localStorage.clear();
+        localStorage.setItem('auth-token', params['accessToken']);
+      } );
       this.userService.getByUid(id).subscribe( (data: any) => {
         if (!data || data.length < 1) {
           const newUser = {
@@ -89,7 +104,6 @@ export class LoginComponent implements OnInit {
           });
           this.userService.create(newUser).subscribe(
             response => {
-              console.log(response);
               this.submitted = true;
             },
             error => {
@@ -106,6 +120,7 @@ export class LoginComponent implements OnInit {
   }
 
   logout() {
+    localStorage.clear();
     this.afAuth.signOut();
   }
 
@@ -128,7 +143,10 @@ export class LoginComponent implements OnInit {
             if (!data) {
               this.userService.create(newUser).subscribe(
                 response => {
-                  console.log(response);
+                  this.authService.getToken(newUser.uid).subscribe( params => {
+                    localStorage.clear();
+                    localStorage.setItem('auth-token', params['accessToken']);
+                  } );
                   this.submitted = true;
                 },
                 error => {

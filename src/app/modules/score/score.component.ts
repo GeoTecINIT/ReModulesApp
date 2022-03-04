@@ -96,8 +96,8 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
   systemsAdvanced: {heating: any, water: any, ventilation: any, pv: any};
 
   dataChart: any[];
+  isFavoriteBuilding: boolean;
   @Input() building: Building;
-  @Input() history: Building[];
   constructor(public afAuth: AngularFireAuth, private userService: UserService, private typologyService: TypologyService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -110,9 +110,9 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit(): void {
-
   }
   ngAfterViewInit(): void {
+    console.log('Building en el score!!! ', this.building);
     if ( this.building.typology.energy ) {
       const elemEm: HTMLElement = document.getElementById('emissions');
       const color = this.building.typology.energy && GlobalConstants.colorsEmission[this.building.typology.energy.emissionRanking] ?
@@ -149,7 +149,15 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       this.getRefurbishment();
       this.getSystemRefurbishment();
       this.getEfficiency();
-      console.log('Building!!! ', this.building);
+      try {
+        this.userService.isFavorite(localStorage.getItem('auth-token'), this.building.address).subscribe( data => {
+          if ( data && data['id'] ) {
+            this.isFavoriteBuilding = true;
+          }
+        });
+      } catch ( e ){
+
+      }
     }
   }
 
@@ -723,4 +731,9 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
     };
   }
 
+  saveBuilding(): void{
+    this.userService.addPropertyToHistory(this.building, localStorage.getItem('auth-token')).subscribe( () => {
+      this.isFavoriteBuilding = true;
+    });
+  }
 }

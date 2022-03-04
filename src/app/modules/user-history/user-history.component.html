@@ -1,0 +1,21 @@
+<div>
+  <div class="card">
+    <div class="card-header  header-principal" id="propertiesSaved">
+      <h2 class="mb-0">
+        <button class="btn btn-link btn-block align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#properties" aria-expanded="false" aria-controls="properties">
+          <h3><i class="fa fa-home" aria-hidden="true"></i> &nbsp; Saved Properties</h3>
+        </button>
+      </h2>
+    </div>
+
+    <div id="properties" class="collapse show" aria-labelledby="propertiesSaved">
+      <div class="card-body">
+        <ul>
+          <li *ngFor="let building of userHistory">
+            <i class="fa fa-bookmark" aria-hidden="true"></i> <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}} - {{ building.country}}</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

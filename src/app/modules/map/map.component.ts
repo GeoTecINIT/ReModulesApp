@@ -44,6 +44,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() fromHistory: boolean;
   @Input() active: number;
   @Input() totalHistory: Building[];
+  @Input() optionSelected: number;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of Valencia
   ZOOM = 5.22;
@@ -63,93 +64,29 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ( this.active === 1 ) {
-      if (changes.building && changes.building.currentValue.length > 0 && (changes.building.currentValue[0].error ||
-        changes.building.currentValue[0].error_service)) {
-        this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available';
-      }
-      if (changes.active && changes.active.previousValue !== 1) {
-        this.removeOverlays();
-        this.removeGroupMarkers();
-        this.removeClusterMarkers();
-        this.markersGroup = [];
-        this.currentLayer = '';
-      }
-
-
-      if (changes.building && changes.building.currentValue && changes.building.currentValue.address) {
-        if ( this.map) {
-          this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 17);
-          const textPopup = '<h6> ' + this.building.address + '</h6>';
-          this.marker.bindPopup(textPopup).openPopup();
-        }
-      }
-
-
-          /*if (changes.building && changes.building.currentValue
-            && changes.building.currentValue.year === '' ){ // when year is required
-            console.log('Entre!!!1', changes);
-            this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
-            const textPopup = '<h6> ' + this.building.address  + '</h6>';
-            this.marker.bindPopup(textPopup).openPopup();
-          }*/
-      /*if (  (changes.building && changes.building.currentValue && !changes.building.firstChange &&  changes.building.currentValue.year !== '')
-        || (!changes.building && this.building.country && this.building.country !== '') ) {
-        console.log('Entre!!!2', changes);
-        if ( changes.building && changes.building.currentValue.length > 0 && ( changes.building.currentValue[0].error ||
-          changes.building.currentValue[0].error_service )) {
-          this.error = changes.building.currentValue.error_service ? changes.building.currentValue.error_service : 'Cadastre Service is not available' ;
-        } else{
-          const rcInfo =  '<p> Cadastre reference: ' + this.building.rc + '</p>';
-          const textPopup = '<h6> ' + this.building.address  + '</h6>';
-          if ( this.map && !this.map.hasLayer( this.marker)) {
-            this.marker = L.marker(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng)).addTo(this.map);
-          }
-          this.map.setView(L.latLng(this.building.coordinates.lat, this.building.coordinates.lng), 15);
-          if ( this.building.rc && this.building.rc.length > 1) {
-            this.marker.bindPopup(textPopup + rcInfo).openPopup();
-          } else {
-            this.marker.bindPopup(textPopup).openPopup();
-          }
-       }
-      }*/
-      if (this.map && ( !this.building.country || changes.active && changes.active.previousValue !== 1)) {
-        if ( this.legend ) {
-          this.map.removeControl(this.legend);
-        }
-        this.addLayersEnergyEfficiencyPersonal(this.totalHistory, false, false);
-        this.map.on( 'overlayadd', (overla) => {
-          this.addOverlayAction(overla);
-        });
-        this.markersGroup = this.totalHistory;
-        this.addMarkersHistory(this.totalHistory, false);
-      }
+    if (changes.optionSelected && changes.optionSelected.currentValue && changes.optionSelected.currentValue !== 4 ) {
+      this.removeOverlays();
+      this.removeGroupMarkers();
+      this.removeClusterMarkers();
+      this.markersGroup = [];
+      this.currentLayer = '';
     }
    // this.removeMarkerFromMap();
-    else  if (changes.active && changes.active.currentValue === 2 || this.active === 2) {
+    else  if (this.optionSelected === 4 && changes.history && changes.history.currentValue) {
       const markerTmp = this.marker;
       this.removeMarkerFromMap(markerTmp);
       this.removeOverlays();
       this.removeGroupMarkers();
       this.removeClusterMarkers();
-      if (changes.history && changes.history.currentValue &&
-        (changes.history.currentValue !== changes.history.previousValue ) && this.active === 2 ){
-        this.history = [];
-        this.history = changes.history.currentValue;
-        if ( this.legend ) {
-          this.map.removeControl(this.legend);
-        }
-        this.addMarkersHistory(this.history, true);
-        this.map.on( 'overlayadd', (overla) => {
-          this.addOverlayAction(overla);
-        });
+      if ( this.legend ) {
+        this.map.removeControl(this.legend);
       }
-      if ( changes.historyFilteredFromList && changes.historyFilteredFromList.currentValue) {
-        this.history = changes.historyFilteredFromList.currentValue;
-        this.addMarkersFilters(this.currentLayer);
-      }
+      console.log('History!!!', changes.history.currentValue);
+      this.addMarkersHistory(changes.history.currentValue, true);
+      this.map.on( 'overlayadd', (overla) => {
+        this.addOverlayAction(overla);
+      });
     }
-
   }
 
   private initMap(): void {
@@ -457,14 +394,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     if (listProperties && listProperties.length > 0 ){
       let cont = 1;
       listProperties.forEach( propHistory => {
-
+console.log('Recorrro!!', propHistory);
         const idPopup = 'marker-popup' + +cont;
         const markerHistory = this.createMarker('blue', propHistory, showOnlyPopup, idPopup);
        if (!fromFilters && showCluster) this.markerClusterGroup.addLayer(markerHistory);
         markerGroup.push(markerHistory);
 
         // pins for building type
-        const buildingMarker = this.createMarker(GlobalConstants.colorsTypo[propHistory.typology.categoryCode], propHistory,
+        /*const buildingMarker = this.createMarker(GlobalConstants.colorsTypo[propHistory.typology.categoryCode], propHistory,
           showOnlyPopup, idPopup);
         arrayTypology.push(buildingMarker);
 
@@ -477,7 +414,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         const yearMarker = this.createMarker(GlobalConstants.colorsYears[propHistory.typology.yearCode],
           propHistory, showOnlyPopup, idPopup);
         arrayYear.push(yearMarker);
-
+*/
         cont ++;
       });
 

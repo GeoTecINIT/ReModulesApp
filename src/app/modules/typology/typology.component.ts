@@ -124,7 +124,6 @@ export class TypologyComponent implements OnInit, OnChanges {
               this.buildingSelection[cat] = this.buildingDataCount[cat] ;
             }
           });
-          console.log('Hola!!!', this.buildingSelection);
           const value = this.buildingSelection['Door'] ? this.buildingSelection['Door'] : this.buildingSelection['Floor'];
           const component =  this.buildingSelection['Door'] ? 'Door'  : 'Floor';
             this.selectComponent(component, value);
@@ -162,7 +161,6 @@ export class TypologyComponent implements OnInit, OnChanges {
   }
   selectComponent( component: any, value: any ) {
     this.componentSelected = { component, value};
-    console.log('entre!!! ', this.componentSelected);
     this.envelopedSelected = [];
     this.building.typology.enveloped.forEach( env => {
       if ( env.componentType === component ){

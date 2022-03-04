@@ -47,6 +47,10 @@ import {
   SocialAuthServiceConfig,
   SocialLoginModule
 } from 'angularx-social-login';
+import { UserPanelComponent } from './modules/user-panel/user-panel.component';
+import { DataMapComponent } from './modules/data-map/data-map.component';
+import { UserHistoryComponent } from './modules/user-history/user-history.component';
+import { UserAccountComponent } from './modules/user-account/user-account.component';
 
 @NgModule({
   declarations: [
@@ -59,7 +63,11 @@ import {
     HistoryComponent,
     FooterComponent,
     TypologyComponent,
-    ScoreComponent
+    ScoreComponent,
+    UserPanelComponent,
+    DataMapComponent,
+    UserHistoryComponent,
+    UserAccountComponent
   ],
     imports: [
         BrowserModule,

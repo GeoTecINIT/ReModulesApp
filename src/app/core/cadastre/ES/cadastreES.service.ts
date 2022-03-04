@@ -11,6 +11,7 @@ export class CadastreESService {
   private cadastreByRcURL = '/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC';
   private cadastreGetFacadeURL = '/ovcservweb/OVCWcfLibres/OVCFotoFachada.svc/RecuperarFotoFachadaGet?ReferenciaCatastral=';
   private inspireParcelURL = '/INSPIRE/wfsBU.aspx';
+  private inspireParcelCadastralParcel = '/INSPIRE/wfsCP.aspx';
 
   constructor(private http: HttpClient) { }
 
@@ -75,5 +76,21 @@ export class CadastreESService {
       responseType: 'text' as 'text'
     };
     return this.http.request('GET', this.inspireParcelURL, options );
+  }
+  getBuildingInfoINSPIRECadastralParcel( rc: string ): Observable<string> {
+    const header = new HttpHeaders({ Accept: 'application/xml'});
+    const params = new HttpParams()
+      .set('service', 'wfs')
+      .set('version', '2')
+      .set('request', 'getfeature')
+      .set('STOREDQUERIE_ID', 'GetParcel')
+      .set('REFCAT', rc)
+      .set('SRSname', 'EPSG::25830');
+    const options = {
+      header,
+      params,
+      responseType: 'text' as 'text'
+    };
+    return this.http.request('GET', this.inspireParcelCadastralParcel, options );
   }
 }
