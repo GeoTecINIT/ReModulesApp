@@ -66,8 +66,8 @@ export class TypologyComponent implements OnInit, OnChanges {
       this.selectTypology = false;
       this.selectCategory(false);
     }
-    else if ( changes.typologies ) {
-      if ( changes.subcategoriesTypo.currentValue &&  changes.subcategoriesTypo.currentValue.AB &&
+    if ( changes.typologies && changes.typologies.currentValue && changes.typologies.currentValue.length > 0) {
+      if ( changes.subcategoriesTypo && changes.subcategoriesTypo.currentValue &&  changes.subcategoriesTypo.currentValue.AB &&
         changes.subcategoriesTypo.currentValue.AB.category_pic_code !== '' ){
         this.hasSubCategories = true;
       } else {
@@ -81,7 +81,6 @@ export class TypologyComponent implements OnInit, OnChanges {
     }
   }
   selectCategory( fromSelection: boolean ) {
-    console.log('Select category!!!');
     this.buildingSelection = [];
     this.systems = [];
     this.systemSelected = null;

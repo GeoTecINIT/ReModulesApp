@@ -40,7 +40,7 @@
       <div  [hidden]="!showMap || showEnergy"  class="information" >
         <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
         <div [hidden]="showTypology || showEnergy">
-          <app-cadastre-info [properties]="properties"  [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" ></app-cadastre-info>
+          <app-cadastre-info [properties]="properties"  [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" (optionEmitter)="receiveOption($event)" ></app-cadastre-info>
         </div>
         <div *ngIf="showTypology" class="buildInfoSection">
           <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)"> </app-typology>
@@ -48,7 +48,7 @@
       </div>
       <div *ngIf="showEnergy" class="energySection information">
         <img src="./assets/img/logos/Main-logo.png" width="150" height="auto">
-        <app-score [building]="building"></app-score>
+        <app-score [building]="building" [updateBuilding]="updateBuilding"></app-score>
       </div>
     </div>
     <div *ngIf="optionSelected===3"  class="col-md-6 information" >
@@ -57,7 +57,7 @@
     </div>
     <div *ngIf="optionSelected===4" class="col-md-4 information">
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
-      <app-user-history [optionSelected]="optionSelected" (historyEmitter)="receiveHistory($event);" (buildingSelectedEmitter)="receiveBuilding($event);"></app-user-history>
+      <app-user-history [optionSelected]="optionSelected" (historyEmitter)="receiveHistory($event);" (buildingSelectedEmitter)="receiveBuilding($event);" (buildingToBeUpdatedEmitter)="receiveBuildingToUpdate($event);"></app-user-history>
     </div>
     <div *ngIf="optionSelected===5" class="col-md-4 information">
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">

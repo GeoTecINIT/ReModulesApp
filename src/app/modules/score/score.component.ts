@@ -97,7 +97,9 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
 
   dataChart: any[];
   isFavoriteBuilding: boolean;
+  updated: boolean;
   @Input() building: Building;
+  @Input() updateBuilding: boolean;
   constructor(public afAuth: AngularFireAuth, private userService: UserService, private typologyService: TypologyService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -107,12 +109,12 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       else { this.isUserLogged = false; }
     });
     this.initChartVariables();
+    this.updated = false;
   }
 
   ngOnInit(): void {
   }
   ngAfterViewInit(): void {
-    console.log('Building en el score!!! ', this.building);
     if ( this.building.typology.energy ) {
       const elemEm: HTMLElement = document.getElementById('emissions');
       const color = this.building.typology.energy && GlobalConstants.colorsEmission[this.building.typology.energy.emissionRanking] ?
@@ -153,6 +155,7 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
         this.userService.isFavorite(localStorage.getItem('auth-token'), this.building.address).subscribe( data => {
           if ( data && data['id'] ) {
             this.isFavoriteBuilding = true;
+            this.buildingChanged( data, this.building);
           }
         });
       } catch ( e ){
@@ -161,6 +164,13 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
+  buildingChanged(buildingFromHistory: any, buildingNew: Building): void {
+    if ( buildingFromHistory.category_code !== buildingNew.typology.categoryCode ||
+    buildingFromHistory.code_system_measure !== buildingNew.typology.system.codeSystemMeasure ||
+    +buildingFromHistory.year !== +buildingNew.year) {
+      this.updateBuilding = true;
+    }
+  }
   initChartVariables(): void {
     this.envelopedToday = {floor: null, roof: null, wall: null, window: null, door: null, celling: null};
     this.envelopedStandard = {floor: null, roof: null, wall: null, window: null, door: null, celling: null};
@@ -734,6 +744,17 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
   saveBuilding(): void{
     this.userService.addPropertyToHistory(this.building, localStorage.getItem('auth-token')).subscribe( () => {
       this.isFavoriteBuilding = true;
+    });
+  }
+
+  updateBuildingInformation(): void{
+    this.userService.updatePropertyFromHistory(this.building, localStorage.getItem('auth-token')).subscribe( () => {
+      this.isFavoriteBuilding = true;
+      this.updateBuilding = false;
+      this.updated = true;
+      setTimeout( () => {
+        this.updated = false;
+      }, 70000 );
     });
   }
 }

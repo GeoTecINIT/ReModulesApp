@@ -1,6 +1,14 @@
 <div>
+  <div class="alert alert-success" role="alert" *ngIf="updated">
+    Building updated
+  </div>
   <div style="text-align: right">
     <div class="d-flex flex-row-reverse" *ngIf="isUserLogged" >
+        <div *ngIf="updateBuilding">
+          <button (click)="updateBuildingInformation()" class="p-2 rounded-button">
+            <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Update
+          </button>
+        </div>
         <div *ngIf="isFavoriteBuilding" class="p-2 container-rounded">
           <i class="fa fa-bookmark" aria-hidden="true"></i> Saved
         </div>

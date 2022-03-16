@@ -54,6 +54,7 @@ export class HomeComponent implements OnInit {
   showBuildingInfo: boolean;
   showEnergy: boolean;
   energyScore: boolean;
+  updateBuilding: boolean;
 
   modalRef: BsModalRef;
   optionSelected: number;
@@ -70,7 +71,7 @@ export class HomeComponent implements OnInit {
     this.totalHistory = [];
 
     this.building =  new Building('', '', '',  null, '', '', '', '',
-      {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false, null, []);
+      {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false, null, [], 0);
     this.checkLogin();
   }
 
@@ -121,6 +122,7 @@ export class HomeComponent implements OnInit {
     this.showBuildingInfo = true;
     this.showTypology = false;
     this.optionSelected = 2;
+    this.updateBuilding = false;
   }
   calculateTypology($event): void{
     this.typologies = [];
@@ -136,6 +138,7 @@ export class HomeComponent implements OnInit {
     this.energyScore = !!($event.typology && $event.typology.categoryCode);*/
     if ( !$event.building.typology || ( $event.building.typology && !$event.building.typology.categoryCode ) ) {
       this.typologyService.getTypologyPics($event.building.year, $event.building.country, $event.building.climateZone).subscribe(res => {
+        this.typologies = [];
         if ( Object.assign(res).length <= 4 ) {
           Object.values(res).forEach( cat => {
             const category = new Typology(cat.category.category_code, cat.category.name, cat.category_pic_code, cat.d_add_parameter,
@@ -193,17 +196,14 @@ export class HomeComponent implements OnInit {
     this.fromHistory = false;
     this.showMap = false;
     this.optionSelected = 0;
+    this.updateBuilding = false;
   }
   calculateGeoData(elementsFromMap): void {
     const coordinates = elementsFromMap.latlng;
     let buildingTmp = null;
-    if ( this.building ) {
-      buildingTmp =  this.building;
-    } else {
-      buildingTmp = new Building('', '', '',  null, '', '', '', '',
-        {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false,  null, []);
-    }
-    buildingTmp.address = elementsFromMap.address;
+    //buildingTmp = new Building('', '', '',  null, '', '', '', '',
+    //  {lat: '', lng: ''}, { x: null, y: null}, [], '', '', 0, null, false,  null, []);
+    //buildingTmp.address = elementsFromMap.address;
     Observable.forkJoin([
       this.geodataService.getCountries(coordinates.lat, coordinates.lng) ,
       this.geodataService.getClimateZones(coordinates.lat, coordinates.lng ),
@@ -227,23 +227,23 @@ export class HomeComponent implements OnInit {
             this.typologyService.getClimateSubZone( altitude, region, climateZone, country ).subscribe( subZone => {
               const climateSubZoneRes = subZone ? subZone['climate_zone'] : '';
               this.building =  new Building(country, climateZone, climateSubZoneRes, '',
-                nameRegion , region, buildingTmp.address,
-                altitude, coordinates, point, [], buildingTmp.rc,
-                '', 0, null, false, null, []);
+                nameRegion , region, elementsFromMap.address,
+                altitude, coordinates, point, [], '',
+                '', 0, null, false, null, [], 0);
             });
           });
         } else if ( country === 'NL') {
           point = { x: elementsFromMap.point.ESPG28992.x, y: elementsFromMap.point.ESPG28992.y};
-          this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
-            nameRegion, region, buildingTmp.address,
-            buildingTmp.altitudeCode, coordinates, point, [], buildingTmp.rc,
-            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null, []);
+          this.building =  new Building(country, climateZone, '', '',
+            nameRegion, region, elementsFromMap.address,
+            '', coordinates, point, [], '',
+            '', 0, null, false, null, [], 0);
         } else {
           point = { x: elementsFromMap.point.ESPG25830.x, y: elementsFromMap.point.ESPG25830.y};
-          this.building =  new Building(country, climateZone, buildingTmp.climateSubZone, '',
-            nameRegion, region, buildingTmp.address,
-            buildingTmp.altitudeCode, coordinates, point, [], '',
-            buildingTmp.use, buildingTmp.surface, buildingTmp.typology, false, null, []);
+          this.building =  new Building(country, climateZone, '', '',
+            nameRegion, region, elementsFromMap.address,
+            '', coordinates, point, [], '',
+            '', 0, null, false, null, [], 0);
         }
       });
   }
@@ -284,8 +284,32 @@ export class HomeComponent implements OnInit {
     this.showEnergy = true;
     this.showTypology = false;
     this.optionSelected = 2;
+    this.active = 1;
+    this.updateBuilding = false;
     if ( !$event.climateSubZone ) {
       $event.climateSubZone = 'NA';
     }
+  }
+  receiveBuildingToUpdate($event) {
+    this.showMap = true;
+    this.showBuildingInfo = true;
+    this.showTypology = false;
+    this.optionSelected = 2;
+    this.updateBuilding = true;
+    this.resetBuildingByCountry($event);
+  }
+  resetBuildingByCountry(building: Building) {
+    if ( building.country === 'ES') {
+      building.typology.system = null;
+    } else if ( building.country === 'NL') {
+      building.typology = null;
+    } else {
+      building.year = '';
+      building.typology = null;
+    }
+    this.building = building;
+  }
+  receiveOption($event): void {
+    this.optionSelected = $event;
   }
 }

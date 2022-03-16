@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Building} from '../../shared/models/building';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {UserService} from '../../core/authentication/user.service';
@@ -7,6 +7,7 @@ import {System} from '../../shared/models/system';
 import {SystemType} from '../../shared/models/systemType';
 import {Efficiency} from '../../shared/models/eficiency';
 import {Typology} from '../../shared/models/typology';
+import {Options} from '@angular-slider/ngx-slider';
 
 @Component({
   selector: 'app-user-history',
@@ -16,33 +17,150 @@ import {Typology} from '../../shared/models/typology';
 export class UserHistoryComponent implements OnInit {
 
   userHistory: Building[];
+  deletedBuilding: boolean;
+  filterCountries: string[];
+  filterTypologies: { code: string, name: string}[];
+  filterYears: [{
+    ''
+  }];
+  tmpUserHistory: Building[];
+
+  countryControl: boolean;
+  countrySelected: string;
+
+  yearControl: boolean;
+  yearSelected: any;
+
+  typologyControl: boolean;
+  typologySelected: string;
+
+  filterApplied: string[];
   @Input() optionSelected: number;
   @Output() historyEmitter = new EventEmitter<any>();
   @Output() buildingSelectedEmitter = new EventEmitter<any>();
+  @Output() buildingToBeUpdatedEmitter = new EventEmitter<any>();
   constructor(
     public afAuth: AngularFireAuth,
     private userService: UserService,
   ) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
-        this.userService.getUserHistory(localStorage.getItem('auth-token')).subscribe( hist => {
-          this.userHistory = [];
-          for(const histKey in hist) {
-            this.parseHistory(hist[histKey]);
-          }
-          this.historyEmitter.emit(this.userHistory);
-        });
+        this.buildHistory();
       }
     });
   }
 
   ngOnInit(): void {
+    this.filterApplied = [];
   }
 
   showBuildingResults(building: Building): void {
     this.buildingSelectedEmitter.emit(building);
   }
 
+  updateBuilding(building: Building): void {
+    this.buildingToBeUpdatedEmitter.emit(building);
+  }
+
+  removeBuildingFromUserHistory(building: Building): void {
+    this.userService.deletePropertyFromHistory( building.id, localStorage.getItem('auth-token')).subscribe( () => {
+      this.deletedBuilding = true;
+      this.buildHistory();
+      setTimeout( () => {
+        this.deletedBuilding = false;
+      }, 80000 );
+    });
+  }
+  buildHistory() {
+    this.userService.getUserHistory(localStorage.getItem('auth-token')).subscribe( hist => {
+      this.userHistory = [];
+      for (const histKey in hist) {
+        this.parseHistory(hist[histKey]);
+      }
+      this.tmpUserHistory = this.userHistory;
+      this.buildFilters();
+      this.historyEmitter.emit(this.userHistory);
+    });
+  }
+  buildFilters() {
+    this.filterCountries = [];
+    this.filterTypologies = [];
+    this.tmpUserHistory.forEach( ( hist) => {
+      if ( this.filterCountries.length === 0 || !this.filterCountries.includes(hist.country)) {
+        this.filterCountries.push(hist.country);
+      }
+      if (this.filterTypologies.length === 0 || !this.filterTypologies.find(item => item.code === hist.typology.categoryCode)) {
+        const typo = { code: hist.typology.categoryCode, name: hist.typology.categoryName};
+        this.filterTypologies.push(typo);
+      }
+    });
+  }
+  filter(type: string): void {
+    if ( ( type === 'country' && this.countrySelected !== null ) ||
+      ( type === 'year' && this.yearSelected !== null ) ||
+      ( type === 'typology' && this.typologySelected !== null )){
+
+      const indexFilterApplied = this.filterApplied.indexOf(type);
+      if (indexFilterApplied < 0) {
+        this.filterApplied.push(type);
+      }
+    } else {
+      this.cleanFilter(type);
+    }
+    let arrayFiltered = [];
+    this.userHistory.forEach(el => {
+      arrayFiltered.push(el);
+    });
+    this.filterApplied.forEach( filter => {
+      if (filter === 'year') {
+        //const filterByYear = this.filterByYear(this.userHistory);
+        //arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByYear);
+      }
+      if (filter === 'country') {
+        const filterByUse  = [];
+        this.userHistory.forEach( hist => {
+          console.log('Ciuntry!!!! ', this.countrySelected, ' -- ', hist.country);
+          if ( hist.country === this.countrySelected) {
+            filterByUse.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByUse);
+      }
+
+      if (filter === 'typology') {
+        const filterByTypology  = [];
+        this.userHistory.forEach( hist => {
+          if ( hist.typology.categoryCode === this.typologySelected) {
+            filterByTypology.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByTypology);
+      }
+    });
+    this.tmpUserHistory = arrayFiltered;
+    this.buildFilters();
+  }
+
+  cleanFilter(type: string) {
+    const indexFilterApplied = this.filterApplied.indexOf(type);
+    if (indexFilterApplied > -1) {
+      this.filterApplied.splice(indexFilterApplied, 1);
+    }
+  }
+
+  removeElementsFromArray(arrayInit, element) {
+    const indexToRemove = [];
+    arrayInit.forEach( filtered => {
+      const index = element.indexOf(filtered, 0);
+      if (index < 0 ) {
+        indexToRemove.push(arrayInit.indexOf(filtered, 0));
+      }
+    });
+    for (let i = indexToRemove.length - 1 ; i >= 0; i--){
+      arrayInit.splice(indexToRemove[i], 1);
+    }
+    return arrayInit;
+  }
   parseHistory(history: any) {
     const enveloped: Envelope[] = [];
     const systems: System[] = [];
@@ -74,8 +192,9 @@ export class UserHistoryComponent implements OnInit {
       dataBuilding.region, '', dataBuilding.address, dataBuilding.altitude,
       { lng: dataBuilding.coordinates.lng, lat: dataBuilding.coordinates.lat },
       { x: dataBuilding.point.x, y: dataBuilding.point.y }, [], dataBuilding.rc, dataBuilding.use, dataBuilding.surface,
-      new Typology(dataBuilding.category_code, '', dataBuilding.category_pic_code, '', dataBuilding.year_code, '',
-        dataBuilding.building_code, enveloped, systemType, null), true, null, efficiency));
+      new Typology(dataBuilding.category_code, dataBuilding.category_name, dataBuilding.category_pic_code, '',
+        dataBuilding.year_code, dataBuilding.pic_name,
+        dataBuilding.building_code, enveloped, systemType, null), true, null, efficiency, dataBuilding.id));
   }
 
 }

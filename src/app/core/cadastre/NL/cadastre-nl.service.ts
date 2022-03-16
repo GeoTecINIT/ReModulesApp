@@ -14,7 +14,6 @@ export class CadastreNLService {
     const header = new HttpHeaders({Accept: 'application/xml'});
     const coorx2 = +coorX + .000001;
     const coory2 = +coorY + .000001;
-    console.log('Coordenadas!!! ', coorx2, coorX);
     const bbox = coorX + ',' + coorY + ',' + String(coorx2) + ',' + String(coory2);
     const params = new HttpParams()
       .set('SERVICE', 'WMS')

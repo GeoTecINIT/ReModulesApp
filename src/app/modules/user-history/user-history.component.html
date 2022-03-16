@@ -10,11 +10,58 @@
 
     <div id="properties" class="collapse show" aria-labelledby="propertiesSaved">
       <div class="card-body">
-        <ul>
-          <li *ngFor="let building of userHistory">
-            <i class="fa fa-bookmark" aria-hidden="true"></i> <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}} - {{ building.country}}</button>
-          </li>
-        </ul>
+        <div class="alert alert-success" role="alert" *ngIf="deletedBuilding">
+          Building deleted
+        </div>
+        <div>
+          <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Filters
+          </button>
+          <div class="collapse " id="collapseExample">
+            <div class="card card-body form">
+              <label for="filterYear"> Year: </label>
+              <ng-select id="filterYear" class="filter" [(ngModel)]="yearSelected"
+                         (change)="filter('year');">
+                <ng-option *ngFor="let year of filterYears" [value]="year">{{year.label}}</ng-option>
+              </ng-select>
+              <label for="filterYear"> Country: </label>
+              <ng-select class="filter" [(ngModel)]="countrySelected"
+                         (change)="filter('country');">
+                <ng-option *ngFor="let country of filterCountries" [value]="country">{{country}}</ng-option>
+              </ng-select>
+
+              <label for="buildingType"> Building Type: </label>
+              <ng-select id="buildingType" class="filter" [(ngModel)]="typologySelected"
+                         (change)="filter('typology');">
+                <ng-option *ngFor="let typo of filterTypologies" [value]="typo.code">{{typo.name}}</ng-option>
+              </ng-select>
+
+            </div>
+          </div>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Address</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let building of tmpUserHistory" >
+            <th scope="row"><i class="fa fa-bookmark" aria-hidden="true"></i> &nbsp; <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}} - {{ building.country}}</button> </th>
+            <td>
+              <div class="row">
+                <button class="btn btn-light" (click)="updateBuilding(building);">
+                  <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-light" (click)="removeBuildingFromUserHistory(building)">
+                  <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

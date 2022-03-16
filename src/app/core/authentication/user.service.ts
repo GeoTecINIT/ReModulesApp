@@ -30,6 +30,16 @@ export class UserService {
     return this.http.get(this.baseHistoryUrl + '/buildings',  { headers : { 'x-access-token' : token}});
   }
   isFavorite(token: string, address: string) {
-    return this.http.get(this.baseHistoryUrl + '/favorite/address/' + encodeURIComponent(address),   { headers : { 'x-access-token' : token}});
+    return this.http.get(this.baseHistoryUrl + '/favorite/address/' + encodeURIComponent(address),
+      { headers : { 'x-access-token' : token}});
+  }
+  updatePropertyFromHistory(building: Building, token: string) {
+    return this.http.put(this.baseHistoryUrl, building, { headers : { 'x-access-token' : token}});
+  }
+  deletePropertyFromHistory(idBuilding: number, token: string) {
+    return this.http.delete(this.baseHistoryUrl + '/building/' + +idBuilding, { headers : { 'x-access-token' : token}});
+  }
+  getYearsRange(country: string) {
+    return this.http.get( `${this.baseHistoryUrl}/years/country/${country} `);
   }
 }

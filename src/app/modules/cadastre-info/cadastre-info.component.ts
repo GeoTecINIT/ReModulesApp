@@ -47,6 +47,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   @Output() showMapEmitter = new EventEmitter<boolean>();
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
   @Output() buildingCompleteEmitter = new EventEmitter<any>();
+  @Output() optionEmitter= new EventEmitter<any>();
   constructor(private cadastreServiceES: CadastreESService,
               private cadastreNLService: CadastreNLService,
               private sanitizer: DomSanitizer,
@@ -71,7 +72,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       this.years.push( year);
     }
     this.textSpinner = 'Loading ...';
-
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -90,28 +90,25 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           this.propSelected = null;
           this.propIsSelected = false;
         }
-        this.selectYear = false;
         this.selectedYear = null;
         this.ruralBuilding = false;
-        if ( this.building.year ) this.selectedYear = this.building.year;
-        if ( !this.building.favorite ) {
+        if( this.building.year ) this.selectedYear = this.building.year;
           this.building.typology = new Typology('', '', '', '', '', '',
             '', null, null, null);
-          if ( this.building.country  === 'ES') {
+        if ( this.building.country  === 'ES') {
             this.spinner.show();
             this.textSpinner = 'Waiting for the cadastre service ... ';
             this.selectBuilding = true;
+            this.selectYear = false;
             this.getInfoFromCadastre_ES(true);
 
-          } else if ( this.building.country  === 'NL' ) {
-            this.spinner.show();
-            this.selectBuilding = true;
-            this.getInfoFromCadastre_NL();
-          } else {
-            this.showYearSelection();
-          }
-        } else {
+        } else if ( this.building.country  === 'NL' ) {
+          this.spinner.show();
           this.selectBuilding = true;
+          this.selectYear = false;
+          this.getInfoFromCadastre_NL();
+        } else {
+          this.showYearSelection();
         }
       }
       if ( changes.error && changes.error.currentValue) {
@@ -132,7 +129,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
       '', buildingTmp.region, buildingTmp.provinceCode,
       buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
-      [], null, '', null, null, false, null, []);
+      [], null, '', null, null, false, null, [], 0);
     this.properties = [];
     this.propertiesFilter = [];
     this.spinner.hide();
@@ -147,7 +144,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
       '', buildingTmp.region, buildingTmp.provinceCode,
       buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
-      [], null, '', null, null, false, null, []);
+      [], null, '', null, null, false, null, [], 0);
     this.properties = [];
     this.propertiesFilter = [];
     this.spinner.hide();
@@ -181,7 +178,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     const address = info.getElementsByTagName('ldt')[0].textContent;
     const use = info.getElementsByTagName('luso')[0].textContent;
     const surfaceCons = info.getElementsByTagName('sfc').length > 0 ? info.getElementsByTagName('sfc')[0].textContent : '';
-    console.log('DATA!!! ', info.getElementsByTagName('ant'));
     const year = info.getElementsByTagName('ant').length > 0 ? info.getElementsByTagName('ant')[0].textContent : '';
     const surfaceGraph = info.getElementsByTagName('sfc')[0].textContent;
     const participation = info.getElementsByTagName('cpt').length > 0 ? info.getElementsByTagName('cpt')[0].textContent : '';
@@ -263,9 +259,12 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         tagLocInt.getElementsByTagName('pt')[0].textContent.split(': ')[0] : '';
       const door = tagLocInt.getElementsByTagName('pu').length > 0 ?
         tagLocInt.getElementsByTagName('pu')[0].textContent.split(': ')[0] : '';
-      const postalCode = prop.getElementsByTagName('dp')[0].textContent;
-      const prov = prop.getElementsByTagName('np')[0].textContent;
-      const town = prop.getElementsByTagName('nm')[0].textContent;
+      const postalCode = prop.getElementsByTagName('dp') && prop.getElementsByTagName('dp').length > 0 ?
+        prop.getElementsByTagName('dp')[0].textContent : '';
+      const prov = prop.getElementsByTagName('np') && prop.getElementsByTagName('np').length > 0 ?
+        prop.getElementsByTagName('np')[0].textContent : '';
+      const town = prop.getElementsByTagName('nm') && prop.getElementsByTagName('nm').length > 0 ?
+        prop.getElementsByTagName('nm')[0].textContent : '';
       let logInt = '';
       const textBlock = block !== '' ? 'Bl: ' + block : '';
       const textStair = stair !== '' ? 'Es: ' + stair : '';
@@ -294,7 +293,10 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         this.buildingCompleteEmitter.emit(this.building);
         this.spinner.hide();
       });
-    });
+    },
+      err => {
+        this.showYearSelection();
+      });
   }
   getInfoFromParcel(information: string): any{
     const domParser = new DOMParser();
@@ -337,13 +339,21 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     }
     return floors;
   }
-  getTypologyAutomatic(floors: number, dwellings: number ): void {
+  getTypologyAutomatic(floors: number, dwellings: number, numberOfUnits: number,  surfaceIn: number, buildedSurface: number  ): void {
     const typology = { code: '', name: ''};
-    if ( dwellings === 1 ) { typology.code = 'SFH'; typology.name = 'Single Family Home'; }
+    if ( numberOfUnits === 1 ) {
+      const surface = surfaceIn * 0.6;
+
+      if ( buildedSurface < surface ) {
+        typology.code = 'SFH'; typology.name = 'Single Family Home';
+      }
+      else {
+        typology.code = 'TH'; typology.name = 'Terraced House';
+      }
+    }
     else if ( dwellings > 1 ) {
-      if ( floors === 1) { typology.code = 'TH'; typology.name = 'Terraced House'; }
-      else if ( floors > 1 && floors <= 4 ) { typology.code = 'MFH'; typology.name = 'MultiFamily Home'; }
-      else if ( floors > 4 ) { typology.code = 'AB'; typology.name = 'Apartment block'; }
+      if ( floors > 1 && floors <= 5 ) { typology.code = 'MFH'; typology.name = 'MultiFamily Home'; }
+      else if ( floors > 5 ) { typology.code = 'AB'; typology.name = 'Apartment block'; }
     }
     this.building.typology.categoryCode = typology.code;
     this.building.typology.categoryName = typology.name;
@@ -384,7 +394,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
               this.building.surface = +infoFromParcel.area;
               this.building.year = year;
               this.building.typology.yearCode = resYear['year_code'];
-              this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+              this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits, +infoFromParcel.numberOfUnits,
+                infoFromCadastralParcel, +infoFromParcel.area );
               this.buildingCompleteEmitter.emit(this.building);
               this.spinner.hide();
             });
@@ -395,7 +406,9 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
           }
         });
       } else {
-        this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits );
+        this.getTypologyAutomatic(infoFromPartOfParcel, +infoFromParcel.numberOfResidentUnits, +infoFromParcel.numberOfUnits,
+          infoFromCadastralParcel,
+          +infoFromParcel.buildedSurface  );
         this.buildingCompleteEmitter.emit(this.building);
         this.spinner.hide();
       }
@@ -488,16 +501,23 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
                 let getInfoFromINSPIRE = true;
                 // Best case: Request info from Inspire
                 const requestINSPIRE = this.cadastreServiceES.getBuildingInfoINSPIREParcel(this.building.rc).subscribe( parcel => {
-                  this.cadastreServiceES.getBuildingInfoINSPIREPartParcel(this.building.rc).subscribe( partParcel => {
-                    this.cadastreServiceES.getBuildingInfoINSPIRECadastralParcel(this.building.rc).subscribe( cp => {
+                  if ( parcel && parcel.length > 0 ) {
+                    getInfoFromINSPIRE = true;
+                    this.cadastreServiceES.getBuildingInfoINSPIREPartParcel(this.building.rc).subscribe( partParcel => {
+                      this.cadastreServiceES.getBuildingInfoINSPIRECadastralParcel(this.building.rc).subscribe( cp => {
                         this.getDataBuildingFromINSPIRE(parcel, partParcel, cp);
-                      },
-                      err => {
+                      },err => {
                         this.showYearSelection();
                       });
-                  });
+                    },err => {
+                      this.showYearSelection();
+                    });
+                  }
+                  else  {
+                    this.showYearSelection();
+                  }
                 }, (error) => {
-                  getInfoFromINSPIRE = false;
+                  this.showYearSelection();
                 });
                 // Case: Select Typology
                 setTimeout(() => {
@@ -511,9 +531,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
               }
             });
           } else {
-            this.selectBuilding = false;
-            this.buildingCompleteEmitter.emit(this.building);
-            this.spinner.hide();
+            this.showYearSelection();
           }
         });
       }
@@ -530,5 +548,8 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       this.propertiesFilter = [];
       this.spinner.hide();
     });
+  }
+  goBack() {
+    this.optionEmitter.emit(1);
   }
 }

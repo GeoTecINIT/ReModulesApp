@@ -42,7 +42,7 @@
               1. Typology
             </h4>
           </div>
-          <div class="col-md-4" [hidden]="!building.typology.categoryName">
+          <div class="col-md-4" *ngIf="building.typology" [hidden]="!building.typology.categoryName">
             <img class="card-img-top typologyIcon p-2 flex-fill bd-highlight" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{building.typology.picName}}" >
             {{building.typology.categoryName}}
           </div>

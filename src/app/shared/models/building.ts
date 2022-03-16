@@ -21,6 +21,8 @@ export interface Building  {
   typology: Typology;
   favorite: boolean;
   refurbishment: Refurbishment;
+  efficiency: Efficiency[];
+  id: number;
 }
 export class Building extends Object {
   constructor(
@@ -41,7 +43,8 @@ export class Building extends Object {
     public typology: Typology,
     public favorite: boolean,
     public refurbishment: Refurbishment,
-    public efficiency: Efficiency[]
+    public efficiency: Efficiency[],
+    public id: number
   ) {
     super();
   }

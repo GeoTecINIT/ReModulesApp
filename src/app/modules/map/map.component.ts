@@ -81,7 +81,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       if ( this.legend ) {
         this.map.removeControl(this.legend);
       }
-      console.log('History!!!', changes.history.currentValue);
       this.addMarkersHistory(changes.history.currentValue, true);
       this.map.on( 'overlayadd', (overla) => {
         this.addOverlayAction(overla);
@@ -394,7 +393,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     if (listProperties && listProperties.length > 0 ){
       let cont = 1;
       listProperties.forEach( propHistory => {
-console.log('Recorrro!!', propHistory);
         const idPopup = 'marker-popup' + +cont;
         const markerHistory = this.createMarker('blue', propHistory, showOnlyPopup, idPopup);
        if (!fromFilters && showCluster) this.markerClusterGroup.addLayer(markerHistory);
