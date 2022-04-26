@@ -1,32 +1,37 @@
 <main>
   <div class="row">
     <div class="col-md-1 options-panel">
+      <!-- Login and User section -->
       <div [ngClass]="optionSelected === 1 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
-        <a *ngIf="!isUserLogged" href="#" style="color: #3c4b64;" (click)="optionSelected = 1;">
+        <a *ngIf="!isUserLogged" href="#" style="color: #3c4b64;" (click)=" optionSelected === 1 ? optionSelected = 0 : optionSelected = 1; stepSelected='';">
           <i class="fa fa-user-o fa-2x"></i>
         </a>
         <div *ngIf="isUserLogged" class="row userLogged" >
-            <a href="#" style="color: white; text-decoration: none;" (click)="optionSelected = 5; showMap=true; showEnergy=false;" class="square-container">
+            <a href="#" style="color: white; text-decoration: none;" (click)=" optionSelected === 5 ? optionSelected = 0 : optionSelected = 5; stepSelected='';" class="square-container">
               <h2 *ngIf="currentUser.name">{{currentUser.name.substring(0, 1)}}</h2>
             </a>
         </div>
       </div>
-      <div [ngClass]="optionSelected === 2 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
-        <a href="#" (click)="optionSelected = 2; showTypology=false; showEnergy=false; showMap = false;" >
+      <!-- Home Section -->
+      <div [ngClass]="optionSelected === 0 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
+        <a href="#" (click)="optionSelected = 0; stepSelected='';" >
           <i class="fa fa-home fa-2x" aria-hidden="true"></i>
         </a>
       </div>
+      <!-- General Dashboard -->
       <div [ngClass]="optionSelected === 3 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center">
-        <a href="#" (click)="optionSelected = 3; showMap=true; showEnergy=false;" >
+        <a href="#" (click)="optionSelected === 3 ? optionSelected = 0 : optionSelected = 3; stepSelected='';" >
           <i class="fa fa-sliders fa-2x" aria-hidden="true"></i>
         </a>
       </div>
+      <!-- User history-->
       <div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center">
-        <a href="#" (click)="optionSelected = 4; showMap=true; showEnergy=false;" >
+        <a href="#" (click)="optionSelected === 4 ? optionSelected = 0 : optionSelected = 4; stepSelected='';" >
           <i class="fa fa-bookmark-o fa-2x" aria-hidden="true"></i>
         </a>
       </div>
     </div>
+    <!-- Login Section -->
     <div class="col-md-3 information" *ngIf="optionSelected === 1" >
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <div *ngIf="isUserLogged">
@@ -36,34 +41,38 @@
         <app-login (loginEndedEmitter)="receiveLogin($event)" [optionSelected]="optionSelected"></app-login>
       </div>
     </div>
-    <div *ngIf="optionSelected === 2" [ngClass]="showMap && !showEnergy ? 'col-md-6' : ( showEnergy ? 'col-md-11 energySection' : '')">
-      <div  [hidden]="!showMap || showEnergy"  class="information" >
+    <!-- Building information Section -->
+    <div *ngIf="optionSelected === 2" [ngClass]="(stepSelected==='infoBuilding' || stepSelected==='typology')  ? 'col-md-6' : 'col-md-11 energySection'">
+      <div  *ngIf="stepSelected==='infoBuilding' || stepSelected==='typology'"  class="information" >
         <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
-        <div [hidden]="showTypology || showEnergy">
+        <div *ngIf="stepSelected==='infoBuilding'">
           <app-cadastre-info [properties]="properties"  [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" (optionEmitter)="receiveOption($event)" ></app-cadastre-info>
         </div>
-        <div *ngIf="showTypology" class="buildInfoSection">
-          <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)"> </app-typology>
+        <div *ngIf="stepSelected==='typology'" class="buildInfoSection">
+          <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)" (optionEmitter)="receiveOption($event)"> </app-typology>
         </div>
       </div>
-      <div *ngIf="showEnergy" class="energySection information">
+      <div *ngIf="stepSelected==='result'" class="energySection information">
         <img src="./assets/img/logos/Main-logo.png" width="150" height="auto">
-        <app-score [building]="building" [updateBuilding]="updateBuilding"></app-score>
+        <app-score [building]="building" [updateBuilding]="updateBuilding" (optionEmitter)="receiveOption($event)" ></app-score>
       </div>
     </div>
+    <!-- General Dashboard -->
     <div *ngIf="optionSelected===3"  class="col-md-6 information" >
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <app-data-map [optionSelected]="optionSelected"></app-data-map>
     </div>
+    <!-- User history-->
     <div *ngIf="optionSelected===4" class="col-md-4 information">
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <app-user-history [optionSelected]="optionSelected" (historyEmitter)="receiveHistory($event);" (buildingSelectedEmitter)="receiveBuilding($event);" (buildingToBeUpdatedEmitter)="receiveBuildingToUpdate($event);"></app-user-history>
     </div>
+    <!-- User information Section -->
     <div *ngIf="optionSelected===5" class="col-md-4 information">
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <app-user-account [currentUser]="currentUser" (logoutEmitter)="receiveLogOut($event);" ></app-user-account>
     </div>
-    <div [ngClass]=" showMap && optionSelected !== 1 && optionSelected !== 4 && optionSelected !== 5 ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( optionSelected === 4 || optionSelected === 5 ? 'col-md-7' : 'col-md-11'))"  *ngIf="!showEnergy">
+    <div [ngClass]="(optionSelected === 2 || optionSelected ===3 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( optionSelected === 4 || optionSelected === 5 ? 'col-md-7' : 'col-md-11'))" *ngIf="stepSelected !== 'result'">
       <app-map (buildingEmitter)="receiveBuilding($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
                [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory" [active]="active" [totalHistory]="totalHistory" [optionSelected]="optionSelected"></app-map>
     </div>

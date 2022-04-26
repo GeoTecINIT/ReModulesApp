@@ -23,6 +23,7 @@ export class TypologyComponent implements OnInit, OnChanges {
   systemSelected: SystemType;
   categorySystem: System;
   systems: SystemType[];
+  codeSystemMeasureSelected: string;
 
   showTypoSelect: boolean;
   selectedYear: string;
@@ -44,11 +45,15 @@ export class TypologyComponent implements OnInit, OnChanges {
   @Input() subcategoriesTypo: [{category_pic_code: '', description: '', subcats: [] }];
   @Output() calculateEnergyEmitter = new EventEmitter<Building>();
   @Output() errorEmitter = new EventEmitter<string>();
+  @Output() optionEmitter = new EventEmitter<string>();
   constructor( private typologyService: TypologyService) { }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     this.typologySelected = null;
-    this.systemSelected = new SystemType('', '', '', []);
+    this.systemSelected = new SystemType('ES.MUH.03', 'heat pump decentral system + electr. DHW ', '', []);
     this.systems = [];
     this.years = [];
     this.enableCalculate = false;
@@ -57,22 +62,27 @@ export class TypologyComponent implements OnInit, OnChanges {
       const year = String( i);
       this.years.push( year);
     }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
     if ( changes.building && changes.building.currentValue && changes.building.currentValue.typology &&
       changes.building.currentValue.typology.categoryCode ) {
+      if ( changes.building.currentValue.typology.system && changes.building.currentValue.typology.system.systems.length > 0 ) {
+        this.codeSystemMeasureSelected = changes.building.currentValue.typology.system.codeSystemMeasure;
+        this.systemSelected = changes.building.currentValue.typology.system;
+        this.selectSystem(1);
+        this.enableCalculate=true;
+
+      } else {
+        this.systems = [];
+        this.systemSelected = null;
+      }
+      this.buildingSelection = [];
       this.building = changes.building.currentValue;
       this.selectTypology = false;
       this.selectCategory(false);
     }
     if ( changes.typologies && changes.typologies.currentValue && changes.typologies.currentValue.length > 0) {
-      if ( changes.subcategoriesTypo && changes.subcategoriesTypo.currentValue &&  changes.subcategoriesTypo.currentValue.AB &&
-        changes.subcategoriesTypo.currentValue.AB.category_pic_code !== '' ){
-        this.hasSubCategories = true;
-      } else {
-        this.hasSubCategories = false;
-      }
+      this.hasSubCategories = changes.subcategoriesTypo && changes.subcategoriesTypo.currentValue &&
+        changes.subcategoriesTypo.currentValue.AB &&
+        changes.subcategoriesTypo.currentValue.AB.category_pic_code !== '';
       this.typologies = changes.typologies.currentValue;
       this.selectTypology = true;
       this.categoryIsSelected  = false;
@@ -81,10 +91,6 @@ export class TypologyComponent implements OnInit, OnChanges {
     }
   }
   selectCategory( fromSelection: boolean ) {
-    this.buildingSelection = [];
-    this.systems = [];
-    this.systemSelected = null;
-    this.categorySystem = null;
     let category = null;
     if ( !fromSelection ) {
       category = this.building.typology;
@@ -167,7 +173,18 @@ export class TypologyComponent implements OnInit, OnChanges {
       }
     });
   }
+  systemSelectedByCodeSystemMeasure( code: string) {
+    let systemObjectSelected = new SystemType('', '', '', []);
+    this.systems.forEach( sys => {
+      if ( sys.codeSystemMeasure === code) systemObjectSelected = sys;
+    });
+    return systemObjectSelected;
+  }
   selectSystem( system: number) {
+    this.categorySystem = null;
+    if ( this.systems.length > 0) {
+      this.systemSelected = this.systemSelectedByCodeSystemMeasure(this.codeSystemMeasureSelected);
+    }
     const buttons = document.getElementsByClassName('componentSys') as HTMLCollectionOf<HTMLElement>;
     for ( let i = 0; i < buttons.length; i++ ) {
       buttons[i].style.color = '#d8d5d5';
@@ -193,6 +210,10 @@ export class TypologyComponent implements OnInit, OnChanges {
 
   calculateEnvelopedSystems(typo: Typology) {
     this.typologySelected = typo;
+    this.buildingSelection = [];
     this.selectCategory(true);
+  }
+  goBack() {
+    this.optionEmitter.emit('infoBuilding');
   }
 }

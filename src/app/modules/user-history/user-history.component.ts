@@ -20,16 +20,15 @@ export class UserHistoryComponent implements OnInit {
   deletedBuilding: boolean;
   filterCountries: string[];
   filterTypologies: { code: string, name: string}[];
-  filterYears: [{
-    ''
-  }];
+  filterYears: string[];
   tmpUserHistory: Building[];
 
   countryControl: boolean;
   countrySelected: string;
 
   yearControl: boolean;
-  yearSelected: any;
+  yearSelectedMin: any;
+  yearSelectedMax: any;
 
   typologyControl: boolean;
   typologySelected: string;
@@ -85,6 +84,11 @@ export class UserHistoryComponent implements OnInit {
   buildFilters() {
     this.filterCountries = [];
     this.filterTypologies = [];
+    this.filterYears = [];
+    const currentTime = new Date();
+    for ( let i = currentTime.getFullYear(); i > 0; i --) {
+      this.filterYears.push(i.toString());
+    }
     this.tmpUserHistory.forEach( ( hist) => {
       if ( this.filterCountries.length === 0 || !this.filterCountries.includes(hist.country)) {
         this.filterCountries.push(hist.country);
@@ -93,11 +97,15 @@ export class UserHistoryComponent implements OnInit {
         const typo = { code: hist.typology.categoryCode, name: hist.typology.categoryName};
         this.filterTypologies.push(typo);
       }
+      /*if (this.filterYears.length === 0 || !this.filterYears.includes(hist.year)) {
+        this.filterYears.push(hist.year);
+      }*/
     });
   }
   filter(type: string): void {
     if ( ( type === 'country' && this.countrySelected !== null ) ||
-      ( type === 'year' && this.yearSelected !== null ) ||
+      ( type === 'yearMin' && this.yearSelectedMin !== null ) ||
+      ( type === 'yearMax' && this.yearSelectedMax !== null ) ||
       ( type === 'typology' && this.typologySelected !== null )){
 
       const indexFilterApplied = this.filterApplied.indexOf(type);
@@ -112,14 +120,27 @@ export class UserHistoryComponent implements OnInit {
       arrayFiltered.push(el);
     });
     this.filterApplied.forEach( filter => {
-      if (filter === 'year') {
-        //const filterByYear = this.filterByYear(this.userHistory);
-        //arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByYear);
+      if (filter === 'yearMin') {
+        const filterByYear  = [];
+        this.userHistory.forEach( hist => {
+          if ( hist.year >= this.yearSelectedMin) {
+            filterByYear.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByYear);
+      }
+      if (filter === 'yearMax') {
+        const filterByYear  = [];
+        this.userHistory.forEach( hist => {
+          if ( hist.year <= this.yearSelectedMax) {
+            filterByYear.push(hist);
+          }
+        });
+        arrayFiltered = this.removeElementsFromArray(arrayFiltered, filterByYear);
       }
       if (filter === 'country') {
         const filterByUse  = [];
         this.userHistory.forEach( hist => {
-          console.log('Ciuntry!!!! ', this.countrySelected, ' -- ', hist.country);
           if ( hist.country === this.countrySelected) {
             filterByUse.push(hist);
           }
@@ -139,6 +160,7 @@ export class UserHistoryComponent implements OnInit {
     });
     this.tmpUserHistory = arrayFiltered;
     this.buildFilters();
+    this.historyEmitter.emit(this.tmpUserHistory);
   }
 
   cleanFilter(type: string) {

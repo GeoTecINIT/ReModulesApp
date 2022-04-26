@@ -135,8 +135,8 @@
             </h4>
           </div>
           <div class="col-md-6">
-            <ng-select [(ngModel)]="systemSelected" appendTo="body" (change)="selectSystem(1); enableCalculate=true;">
-              <ng-option *ngFor="let sys of systems" [value]="sys">{{sys.description}}</ng-option>
+            <ng-select [(ngModel)]="codeSystemMeasureSelected" appendTo="body" (change)="selectSystem(1); enableCalculate=true;" [searchable]="true" [clearable]="true">
+              <ng-option *ngFor="let sys of systems" [value]="sys.codeSystemMeasure">{{sys.description}}</ng-option>
             </ng-select>
           </div>
           <div class="col-md-1">
@@ -177,10 +177,20 @@
     </div>
   </div>
 
-  <div class="typologyInfo" fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="30px" >
-    <button role="button" (click)="calculateEfficiency();" class="btn calculateTyp" [disabled]="!enableCalculate">
-      <span> <i class="fa fa-cog" aria-hidden="true"></i> Calculate</span>
-    </button>
+  <div >
+    <div class="d-flex justify-content-around typologyInfo">
+      <button  class="btn calculateTyp" (click)="goBack();">
+        <h4>
+          <span> <i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp; Back</span>
+        </h4>
+
+      </button>
+      <button role="button" (click)="calculateEfficiency();" class="btn calculateTyp" [disabled]="!enableCalculate">
+        <h4>
+          <span> Next &nbsp; <i class="fa fa-arrow-right" aria-hidden="true"></i></span>
+        </h4>
+      </button>
+    </div>
   </div>
   <!--div class="container" [ngbNavOutlet]="nav"
        fxLayout="column"

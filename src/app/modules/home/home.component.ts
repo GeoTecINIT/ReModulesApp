@@ -49,15 +49,12 @@ export class HomeComponent implements OnInit {
   active: number;
   isUserLogged: boolean;
   currentUser: User = new User();
-  showTypology: boolean;
   showMap: boolean;
   showBuildingInfo: boolean;
-  showEnergy: boolean;
-  energyScore: boolean;
   updateBuilding: boolean;
 
-  modalRef: BsModalRef;
   optionSelected: number;
+  stepSelected: string;
 
   SPAIN = 'ES';
   constructor( public afAuth: AngularFireAuth,
@@ -120,22 +117,18 @@ export class HomeComponent implements OnInit {
     this.active = 1;
     this.showMap = true;
     this.showBuildingInfo = true;
-    this.showTypology = false;
     this.optionSelected = 2;
     this.updateBuilding = false;
+    this.stepSelected = 'infoBuilding';
   }
   calculateTypology($event): void{
     this.typologies = [];
     this.subcategoriesTypo = [];
     //this.showTypology =  !($event.typology && $event.typology.energy && $event.typology.energy.energyScoreCode);
     if ($event.selected) {
-      this.showTypology = true;
       this.showMap = true;
+      this.stepSelected = 'typology';
     }
-    this.energyScore = !!($event.building.typology && $event.building.typology.energy && $event.building.typology.energy.energyScoreCode);
-    /*
-    this.showTypology =  !($event.typology && $event.typology.categoryCode);
-    this.energyScore = !!($event.typology && $event.typology.categoryCode);*/
     if ( !$event.building.typology || ( $event.building.typology && !$event.building.typology.categoryCode ) ) {
       this.typologyService.getTypologyPics($event.building.year, $event.building.country, $event.building.climateZone).subscribe(res => {
         this.typologies = [];
@@ -191,7 +184,7 @@ export class HomeComponent implements OnInit {
   cleanVariables(): void {
     this.properties = [];
     this.active = 1;
-    this.showTypology = false;
+    this.stepSelected = '';
     this.showBuildingInfo = false;
     this.fromHistory = false;
     this.showMap = false;
@@ -252,8 +245,7 @@ export class HomeComponent implements OnInit {
   }
 
   receiveCalculateEnergy($event): void {
-    this.showEnergy = true;
-    this.showTypology = false;
+    this.stepSelected = 'result';
     if ( !$event.climateSubZone ) {
       $event.climateSubZone = 'NA';
     }
@@ -269,8 +261,7 @@ export class HomeComponent implements OnInit {
     if ($event) {
       this.checkLogin();
       this.optionSelected = 2;
-      this.showTypology = false;
-      this.showEnergy = false;
+      this.stepSelected = '';
       this.showMap = false;
     }
   }
@@ -281,10 +272,9 @@ export class HomeComponent implements OnInit {
   receiveBuilding($event) {
     this.building = $event;
     this.building.refurbishment = new Refurbishment([], [], new SystemType('', '', '', []), new SystemType('', '', '', []));
-    this.showEnergy = true;
-    this.showTypology = false;
     this.optionSelected = 2;
     this.active = 1;
+    this.stepSelected = 'result';
     this.updateBuilding = false;
     if ( !$event.climateSubZone ) {
       $event.climateSubZone = 'NA';
@@ -293,7 +283,7 @@ export class HomeComponent implements OnInit {
   receiveBuildingToUpdate($event) {
     this.showMap = true;
     this.showBuildingInfo = true;
-    this.showTypology = false;
+    this.stepSelected = 'infoBuilding';
     this.optionSelected = 2;
     this.updateBuilding = true;
     this.resetBuildingByCountry($event);
@@ -310,6 +300,6 @@ export class HomeComponent implements OnInit {
     this.building = building;
   }
   receiveOption($event): void {
-    this.optionSelected = $event;
+    this.stepSelected = $event;
   }
 }

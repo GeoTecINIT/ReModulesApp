@@ -120,12 +120,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       zoom: this.ZOOM,
     });
     this.map.zoomControl.setPosition('topright');
-
-    /*const mapControlsContainer = document.getElementsByClassName("leaflet-control")[0];
-    const logoContainer = document.getElementById("logoContainer");
-
-    mapControlsContainer.appendChild(logoContainer);*/
-
     L.esri = esri;
     const basemapTopo = L.esri.basemapLayer('Topographic');
     const basemapOSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -197,7 +191,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         results.addLayer(this.marker);
         this.point.ESPG25830 = crs25830.project(data.results[i].latlng);
         this.point.ESPG28992 = crs28992.project(data.results[i].latlng);
-        if ( this.building.rc ) this.building.rc = '';
+        if ( this.building && this.building.rc ) this.building.rc = '';
         let address = '';
         address = data.results[i].text;
         this.coordinatesEmitter.emit({latlng: data.results[i].latlng,
@@ -246,49 +240,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         this.legend.addTo(this.map);
         this.currentLayer = 'emissions';
         this.markersGroup = this.emissionsMarkers;
-      }
-
-      if ( overla.name === 'Year of construction') {
-        this.legend.onAdd = () => {
-          const div = L.DomUtil.create('div', 'legend');
-          div.innerHTML += '<h4>Years Ranking</h4>';
-          // loop through our density intervals and generate a label with a colored square for each interval
-          Object.keys( GlobalConstants.colorsYears).forEach( key => {
-            let textLabel = '';
-            switch (key) {
-              case '01': {
-                textLabel = '0 - 1900';
-                break;
-              }
-              case '02': {
-                textLabel = '1901- 1936';
-                break;
-              }
-              case '03': {
-                textLabel = '1937 - 1959';
-                break;
-              }
-              case '04': {
-                textLabel = '1960 - 1979';
-                break;
-              }
-              case '05': {
-                textLabel = '1980 - 2006';
-                break;
-              }
-              case '06': {
-                textLabel = '2007 - ';
-                break;
-              }
-            }
-            div.innerHTML += '<i style="background-color:' + GlobalConstants.colorsYears[key] + '"></i> ' +
-              '<span>' + textLabel + '</span><br>' ;
-          });
-          return div;
-        };
-        this.legend.addTo(this.map);
-        this.currentLayer = 'year';
-        this.markersGroup = this.yearsMarkers;
       }
   }
 
@@ -425,9 +376,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.emissionsLayer = L.layerGroup(arrayEmissions);
       this.layersControl.addOverlay( this.emissionsLayer, 'Emissions', 'Energy Efficiency');
 
-      this.yearLayer = L.layerGroup(arrayYear);
-      this.layersControl.addOverlay( this.yearLayer, 'Year of construction', 'Energy Efficiency');
-
     }
     this.historyMarkers = markerGroup;
     this.typologyMarkers = arrayTypology;
@@ -461,13 +409,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           marker.addTo(this.map);
         });
         this.markersGroup = this.emissionsMarkers;
-        break;
-      }
-      case 'year' : {
-        this.yearsMarkers.forEach( marker => {
-          marker.addTo(this.map);
-        });
-        this.markersGroup = this.yearsMarkers;
         break;
       }
     }

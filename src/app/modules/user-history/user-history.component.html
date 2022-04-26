@@ -19,13 +19,25 @@
           </button>
           <div class="collapse " id="collapseExample">
             <div class="card card-body form">
-              <label for="filterYear"> Year: </label>
-              <ng-select id="filterYear" class="filter" [(ngModel)]="yearSelected"
-                         (change)="filter('year');">
-                <ng-option *ngFor="let year of filterYears" [value]="year">{{year.label}}</ng-option>
-              </ng-select>
-              <label for="filterYear"> Country: </label>
-              <ng-select class="filter" [(ngModel)]="countrySelected"
+
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="filterYearMin">Min Year: </label>
+                  <ng-select id="filterYearMin" class="filter" [(ngModel)]="yearSelectedMin"
+                             (change)="filter('yearMin');">
+                    <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                  </ng-select>
+                </div>
+                <div class="col-md-6">
+                  <label for="filterYearMax">Max Year: </label>
+                  <ng-select id="filterYearMax" class="filter" [(ngModel)]="yearSelectedMax"
+                             (change)="filter('yearMax');">
+                    <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              <label for="filterCountry"> Country: </label>
+              <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelected"
                          (change)="filter('country');">
                 <ng-option *ngFor="let country of filterCountries" [value]="country">{{country}}</ng-option>
               </ng-select>

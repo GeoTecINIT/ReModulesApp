@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {Building} from '../../shared/models/building';
 import * as Highcharts from 'highcharts';
 import {GlobalConstants} from '../../shared/GlobalConstants';
@@ -100,6 +100,7 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
   updated: boolean;
   @Input() building: Building;
   @Input() updateBuilding: boolean;
+  @Output() optionEmitter = new EventEmitter<string>();
   constructor(public afAuth: AngularFireAuth, private userService: UserService, private typologyService: TypologyService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -756,5 +757,11 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
         this.updated = false;
       }, 70000 );
     });
+  }
+  goBackToupdateBuildingInformation(): void{
+    this.optionEmitter.emit('infoBuilding');
+  }
+  goBack() {
+    this.optionEmitter.emit('typology');
   }
 }

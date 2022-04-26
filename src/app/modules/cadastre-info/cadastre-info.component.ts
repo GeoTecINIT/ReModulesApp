@@ -18,15 +18,14 @@ import {ActivatedRoute} from '@angular/router';
   styleUrls: ['./cadastre-info.component.scss']
 })
 export class CadastreInfoComponent implements OnInit, OnChanges {
+  spinnerColor: string;
   propSelected: Property;
   propIsSelected: boolean;
   facadeImage: any;
   hasError: boolean;
   error: string;
   currentUser: User = new User();
-  isAFavProperty: boolean;
   isUserLogged: boolean;
-  searchFromHistory: boolean;
   modelFilters = {filtBl: '', filtEs: '', filtPt: '', filtPu: ''};
   propertiesFilter: Property[];
   mapControl: boolean;
@@ -47,7 +46,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   @Output() showMapEmitter = new EventEmitter<boolean>();
   @Output() calculateTypologyEmitter = new EventEmitter<any>();
   @Output() buildingCompleteEmitter = new EventEmitter<any>();
-  @Output() optionEmitter= new EventEmitter<any>();
+  @Output() optionEmitter = new EventEmitter<any>();
   constructor(private cadastreServiceES: CadastreESService,
               private cadastreNLService: CadastreNLService,
               private sanitizer: DomSanitizer,
@@ -63,6 +62,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
       else { this.isUserLogged = false; }
     });
     this.propertiesFilter = this.properties;
+    this.spinnerColor = '#63c5ab';
   }
 
   ngOnInit(){
@@ -92,8 +92,11 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
         }
         this.selectedYear = null;
         this.ruralBuilding = false;
-        if( this.building.year ) this.selectedYear = this.building.year;
-          this.building.typology = new Typology('', '', '', '', '', '',
+        if( changes.building.currentValue.year ) {
+          this.selectedYear = changes.building.currentValue.year;
+          this.building.year = changes.building.currentValue.year;
+        }
+        this.building.typology = new Typology('', '', '', '', '', '',
             '', null, null, null);
         if ( this.building.country  === 'ES') {
             this.spinner.show();
@@ -152,7 +155,6 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
   initialData(): void{
     this.propSelected = null;
     this.propIsSelected = true;
-    this.isAFavProperty = false;
   }
 
   /**
