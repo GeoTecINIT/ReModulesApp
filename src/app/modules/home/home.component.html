@@ -58,9 +58,9 @@
       </div>
     </div>
     <!-- General Dashboard -->
-    <div *ngIf="optionSelected===3"  class="col-md-6 information" >
+    <div *ngIf="optionSelected===3"  class="col-md-4 information" >
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
-      <app-data-map [optionSelected]="optionSelected"></app-data-map>
+      <app-data-map [optionSelected]="optionSelected" (historyEmitter)="receiveHistory($event);" ></app-data-map>
     </div>
     <!-- User history-->
     <div *ngIf="optionSelected===4" class="col-md-4 information">
@@ -72,7 +72,7 @@
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <app-user-account [currentUser]="currentUser" (logoutEmitter)="receiveLogOut($event);" ></app-user-account>
     </div>
-    <div [ngClass]="(optionSelected === 2 || optionSelected ===3 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( optionSelected === 4 || optionSelected === 5 ? 'col-md-7' : 'col-md-11'))" *ngIf="stepSelected !== 'result'">
+    <div [ngClass]="stepSelected === 'result' ? '' : ((optionSelected === 2 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( (optionSelected >= 3 && optionSelected <= 5) ? 'col-md-7' : 'col-md-11')))">
       <app-map (buildingEmitter)="receiveBuilding($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
                [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory" [active]="active" [totalHistory]="totalHistory" [optionSelected]="optionSelected"></app-map>
     </div>

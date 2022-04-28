@@ -260,9 +260,8 @@ export class HomeComponent implements OnInit {
   receiveLogin($event){
     if ($event) {
       this.checkLogin();
-      this.optionSelected = 2;
+      this.optionSelected = 0;
       this.stepSelected = '';
-      this.showMap = false;
     }
   }
   receiveHistory($event) {
@@ -291,10 +290,7 @@ export class HomeComponent implements OnInit {
   resetBuildingByCountry(building: Building) {
     if ( building.country === 'ES') {
       building.typology.system = null;
-    } else if ( building.country === 'NL') {
-      building.typology = null;
     } else {
-      building.year = '';
       building.typology = null;
     }
     this.building = building;

@@ -145,7 +145,7 @@ export class CadastreInfoComponent implements OnInit, OnChanges {
     this.selectBuilding = true;
     this.selectYear = true;
     this.building  = new Building(buildingTmp.country, buildingTmp.climateZone, buildingTmp.climateSubZone,
-      '', buildingTmp.region, buildingTmp.provinceCode,
+      buildingTmp.year, buildingTmp.region, buildingTmp.provinceCode,
       buildingTmp.address, buildingTmp.altitudeCode, buildingTmp.coordinates, buildingTmp.point,
       [], null, '', null, null, false, null, [], 0);
     this.properties = [];

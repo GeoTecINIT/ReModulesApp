@@ -68,7 +68,7 @@ export class TypologyComponent implements OnInit, OnChanges {
         this.codeSystemMeasureSelected = changes.building.currentValue.typology.system.codeSystemMeasure;
         this.systemSelected = changes.building.currentValue.typology.system;
         this.selectSystem(1);
-        this.enableCalculate=true;
+        this.enableCalculate = true;
 
       } else {
         this.systems = [];

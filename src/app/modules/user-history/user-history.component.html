@@ -60,7 +60,7 @@
           </thead>
           <tbody>
           <tr *ngFor="let building of tmpUserHistory" >
-            <th scope="row"><i class="fa fa-bookmark" aria-hidden="true"></i> &nbsp; <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}} - {{ building.country}}</button> </th>
+            <th scope="row"><i class="fa fa-bookmark" aria-hidden="true"></i> &nbsp; <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}} - {{ building.country}} - {{building.year}}</button> </th>
             <td>
               <div class="row">
                 <button class="btn btn-light" (click)="updateBuilding(building);">

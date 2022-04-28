@@ -57,6 +57,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     this.markerClusterGroup = L.markerClusterGroup({removeOutsideVisibleBounds: true});
     this.currentLayer = 'History';
     this.point = new Crs(null, null);
+    if ( this.map ) {
+      this.map.remove();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -72,7 +75,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.currentLayer = '';
     }
    // this.removeMarkerFromMap();
-    else  if (this.optionSelected === 4 && changes.history && changes.history.currentValue) {
+    else  if ((this.optionSelected === 4 || this.optionSelected === 3) && changes.history && changes.history.currentValue) {
       const markerTmp = this.marker;
       this.removeMarkerFromMap(markerTmp);
       this.removeOverlays();
