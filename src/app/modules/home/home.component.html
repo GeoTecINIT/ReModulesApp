@@ -74,7 +74,7 @@
     </div>
     <div [ngClass]="stepSelected === 'result' ? '' : ((optionSelected === 2 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( (optionSelected >= 3 && optionSelected <= 5) ? 'col-md-7' : 'col-md-11')))">
       <app-map (buildingEmitter)="receiveBuilding($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
-               [historyFilteredFromList]="historyFilteredFromList" [building]="building" [fromHistory]="fromHistory" [active]="active" [totalHistory]="totalHistory" [optionSelected]="optionSelected"></app-map>
+               [building]="building" [active]="active" [optionSelected]="optionSelected"></app-map>
     </div>
   </div>
 

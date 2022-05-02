@@ -86,11 +86,7 @@ export class LoginComponent implements OnInit {
       const name = user.displayName;
       const email = user.email;
       this.loginEndedEmitter.emit(true);
-      this.authService.getToken(id).subscribe( params => {
-        localStorage.clear();
-        localStorage.setItem('auth-token', params['accessToken']);
-      } );
-      this.userService.getByUid(id).subscribe( (data: any) => {
+      this.userService.getByUid(id).subscribe( async (data: any) => {
         if (!data || data.length < 1) {
           const newUser = {
             uid: id,
@@ -102,14 +98,13 @@ export class LoginComponent implements OnInit {
               delete newUser[key];
             }
           });
-          this.userService.create(newUser).subscribe(
-            response => {
-              this.submitted = true;
-            },
-            error => {
-              console.log(error);
-            });
+          await this.userService.create(newUser).subscribe();
+          this.submitted = true;
         }
+        this.authService.getToken(id).subscribe( params => {
+          localStorage.clear();
+          localStorage.setItem('auth-token', params['accessToken']);
+        } );
       });
     }).catch(error => {
       const errorCode = error.code;

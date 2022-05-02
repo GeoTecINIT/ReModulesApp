@@ -101,7 +101,7 @@ export class HomeComponent implements OnInit {
       this.isUserLogged = false;
       this.optionSelected = 1;
       this.router.routeReuseStrategy.shouldReuseRoute = () => {
-        return false;
+        return true;
       };
     }
   }
@@ -182,12 +182,12 @@ export class HomeComponent implements OnInit {
     }
   }
   cleanVariables(): void {
+    console.log('home cleaning variables');
     this.properties = [];
     this.active = 1;
     this.stepSelected = '';
     this.showBuildingInfo = false;
     this.fromHistory = false;
-    this.showMap = false;
     this.optionSelected = 0;
     this.updateBuilding = false;
   }
@@ -252,9 +252,6 @@ export class HomeComponent implements OnInit {
   }
   receiveErrorFromTypology($event){
     this.error = $event;
-  }
-  generalTab() {
-    this.active = 1;
   }
 
   receiveLogin($event){

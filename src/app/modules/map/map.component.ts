@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
 import * as L from 'leaflet';
 import * as esri from 'esri-leaflet';
 import 'proj4leaflet';
@@ -39,11 +39,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Output() coordinatesEmitter = new EventEmitter<any>();
   @Input() properties: Property[];
   @Input() history: Building[];
-  @Input() historyFilteredFromList: any;
   @Input() building: Building;
-  @Input() fromHistory: boolean;
   @Input() active: number;
-  @Input() totalHistory: Building[];
   @Input() optionSelected: number;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of Valencia
@@ -57,9 +54,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     this.markerClusterGroup = L.markerClusterGroup({removeOutsideVisibleBounds: true});
     this.currentLayer = 'History';
     this.point = new Crs(null, null);
-    if ( this.map ) {
-      this.map.remove();
-    }
   }
 
   ngAfterViewInit(): void {
@@ -117,7 +111,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
           1.5875031750063502, 0.7937515875031751, 0.39687579375158755, 0.19843789687579377, 0.09921894843789689, 0.04960947421894844],
         origin: [0, 0]
       });
-
     this.map = L.map('map', {
       center: this.CENTER_POINT,
       zoom: this.ZOOM,

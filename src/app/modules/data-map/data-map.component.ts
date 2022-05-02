@@ -19,6 +19,12 @@ export class DataMapComponent implements OnInit {
   userHistory: Building[];
   typologyChart: typeof Highcharts = Highcharts;
   chartOptionsTypology: Highcharts.Options;
+
+  energyChart: typeof Highcharts = Highcharts;
+  chartOptionsEnergy: Highcharts.Options;
+
+  primaryEnergyChart: typeof Highcharts = Highcharts;
+  chartOptionsPrimaryEnergy: Highcharts.Options;
   @Input() optionSelected: number;
   @Output() historyEmitter = new EventEmitter<any>();
   constructor(
@@ -83,6 +89,54 @@ export class DataMapComponent implements OnInit {
         dataBuilding.building_code, enveloped, systemType, null), true, null, efficiency, dataBuilding.id));
   }
   buildCharts() {
+    this.buildTypologyChart();
+    this.buildEnergyChart();
+    this.buildPrimaryEnergyChart();
+  }
+  buildEnergyChart(): void {
+    const refurbish = ['Today', 'Standard', 'Advanced'];
+    let data = [];
+    let todayCost = 0;
+    let standardCost = 0;
+    let advancedCost = 0;
+    this.userHistory.forEach( ( building: Building) => {
+      building.efficiency.forEach( eff => {
+        if ( eff.level_improvement === 'Actual conditions' ) {
+          todayCost = todayCost + +eff.energy_costs ;
+        } else if ( eff.level_improvement === 'Standard') {
+          standardCost = standardCost + +eff.energy_costs;
+        } else {
+          advancedCost = advancedCost + +eff.energy_costs;
+        }
+      });
+    });
+
+    data = [(todayCost / this.userHistory.length), (standardCost / this.userHistory.length), (advancedCost / this.userHistory.length) ];
+    this.chartOptionsEnergy = this.typologyChartData(refurbish, data, '', 'Average cost');
+  }
+  buildPrimaryEnergyChart(): void {
+    const refurbish = ['Today', 'Standard', 'Advanced'];
+    let data = [];
+    let todayCost = 0;
+    let standardCost = 0;
+    let advancedCost = 0;
+    this.userHistory.forEach( ( building: Building) => {
+      building.efficiency.forEach( eff => {
+        if ( eff.level_improvement === 'Actual conditions' ) {
+          todayCost = todayCost + +eff.renewable_p_energy ;
+        } else if ( eff.level_improvement === 'Standard') {
+          standardCost = standardCost + +eff.renewable_p_energy;
+        } else {
+          advancedCost = advancedCost + +eff.renewable_p_energy;
+        }
+      });
+    });
+
+    data = [(todayCost / this.userHistory.length), (standardCost / this.userHistory.length), (advancedCost / this.userHistory.length) ];
+    this.chartOptionsPrimaryEnergy = this.typologyChartData(refurbish, data, '', 'Average renewable energy');
+  }
+
+  buildTypologyChart(): void {
     const typologies = [];
     const categories = [];
     const data = [];
@@ -97,9 +151,9 @@ export class DataMapComponent implements OnInit {
     Object.entries(typologies).forEach(([key, value]) => {
       data.push(value);
     });
-    this.chartOptionsTypology = this.buildTypologyChart(categories, data);
+    this.chartOptionsTypology = this.typologyChartData(categories, data, 'Typologies', 'Number of buildings');
   }
-  buildTypologyChart(categories, data): any {
+  typologyChartData(categories, data, titleX, titleY): any {
     return {
       chart: {
         type: 'column',
@@ -107,14 +161,14 @@ export class DataMapComponent implements OnInit {
         width: 300
       },
       xAxis: {
-        title: 'Typologies',
+        title: titleX,
         categories
 
       },
       yAxis: {
         min: 0,
         title: {
-          text: 'Number of buildings'
+          text: titleY
         }
       },
       legend: {
