@@ -43,7 +43,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() active: number;
   @Input() optionSelected: number;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
-  CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of Valencia
+  CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of european Union
+  CENTER_POINT_HALF_SCREEN = [ 45.7098955, 24.1246012 ];
   ZOOM = 5.22;
   private map;
 
@@ -61,7 +62,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.optionSelected && changes.optionSelected.currentValue && changes.optionSelected.currentValue !== 4 ) {
+
+    if (changes.optionSelected && changes.optionSelected.currentValue !== 3 && changes.optionSelected.currentValue !== 4 && this.map) {
+      if ( changes.optionSelected.currentValue === 0 ) {
+        this.map.setView(this.CENTER_POINT, this.ZOOM);
+      }
       this.removeOverlays();
       this.removeGroupMarkers();
       this.removeClusterMarkers();
@@ -70,6 +75,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
     }
    // this.removeMarkerFromMap();
     else  if ((this.optionSelected === 4 || this.optionSelected === 3) && changes.history && changes.history.currentValue) {
+      this.map.setView(this.CENTER_POINT_HALF_SCREEN, this.ZOOM);
       const markerTmp = this.marker;
       this.removeMarkerFromMap(markerTmp);
       this.removeOverlays();
