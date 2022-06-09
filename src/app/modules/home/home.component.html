@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-1 options-panel">
       <!-- Login and User section -->
-      <div [ngClass]="optionSelected === 1 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
+      <!--div [ngClass]="optionSelected === 1 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
         <a *ngIf="!isUserLogged" href="#" style="color: #3c4b64;" (click)=" optionSelected === 1 ? optionSelected = 0 : optionSelected = 1; stepSelected='';">
           <i class="fa fa-user-o fa-2x"></i>
         </a>
@@ -11,28 +11,28 @@
               <h2 *ngIf="currentUser.name">{{currentUser.name.substring(0, 1)}}</h2>
             </a>
         </div>
-      </div>
+      </div-->
       <!-- Home Section -->
       <div [ngClass]="optionSelected === 0 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
-        <a href="#" (click)="optionSelected = 0; stepSelected='';" >
+        <a href="#/oneclick" (click)="optionSelected = 0; stepSelected='';" >
           <i class="fa fa-home fa-2x" aria-hidden="true"></i>
         </a>
       </div>
       <!-- General Dashboard -->
       <div [ngClass]="optionSelected === 3 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center">
-        <a href="#" (click)="optionSelected === 3 ? optionSelected = 0 : optionSelected = 3; stepSelected='';" >
+        <a href="#/oneclick" (click)="optionSelected === 3 ? optionSelected = 0 : optionSelected = 3; stepSelected='';" >
           <i class="fa fa-sliders fa-2x" aria-hidden="true"></i>
         </a>
       </div>
       <!-- User history-->
       <div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center">
-        <a href="#" (click)="optionSelected === 4 ? optionSelected = 0 : optionSelected = 4; stepSelected='';" >
+        <a href="#/oneclick" (click)="optionSelected === 4 ? optionSelected = 0 : optionSelected = 4; stepSelected='';" >
           <i class="fa fa-bookmark-o fa-2x" aria-hidden="true"></i>
         </a>
       </div>
     </div>
     <!-- Login Section -->
-    <div class="col-md-3 information" *ngIf="optionSelected === 1" >
+    <!--div class="col-md-3 information" *ngIf="optionSelected === 1" >
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <div *ngIf="isUserLogged">
         <app-user-panel  [optionSelected]="optionSelected"></app-user-panel>
@@ -40,7 +40,7 @@
       <div *ngIf="!isUserLogged">
         <app-login (loginEndedEmitter)="receiveLogin($event)" [optionSelected]="optionSelected"></app-login>
       </div>
-    </div>
+    </div-->
     <!-- Building information Section -->
     <div *ngIf="optionSelected === 2" [ngClass]="(stepSelected==='infoBuilding' || stepSelected==='typology')  ? 'col-md-6' : 'col-md-11 energySection'">
       <div  *ngIf="stepSelected==='infoBuilding' || stepSelected==='typology'"  class="information" >

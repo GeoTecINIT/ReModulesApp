@@ -1,0 +1,58 @@
+.header, .user-menu {
+  height: 100px;
+  background-color: #00203d;
+  color: white;
+  padding-left:20px ;
+}
+.main-content {
+  overflow: scroll;
+}
+.logo {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+.logo-img {
+  top: 30%;
+  position: absolute;
+}
+.menu-option {
+  height: 100%;
+  display: block;
+  color: white;
+}
+.menu-option:hover {
+  background-color: #004470;
+}
+.menu-option h4 {
+  top: 30%;
+  position: absolute;
+  color: white;
+}
+.login h4 {
+  top: 30%;
+  position: absolute;
+  color: white;
+  text-align: center;
+  margin-left: 20px;
+}
+.rounded-button {
+  top: 25%;
+  position: absolute;
+  color: #004470;
+  background-color: white;
+  border-radius: 22px;
+  border-style: none;
+  text-align: center;
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 10px;
+}
+.login-buttons {
+  padding-right: 0;
+}
+.login {
+  background-color: #00203d;
+  color: white;
+  border-style: none;
+}

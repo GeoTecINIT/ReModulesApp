@@ -1,0 +1,60 @@
+<main>
+  <div class="header row">
+    <a class="col-md-2 logo" routerLink="/home">
+      <img src="./assets/img/logos/logo-remodulees-transparent.png" class="logo-img">
+    </a>
+    <a class="col-md-1 menu-option" href="#">
+      <div>
+        <h4>
+          About us
+        </h4>
+      </div>
+    </a>
+    <a class="col-md-1 menu-option">
+      <div>
+        <h4>
+          Our partners
+        </h4>
+      </div>
+    </a>
+    <a class="col-md-1 menu-option" routerLink="/oneclick">
+      <div >
+        <h4>
+          Tools
+        </h4>
+      </div>
+    </a>
+    <a class="col-md-1 menu-option">
+      <div>
+        <h4>
+          Contact us
+        </h4>
+      </div>
+    </a>
+    <div class="col-md-2 logo">
+
+    </div>
+    <div class="col-md-4 user-menu row">
+      <div class="col-md-6 row">
+        <div class="col-md-6 country">
+
+        </div>
+        <div class="col-md-6 country">
+
+        </div>
+      </div>
+      <div class="col-md-7 row login-buttons" *ngIf="!isUserLogged">
+        <div class="col-md-6 join">
+          <button class="rounded-button" >
+            <h5><strong>Join now</strong></h5>
+          </button>
+        </div>
+        <button class="col-md-6 login" (click)="openModal() ">
+          <h4>
+            Login
+          </h4>
+        </button>
+      </div>
+    </div>
+  </div>
+</main>

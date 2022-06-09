@@ -37,6 +37,7 @@
     "body-parser": "^1.19.0",
     "bootstrap": "^4.5.3",
     "bootstrap-icons": "^1.5.0",
+    "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
     "esri-leaflet": "^2.5.1",
     "esri-leaflet-geocoder": "^2.3.3",

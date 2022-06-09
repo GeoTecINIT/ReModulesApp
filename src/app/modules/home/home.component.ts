@@ -63,7 +63,6 @@ export class HomeComponent implements OnInit {
                private typologyService: TypologyService,
                private geodataService: GeodataService,
                private opendataService: OpendataService,
-               private modalService: BsModalService,
                private router: Router) {
     this.totalHistory = [];
 

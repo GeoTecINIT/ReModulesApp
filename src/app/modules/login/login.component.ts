@@ -35,6 +35,7 @@ export class LoginComponent implements OnInit {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
         this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();
+        this.modalService.hide();
       }
     });
 
@@ -42,7 +43,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParams
-      .subscribe(params => this.return = params.return || '/home');
+      .subscribe(params => this.return = params.return || '/');
     if (this.afAuth.currentUser) {
       // User is signed in.
       this.ngZone.run(() => this.router.navigateByUrl(this.return)).then();

@@ -51,6 +51,10 @@ import { UserPanelComponent } from './modules/user-panel/user-panel.component';
 import { DataMapComponent } from './modules/data-map/data-map.component';
 import { UserHistoryComponent } from './modules/user-history/user-history.component';
 import { UserAccountComponent } from './modules/user-account/user-account.component';
+import { RemoduleesComponent } from './modules/remodulees/remodulees.component';
+import { HeaderMainComponent } from './components/header-main/header-main.component';
+import { LandingComponent } from './modules/landing/landing.component';
+import { SignupComponent } from './modules/signup/signup.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +71,11 @@ import { UserAccountComponent } from './modules/user-account/user-account.compon
     UserPanelComponent,
     DataMapComponent,
     UserHistoryComponent,
-    UserAccountComponent
+    UserAccountComponent,
+    RemoduleesComponent,
+    HeaderMainComponent,
+    LandingComponent,
+    SignupComponent
   ],
     imports: [
         BrowserModule,

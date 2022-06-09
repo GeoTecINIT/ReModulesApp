@@ -1,0 +1,49 @@
+.landing{
+  overflow: auto;
+}
+.country-section{
+  background-color: #acbdd5;
+  height: 60vh;
+  color: #00213d;
+}
+.tools-section{
+  background-color: white;
+  color: #535353;
+  padding: 30px 60px 30px 90px;
+}
+.tools-title{
+  color: #004470;
+}
+.tools-title-white{
+  color: white;
+}
+.card-tool {
+  margin: 20px;
+  background-color: #acbdd5;
+  color: black;
+  border-radius: 10px;
+  padding-top: 5px;
+}
+.filters {
+  padding-right: 8px;
+  padding-left: 8px;
+}
+.content-text-country {
+  padding-left: 150px;
+}
+.country-selection{
+  margin-left: 150px;
+  background-color: #19446d;
+  border-radius: 40px     40px      0           0;
+  height: 100%;
+  margin-right: 400px;
+  padding: 50px;
+}
+.button-blue {
+  background-color: #00213d;
+  color: white;
+  border-radius: 10px;
+  border-style: none;
+  padding: 10px;
+  margin-top: 20px;
+}

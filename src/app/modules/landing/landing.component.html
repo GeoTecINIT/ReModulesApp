@@ -1,0 +1,98 @@
+<div class="landing">
+
+  <div class="country-section">
+    <!--div style="height: 100vh;">
+      <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+              src=" https://www.circularhomes.eu/es/herramienta-circularidad-vivienda/"></iframe>
+    </div-->
+
+    <div class="container row">
+      <div class="content-text-country col-md-10">
+        <h1>
+          Title
+        </h1>
+        <p>
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+        </p>
+      </div>
+      <div class=" col-md-2">
+      </div>
+    </div>
+
+    <div class="country-selection">
+      <h2 class="tools-title-white">
+        <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+        <strong>Improve your home's energy efficiency now</strong>
+      </h2>
+      <div class="row">
+        <div class="col-md-10">
+          <h4 class="tools-title-white"> Country*</h4>
+          <ng-select id="countryOneClick" class="filter" [(ngModel)]="countryOneClick" placeholder="Select your country">
+            <ng-option *ngFor="let country of countriesOneClick" [value]="country.id">{{country.name}}</ng-option>
+          </ng-select>
+        </div>
+        <div class="col-md-2">
+          <button class="button-blue" (click)="goToOneClick();" >
+            <h2>Go</h2></button>
+        </div>
+      </div>
+      <a class="tools-title-white" routerLink="/oneclick"> Go to One click</a>
+    </div>
+  </div>
+  <div class="tools-section">
+    <h2 class="tools-title">
+      <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+      <strong>Your toolset</strong>
+    </h2>
+    <p>
+      Define your interest and get your renovation kit
+    </p>
+    <div class="row justify-content-end" *ngIf="filters">
+      <div class="col-1 filters" >
+        <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelectd"
+                   (change)="filter('countries');" placeholder="Country">
+          <ng-option *ngFor="let country of filters.countries" [value]="country.id">{{country.name}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-1 filters">
+        <ng-select id="filterProfiles" class="filter" [(ngModel)]="profileSelectd"
+                   (change)="filter('profiles');" placeholder="Profile">
+          <ng-option *ngFor="let profile of filters.profiles" [value]="profile.id">{{profile.profile}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-1 filters">
+        <ng-select id="filterSolutions" class="filter" [(ngModel)]="solutionSelectd"
+                   (change)="filter('solutions');" placeholder="Solution">
+          <ng-option *ngFor="let solution of filters.solutions" [value]="solution.id">{{solution.solution}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-2 filters">
+        <ng-select id="filterSteps" class="filter" [(ngModel)]="stepSelectd"
+                   (change)="filter('steps');" placeholder="Step">
+          <ng-option *ngFor="let step of filters.steps" [value]="step.id">{{step.step}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-1 filters">
+        <ng-select id="filterStops" class="filter" [(ngModel)]="stopSelectd"
+                   (change)="filter('stops');" placeholder="Stop" >
+          <ng-option *ngFor="let stop of filters.stops" [value]="stop.id">{{stop.stop}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-2 filters">
+        <ng-select id="filterTipologies" class="filter" [(ngModel)]="typologySelectd"
+                   (change)="filter('typologies');" placeholder="Typology" >
+          <ng-option *ngFor="let typology of filters.typologies" [value]="typology.id">{{typology.typology}}</ng-option>
+        </ng-select>
+      </div>
+    </div>
+    <div class="tools row">
+      <div class="card card-tool col-md-2 justify-content-center" *ngFor="let tool of tmpTools">
+        <img src="./assets/img/tools/camera-icon.jpeg" height="150" width="auto" class="card-img-top">
+        <div class="card-body">
+          <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+          <p>{{tool.shortDescription}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
