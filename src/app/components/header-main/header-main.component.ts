@@ -17,7 +17,9 @@ export class HeaderMainComponent implements OnInit {
   modalRef: BsModalRef;
   showLogin: boolean;
 
-  constructor(private modalService: BsModalService, public afAuth: AngularFireAuth, private userService: UserService) { }
+  constructor(private modalService: BsModalService, public afAuth: AngularFireAuth, private userService: UserService) {
+    this.checkLogin();
+  }
 
   ngOnInit(): void {
     this.modalService.onHide.subscribe((e) => {
@@ -34,6 +36,7 @@ export class HeaderMainComponent implements OnInit {
       if (user) {
         this.isUserLogged = true;
         this.currentUser = new User(user);
+        console.log('user 2!! ',  new User(user));
         this.userService.getByUid(user.uid).subscribe(userFromDB => {
           if (userFromDB) {
             this.currentUser.name = userFromDB['user'].name;

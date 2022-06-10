@@ -55,6 +55,11 @@
           </h4>
         </button>
       </div>
+      <div class="col-md-7 login" *ngIf="isUserLogged">
+        <h5>
+          {{currentUser.name}}
+        </h5>
+      </div>
     </div>
   </div>
 </main>
