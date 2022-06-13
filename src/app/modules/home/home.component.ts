@@ -19,6 +19,7 @@ import {$e} from 'codelyzer/angular/styles/chars';
 import {LoginComponent} from '../login/login.component';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Refurbishment} from '../../shared/models/refurbishment';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-home',
@@ -55,7 +56,7 @@ export class HomeComponent implements OnInit {
 
   optionSelected: number;
   stepSelected: string;
-
+  countryMap: string;
   SPAIN = 'ES';
   constructor( public afAuth: AngularFireAuth,
                private userService: UserService,
@@ -63,7 +64,8 @@ export class HomeComponent implements OnInit {
                private typologyService: TypologyService,
                private geodataService: GeodataService,
                private opendataService: OpendataService,
-               private router: Router) {
+               private router: Router,
+               private location: Location) {
     this.totalHistory = [];
 
     this.building =  new Building('', '', '',  null, '', '', '', '',
@@ -73,6 +75,10 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.cleanVariables();
+    console.log('datos!!! ', this.location.getState()['country']);
+    if ( this.location.getState() && this.location.getState()['country']) {
+      this.countryMap = this.location.getState()['country'];
+    }
   }
 
   checkLogin(): void {
@@ -189,6 +195,7 @@ export class HomeComponent implements OnInit {
     this.fromHistory = false;
     this.optionSelected = 0;
     this.updateBuilding = false;
+    this.countryMap = 'EUROPE';
   }
   calculateGeoData(elementsFromMap): void {
     const coordinates = elementsFromMap.latlng;

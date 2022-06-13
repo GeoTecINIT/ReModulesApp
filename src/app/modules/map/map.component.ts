@@ -35,6 +35,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   typologyMarkers: any[];
   emissionsMarkers: any[];
   yearsMarkers: any[];
+  zoomCountry: any;
+
   @Output() buildingEmitter = new EventEmitter<any>();
   @Output() coordinatesEmitter = new EventEmitter<any>();
   @Input() properties: Property[];
@@ -42,13 +44,25 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() building: Building;
   @Input() active: number;
   @Input() optionSelected: number;
+  @Input() countryMap: string;
   WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of european Union
   CENTER_POINT_HALF_SCREEN = [ 45.7098955, 24.1246012 ];
   ZOOM = 5.22;
   private map;
 
-  constructor() { }
+  constructor() {
+    this.zoomCountry = {
+      ES: {zoom: 7, point: [ 39.723488, -0.3601076 ]},
+      FR: {zoom: 6.55, point: [46.9562416, 4.6472728]},
+      BG: {zoom: 8, point: [42.6719688, 25.6796944]},
+      GR: {zoom: 7.5, point: [39.15794, 22.9933388]},
+      IT: {zoom: 6.6, point: [42.9764904, 12.2977639]},
+      NL: {zoom: 8.3, point: [52.3938828, 6.1733194]},
+      SI: {zoom: 9.21, point: [46.1668793, 15.1368265]},
+      EUROPE: {zoom: 5.22, point: [45.7098955, 11.1355771]}
+    };
+  }
 
   ngOnInit(): void {
     this.properties = [];
@@ -63,7 +77,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
 
-    if (changes.optionSelected && changes.optionSelected.currentValue !== 3 && changes.optionSelected.currentValue !== 4 && this.map) {
+    if (changes.optionSelected && changes.optionSelected.currentValue !== 3 && changes.optionSelected.currentValue !== 4 && this.map && !changes.countryMap) {
       if ( changes.optionSelected.currentValue === 0 ) {
         this.map.setView(this.CENTER_POINT, this.ZOOM);
       }
@@ -88,6 +102,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       this.map.on( 'overlayadd', (overla) => {
         this.addOverlayAction(overla);
       });
+    }
+    if ( changes.countryMap && changes.countryMap.currentValue) {
+      this.countryMap = changes.countryMap.currentValue;
+      this.CENTER_POINT = this.zoomCountry[this.countryMap].point;
+      this.ZOOM = this.zoomCountry[this.countryMap].zoom;
     }
   }
 

@@ -239,6 +239,6 @@ export class LandingComponent implements OnInit {
     }
   }
   goToOneClick(): void {
-    this.router.navigate(['/', 'oneclick']);
+    this.router.navigate(['/oneclick'], {state: {country: this.countryOneClick}});
   }
 }
