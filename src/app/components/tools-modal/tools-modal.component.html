@@ -27,7 +27,8 @@
         <h4>
           {{tool.name}}
         </h4>
-        <a class="web-tool" href="{{tool.url}}" target="_blank">Visit web site</a>
+        <a class="web-tool" href="#/oneclick" *ngIf="tool.name === 'One click'">Visit web site</a>
+        <a class="web-tool" href="{{tool.url}}" target="_blank" *ngIf="tool.name !== 'One click'">Visit web site</a>
       </div>
     </div>
     <div class="content-description">
