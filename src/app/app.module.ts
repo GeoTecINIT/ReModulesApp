@@ -55,6 +55,8 @@ import { RemoduleesComponent } from './modules/remodulees/remodulees.component';
 import { HeaderMainComponent } from './components/header-main/header-main.component';
 import { LandingComponent } from './modules/landing/landing.component';
 import { SignupComponent } from './modules/signup/signup.component';
+import { ToolsModalComponent } from './components/tools-modal/tools-modal.component';
+import { ToolsComponent } from './modules/tools/tools.component';
 
 @NgModule({
   declarations: [
@@ -75,7 +77,9 @@ import { SignupComponent } from './modules/signup/signup.component';
     RemoduleesComponent,
     HeaderMainComponent,
     LandingComponent,
-    SignupComponent
+    SignupComponent,
+    ToolsModalComponent,
+    ToolsComponent
   ],
     imports: [
         BrowserModule,

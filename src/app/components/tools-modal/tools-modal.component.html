@@ -1,0 +1,70 @@
+
+<div class="modal-header tool-actions row justify-content-end">
+    <div class="col-md-2">
+      <button type="button"  class="btn btn-default row">
+        <h5>
+          Save
+          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+        </h5>
+
+      </button>
+    </div>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-default row" (click)="bsModalRef.hide()">
+        <h5>
+          {{closeBtnName}} <i class="fa fa-times" aria-hidden="true"></i>
+        </h5>
+      </button>
+    </div>
+</div>
+<div class="modal-body content-info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+
+      </div>
+      <div class="col-md-5">
+        <h4>
+          {{tool.name}}
+        </h4>
+        <a class="web-tool" href="{{tool.url}}" target="_blank">Visit web site</a>
+      </div>
+    </div>
+    <div class="content-description">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="description-tab" data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true">Description</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="video-tab" data-toggle="tab" href="#video" role="tab" aria-controls="video" aria-selected="false">Video</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="photo-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="documents-tab" data-toggle="tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review</a>
+        </li>
+      </ul>
+    </div>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+        {{tool.longDescription}}
+      </div>
+      <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
+        No videos yet
+      </div>
+      <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photo-tab">
+        No photos yet
+      </div>
+      <div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
+        No documents yet
+      </div>
+      <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+        No reviews yet
+      </div>
+    </div>
+  </div>
+</div>

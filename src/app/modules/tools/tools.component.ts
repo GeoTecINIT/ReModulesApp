@@ -1,17 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import {ToolsService} from '../../core/tools/tools.service';
 import {Tools} from '../../shared/models/tools';
+import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
+import {ToolsService} from '../../core/tools/tools.service';
 import {Router} from '@angular/router';
-import {LoginComponent} from '../login/login.component';
-import {BsModalRef, BsModalService, ModalOptions} from 'ngx-bootstrap/modal';
 import {ToolsModalComponent} from '../../components/tools-modal/tools-modal.component';
 
 @Component({
-  selector: 'app-landing',
-  templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.scss']
+  selector: 'app-tools',
+  templateUrl: './tools.component.html',
+  styleUrls: ['./tools.component.scss']
 })
-export class LandingComponent implements OnInit {
+export class ToolsComponent implements OnInit {
 
   tools: Tools[] = [];
   filters = {countries: [], typologies: [], profiles: [], solutions: [], steps: [], stops: []};
@@ -26,8 +25,7 @@ export class LandingComponent implements OnInit {
   countryOneClick: string;
   countriesOneClick: [{id, name}];
   modalRef: BsModalRef;
-  constructor( private toolsService: ToolsService, private router: Router, private modalService: BsModalService) {
-  }
+  constructor(private toolsService: ToolsService, private router: Router, private modalService: BsModalService) { }
 
   ngOnInit(): void {
     this.filterApplied = [];
@@ -36,9 +34,9 @@ export class LandingComponent implements OnInit {
   }
 
   getCountries() {
-   this.toolsService.getFilters().subscribe( data => {
-     this.countriesOneClick = data['countries'];
-   });
+    this.toolsService.getFilters().subscribe( data => {
+      this.countriesOneClick = data['countries'];
+    });
   }
 
   getTools() {

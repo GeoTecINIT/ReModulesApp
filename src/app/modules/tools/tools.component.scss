@@ -1,16 +1,19 @@
-.landing{
+.tools-main {
   overflow: auto;
 }
-.country-section{
+.info-section {
   padding-top: 20px;
-  background-color: #acbdd5;
-  height: 60vh;
+  height: 50vh;
   color: #00213d;
 }
 .tools-section{
   background-color: white;
   color: #535353;
   padding: 30px 60px 30px 90px;
+}
+.content-text-generator{
+  padding-left: 150px;
+  padding-top: 50px;
 }
 .tools-title{
   color: #004470;
@@ -19,8 +22,10 @@
   color: white;
 }
 .card-tool {
-  margin: 20px;
-  background-color: #acbdd5;
+  margin-top: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
+  background-color: #bccadd;
   color: black;
   border-radius: 10px;
   padding-top: 5px;
@@ -48,13 +53,6 @@
   padding: 10px;
   margin-top: 20px;
 }
-@media (min-width: 768px) {
-  .carousel-inner {
-    display: flex;
-  }
-  .carousel-item {
-    margin-right: 0;
-    flex: 0 0 33.333333%;
-    display: block;
-  }
+.tools {
+  padding-left: 100px;
 }

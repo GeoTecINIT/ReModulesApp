@@ -6,6 +6,7 @@ import {ScoreComponent} from './modules/score/score.component';
 import {CadastreInfoComponent} from './modules/cadastre-info/cadastre-info.component';
 import {RemoduleesComponent} from './modules/remodulees/remodulees.component';
 import {LandingComponent} from './modules/landing/landing.component';
+import {ToolsComponent} from './modules/tools/tools.component';
 
 
 const routes: Routes = [
@@ -26,6 +27,10 @@ const routes: Routes = [
       {
         path: 'score',
         component: ScoreComponent
+      },
+      {
+        path: 'tools',
+        component: ToolsComponent
       },
     ]
   },

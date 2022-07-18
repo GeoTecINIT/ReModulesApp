@@ -1,0 +1,76 @@
+<div class="tools-main">
+  <div class="info-section">
+    <div class="container row">
+      <div class="col-md-6 content-text-generator">
+        <h1>
+          CJ Generator
+        </h1>
+        <p>
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+        </p>
+      </div>
+      <div class="col-md-6">
+
+      </div>
+    </div>
+
+  </div>
+  <hr>
+  <div class="tools-section">
+    <h2 class="tools-title">
+      Tools
+    </h2>
+    <div class="row justify-content-end" *ngIf="filters">
+      <div class="col-1 filters" >
+        <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelectd"
+                   (change)="filter('countries');" placeholder="Country">
+          <ng-option *ngFor="let country of filters.countries" [value]="country.id">{{country.name}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-1 filters">
+        <ng-select id="filterProfiles" class="filter" [(ngModel)]="profileSelectd"
+                   (change)="filter('profiles');" placeholder="Profile">
+          <ng-option *ngFor="let profile of filters.profiles" [value]="profile.id">{{profile.profile}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-1 filters">
+        <ng-select id="filterSolutions" class="filter" [(ngModel)]="solutionSelectd"
+                   (change)="filter('solutions');" placeholder="Solution">
+          <ng-option *ngFor="let solution of filters.solutions" [value]="solution.id">{{solution.solution}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-2 filters">
+        <ng-select id="filterSteps" class="filter" [(ngModel)]="stepSelectd"
+                   (change)="filter('steps');" placeholder="Step">
+          <ng-option *ngFor="let step of filters.steps" [value]="step.id">{{step.step}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-1 filters">
+        <ng-select id="filterStops" class="filter" [(ngModel)]="stopSelectd"
+                   (change)="filter('stops');" placeholder="Stop" >
+          <ng-option *ngFor="let stop of filters.stops" [value]="stop.id">{{stop.stop}}</ng-option>
+        </ng-select>
+      </div>
+      <div class="col-2 filters">
+        <ng-select id="filterTipologies" class="filter" [(ngModel)]="typologySelectd"
+                   (change)="filter('typologies');" placeholder="Typology" >
+          <ng-option *ngFor="let typology of filters.typologies" [value]="typology.id">{{typology.typology}}</ng-option>
+        </ng-select>
+      </div>
+    </div>
+    <div class="tools row">
+      <div class="card card-tool col-md-3 justify-content-center" *ngFor="let tool of tmpTools">
+        <img src="./assets/img/tools/camera-icon.jpeg" height="150" width="auto" class="card-img-top">
+        <div class="card-body">
+          <div>
+            <p>
+              {{tool.steps[0].step}}
+            </p>
+          </div>
+          <a href="#tools" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+          <p>{{tool.shortDescription}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

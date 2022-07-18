@@ -1,0 +1,40 @@
+.modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+.tool-actions {
+  border-color: transparent;
+  color: #014470;
+}
+.content-info {
+  color: #005481;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+.web-tool {
+  background-color: #99b4c6;
+  color: white;
+  border-radius: 10px;
+  border-style: none;
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 20px;
+  cursor: pointer;
+}
+.modal-lg {
+  width: 500px;
+}
+.tab-content{
+  width: 100%!important;
+  height: 500px!important;
+  padding-top: 20px!important;
+}
+.content-description {
+  margin-top: 20px;
+}
