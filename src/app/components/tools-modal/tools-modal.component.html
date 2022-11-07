@@ -1,7 +1,7 @@
 
 <div class="modal-header tool-actions row justify-content-end">
     <div class="col-md-2">
-      <button type="button"  class="btn btn-default row">
+      <button type="button" class="btn btn-default row">
         <h5>
           Save
           <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
@@ -21,12 +21,13 @@
   <div class="container">
     <div class="row">
       <div class="col-md-3">
-
+        <img class="logo-tool" src="{{tool.image}}" width="150" height="150" alt="Logo tool">
       </div>
       <div class="col-md-5">
         <h4>
           {{tool.name}}
         </h4>
+        <ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating><br>
         <a class="web-tool" href="#/oneclick" *ngIf="tool.name === 'One click'">Visit web site</a>
         <a class="web-tool" href="{{tool.url}}" target="_blank" *ngIf="tool.name !== 'One click'">Visit web site</a>
       </div>
@@ -52,7 +53,32 @@
     </div>
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
-        {{tool.longDescription}}
+        <div style="width: 65%; float: left;">
+          {{tool.longDescription}}
+        </div>
+        <div class="fondo-gris" style="width: 35%; float: right;">
+          <h6 class="title-information">
+            General information
+          </h6>
+          <div class="container">
+            <div class="owner-title">
+              Owner
+              <div class="owner-tool">
+                <img src="https://media.istockphoto.com/vectors/user-icon-flat-isolated-on-white-background-user-symbol-vector-vector-id1300845620?k=20&m=1300845620&s=612x612&w=0&h=f4XTZDAv7NPuZbG0habSpU0sNgECM0X7nbKzTUta3n8=" class="rounded-circle" style="width: 50px;" alt="Avatar" />  Juan Diego
+              </div>
+            </div>
+            <div class="available">
+              Available in
+              <div class="available-text" *ngFor="let country of tool.countries"><img src="../../../assets/img/flags/spain.png" alt="Spain" width="50" class="bandera-spain"> {{country.name}}</div>
+            </div>
+            <div class="contact">
+              Contact
+              <div class="contact-tool">
+                tool@gmail.com
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
         No videos yet
@@ -64,7 +90,41 @@
         No documents yet
       </div>
       <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-        No reviews yet
+        <div *ngFor="let comment of postComments">
+          <div class="card">
+            <div class="card-body">
+                <p>{{comment}}</p>
+                <p>Commented by: {{currentUser.name}}</p>
+                <button class="like-button">
+                  <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                </button>&nbsp;
+                <button class="dislike-button">
+                  <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                </button>
+                <button class="reply-button" data-toggle="collapse" data-target="#collapseReply" aria-expanded="false" aria-controls="collapseReply">
+                  Reply to
+                </button><br>
+                <!--<div *ngFor="let replycomment of postReplyComments">
+                  <p>{{replycomment}}</p>
+                  <p>Commented by: {{currentUser.name}}</p>
+                </div>-->
+                <div class="collapse" id="collapseReply">
+                  <textarea class="comments-box" cols="95" rows="5" [(ngModel)]="replyComments">
+
+                  </textarea>
+                  <br>
+                  <button class="btn btn-light me-3 boton">Comment</button>
+                </div>
+            </div>
+          </div>
+          <hr class="comment-separator">
+        </div>
+        <hr>
+        <textarea class="comments-box" cols="103" rows="5" [(ngModel)]="comments">
+
+        </textarea>
+        <br>
+        <button class="btn btn-light me-3 boton" (click)="postComment()">Comment</button>
       </div>
     </div>
   </div>

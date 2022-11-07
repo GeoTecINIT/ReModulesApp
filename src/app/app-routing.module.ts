@@ -7,6 +7,11 @@ import {CadastreInfoComponent} from './modules/cadastre-info/cadastre-info.compo
 import {RemoduleesComponent} from './modules/remodulees/remodulees.component';
 import {LandingComponent} from './modules/landing/landing.component';
 import {ToolsComponent} from './modules/tools/tools.component';
+import { RelabComponent } from './modules/relab/relab.component';
+import { UserAccountComponent } from './modules/user-account/user-account.component';
+import { BestPracticesComponent } from './modules/best-practices/best-practices.component';
+import { HomeBpComponent } from './modules/home-bp/home-bp.component';
+import { FormCeeComponent } from './modules/form-cee/form-cee.component';
 
 
 const routes: Routes = [
@@ -32,6 +37,22 @@ const routes: Routes = [
         path: 'tools',
         component: ToolsComponent
       },
+      {
+        path: 'relab',
+        component: RelabComponent
+      },
+      {
+        path: 'accountuser',
+        component: UserAccountComponent
+      },
+      {
+        path: 'bestpractices',
+        component: HomeBpComponent
+      },
+      {
+        path: 'formcee',
+        component: FormCeeComponent
+      }
     ]
   },
   {

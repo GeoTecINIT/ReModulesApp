@@ -1,0 +1,145 @@
+
+<div class="modal-header tool-actions row justify-content-end">
+    <div class="col-md-2">
+      <button type="button" class="btn btn-default row" (click)="bsModalRef.hide()">
+        <h5>
+          {{closeBtnName}} <i class="fa fa-times" aria-hidden="true"></i>
+        </h5>
+      </button>
+    </div>
+</div>
+<div class="modal-body content-info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <img class="logo-tool" src="https://www.hommaxsistemas.com:13443/web/image/website/1/favicon?unique=ff3737a" width="150" height="150" alt="Logo tool">
+        <!--<img class="img-thumbnail" alt="Facade image" [src]='building.properties[0].image' *ngIf=" building.properties.length > 0 && building.properties[0].image" width="170" height="170"/>-->
+      </div>
+      <div class="col-md-5">
+        <h4>
+          {{building.address}}
+        </h4>
+        <!--<a class="web-tool" href="#/oneclick" *ngIf="building.address === 'One click'">Visit web site</a>
+        <a class="web-tool" href="" target="_blank" *ngIf="building.address !== 'One click'">Visit web site</a>-->
+      </div>
+    </div>
+    <div class="content-description">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="description-tab" data-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="true">Characteristics</a>
+        </li>
+        <!--<li class="nav-item">
+          <a class="nav-link" id="video-tab" data-toggle="tab" href="#video" role="tab" aria-controls="video" aria-selected="false">Video</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="photo-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos" aria-selected="false">Photos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="documents-tab" data-toggle="tab" href="#documents" role="tab" aria-controls="documents" aria-selected="false">Documents</a>
+        </li>-->
+        <li class="nav-item">
+          <a class="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review</a>
+        </li>
+      </ul>
+    </div>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+        <div style="width: 65%; float: left;">
+          This building have the next characteristics: <br><br>
+          <div class="row">
+            <div class="col">
+              <b>Surface:</b> &nbsp;<img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">{{building.surface}}
+            </div>
+            <div class="col">
+              <b>Category name:</b> {{building.typology.categoryName}}
+            </div>
+          </div> 
+
+          <div class="row">
+            <div class="col">
+              <b>Primary use:</b> {{building.use}}
+            </div>
+            <div class="col">
+              <!--En esta parte ira lo que menciono Ana sobre que el edificio se ha guardado utilizando la herramienta X-->
+            </div>
+          </div> 
+        </div>
+        <div class="fondo-gris" style="width: 35%; float: right;">
+          <h6 class="title-information">
+            General information
+          </h6>
+          <div class="container">
+            <div class="owner-title">
+              Country
+              <div id="countryBuilding" class="owner-tool">
+              </div>
+            </div>
+            <div class="contact">
+              Region
+              <div class="contact-tool">
+                {{building.region}}
+              </div>
+            </div>
+            <div class="contact">
+              Climate zone
+              <div id="climateZone" class="contact-tool">
+              </div>
+            </div>
+            <div class="contact">
+              Year
+              <div class="contact-tool">
+                {{building.year}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
+        No videos yet
+      </div>
+      <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photo-tab">
+        No photos yet
+      </div>
+      <div class="tab-pane fade" id="documents" role="tabpanel" aria-labelledby="documents-tab">
+        No documents yet
+      </div>
+      <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+        <div *ngFor="let comment of postComments">
+          <div class="card">
+            <div class="card-body">
+                <p>{{comment}}</p>
+                <p>Commented by: {{currentUser.name}}</p>
+                <button class="like-button">
+                  <i class="fa fa-thumbs-up" aria-hidden="true"></i>
+                </button>&nbsp;
+                <button class="dislike-button">
+                  <i class="fa fa-thumbs-down" aria-hidden="true"></i>
+                </button>
+                <button class="reply-button" data-toggle="collapse" data-target="#collapseReply" aria-expanded="false" aria-controls="collapseReply">
+                  Reply to
+                </button><br>
+                <!--<div *ngFor="let replycomment of postReplyComments">
+                  <p>{{replycomment}}</p>
+                  <p>Commented by: {{currentUser.name}}</p>
+                </div>-->
+                <div class="collapse" id="collapseReply">
+                  <textarea class="comments-box" cols="95" rows="5" [(ngModel)]="replyComments">
+
+                  </textarea>
+                  <br>
+                  <button class="btn btn-light me-3 boton">Comment</button>
+                </div>
+            </div>
+          </div>
+          <hr class="comment-separator">
+        </div>
+        <hr>
+        <textarea class="comments-box" cols="103" rows="5" [(ngModel)]="comments">
+
+        </textarea>
+        <br>
+        <button class="btn btn-light me-3 boton" (click)="postComment()">Comment</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+<div *ngIf="!hasError">
+    <div>
+        <div *ngIf="ruralBuilding" style="text-align: center;" >
+          <h4>Rural property. Please try with another location</h4>
+        </div>
+      <div *ngIf="building && !ruralBuilding && selectBuilding" class="buildingInfo">
+        <!--div [hidden]="!building || ( building && !building.country) || ( building && !building.year)" fxLayoutAlign="end">
+          <button [disabled]="!mapControl" class="btn calculateTyp" (click)="showMap();"  routerLink='/home' routerLinkActive='active' >
+            <span><i class="fa fa-map-o" aria-hidden="true"></i> Show Map</span>
+          </button>
+          <a class="btn calculateTyp" role="button"  routerLink='/typology' routerLinkActive='active' (click)="calculateTypology();">
+            <span>Calculate energy efficiency</span>
+          </a>
+        </div-->
+        <div class="container">
+          <div class="card card-info">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col">
+                  <div class="location">
+                    Your current location
+                  </div>
+                  <div [hidden]="properties.length < 1">
+                    <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' *ngIf=" properties.length > 0 && properties[0].image" />
+                  </div>
+                </div>
+                <div class="col text-ident">
+                  <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
+                  <p> <i class="fa fa-map-marker" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="container cadastreInfo">
+              <div class="d-flex bd-highlight">
+                <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
+                  <span class="text-bold"><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; m<sup>2</sup> </span>
+                </div>
+                <div class="p-2 flex-fill bd-highlight" *ngIf="building.year">
+                  <span class="text-bold"><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
+                </div>
+              </div>
+              <div class="d-flex bd-highlight">
+                <div class="p-2 flex-fill bd-highlight" *ngIf="building.rc">
+                  <p> Cadastre Reference:</p>
+                  <p><strong> {{building.rc}}</strong></p>
+                </div>
+                <div class="p-2 flex-fill bd-highlight" *ngIf="building.use">
+                  <p>Primary use:</p>
+                  <p><strong> {{building.use}}</strong></p>
+                </div>
+              </div>
+              <div class="d-flex bd-highlight">
+                <div class="p-2 flex-fill bd-highlight" *ngIf="energyConsumed">
+                  <p>Energy primary consumed:</p>
+                  <p><strong> {{energyConsumed}} kWh/m<sup>2</sup> año</strong></p>
+                </div>
+                <div class="p-2 flex-fill bd-highlight" *ngIf="co2Emissions">
+                  <p>CO<sub>2</sub> emissions:</p>
+                  <p><strong> {{co2Emissions}} kgCO<sub>2</sub>/m<sup>2</sup> año</strong></p>
+                </div>
+              </div>
+              <div class="d-flex bd-highlight">
+                <div class="p-2 flex-fill bd-highlight" *ngIf="calificationEnergyPrimary">
+                  <p>Calification of Energy primary:</p>
+                  <div id="calificationEnergyPrimaryCEE"><strong class="textCalification">{{calificationEnergyPrimary}}</strong></div>
+                </div>
+                <div class="p-2 flex-fill bd-highlight" *ngIf="calificationCEE">
+                  <p>Calification of CO<sub>2</sub> emissions:</p>
+                  <div id="calificationCEE"><strong class="textCalification">{{calificationCEE}}</strong></div>
+                </div>
+              </div>
+              <!--<div class="col-md-6" [hidden]="!selectYear">
+                <label for="selectYear">Select year</label>
+                <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();" [bindValue]="selectedYear"></ng-select>
+              </div>-->
+            </div>
+            <div class="container calculating">
+                <h5 class="title-calc">CEE - Certificate of efficiency energy</h5>
+                <p class="paragraph-calc">This data is the information of the CEE of your location. Complete the next form by clicking on the next button</p>
+            </div>
+            <div class="d-flex flex-row bd-highlight">
+              <button class="calculateEnergy btn btn-large" role="button" (click)="goToFormCEE();" [disabled]="!selectBuilding">
+                <i class="fa fa-wpforms fa-4x" aria-hidden="true" style="width: 70px; height: 40px;"></i>&nbsp;&nbsp; <span  class="align-middle"><strong> GO TO THE FORM  &#62;</strong></span>
+              </button>
+            </div>
+            </div>
+          </div>
+  
+        <!--div [hidden]="properties.length < 1" class="seeMore">
+          <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">
+            <div class="arrowFromLeft">
+              <svg xmlns="http://www.w3.org/2000/svg" width="5.002" height="8.576" viewBox="0 0 5.002 8.576">
+                <path d="M1.06,8.428a.5.5,0,0,1-.71,0l-.2-.2A.49.49,0,0,1,0,7.868V.708A.49.49,0,0,1,.15.348l.2-.2a.5.5,0,0,1,.71,0l3.79,3.79a.48.48,0,0,1,0,.7Z"></path>
+              </svg><span>See Properties</span>
+            </div>
+          </div>
+        </div-->
+        <!--div class="collapse" id="propertiesInfo">
+          <div style="text-align: right">
+            <a class="btn filterButton" data-bs-toggle="collapse" href="#" data-toggle="collapse" data-target="#filters">
+          <span>
+            <i class="fa fa-filter" aria-hidden="true"></i>
+          </span>Filters</a>
+          </div>
+  
+          <div class="collapse card filtersBuilding" id="filters">
+            <div class="card-header"> <h4>Filters </h4> </div>
+            <div  fxLayout="column" fxLayoutGap="20px" fxLayoutAlign="space-between center" class="card-body">
+              <div fxLayout="row" fxLayoutAlign="space-evenly center" >
+                <label for="bl">Block</label>
+                <input id="bl" type="text" class="form-control"  [(ngModel)]="modelFilters.filtBl" (keyup)="filterBuilding()" >
+  
+                <label for="es">Stairs</label>
+                <input id ="es" type="text" class="form-control"  [(ngModel)]="modelFilters.filtEs" (keyup)="filterBuilding()" >
+              </div>
+  
+              <div fxLayout="row" fxLayoutAlign="space-evenly center" >
+                <label for="pt">Plant</label>
+                <input id ="pt" type="text" class="form-control" [(ngModel)]="modelFilters.filtPt" (keyup)="filterBuilding()" >
+  
+                <label for="pu">Door</label>
+                <input id ="pu" type="text" class="form-control" [(ngModel)]="modelFilters.filtPu" (keyup)="filterBuilding()" >
+              </div>
+              <button (click)="clearFilters();">Clear filters</button>
+            </div>
+          </div>
+          <ul class="listBuild">
+            <li  *ngFor="let mk of propertiesFilter">
+              <h5> {{mk.locInt}} </h5>
+              <p style="padding-left: 0">Cadastre reference: {{mk.rc}}</p>
+              <div style="text-align: right">
+                <button (click)="this.searchFromHistory = false; getDetailFromRC(mk.rc);" > More information > </button>
+              </div>
+            </li>
+          </ul>
+        </div-->
+    </div>
+    </div>
+  </div>
+  <ngx-spinner [fullScreen]="false" type="ball-spin-clockwise" [color]="spinnerColor" size="medium">
+  </ngx-spinner>
+  <div *ngIf="hasError">
+    <div class="container">
+      <h6> {{error}}</h6>
+    </div>
+  </div>
+  

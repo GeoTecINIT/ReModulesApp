@@ -1,0 +1,152 @@
+<div>
+  <h3>CEE Form</h3>
+    <form #tooldata="ngForm" (ngSubmit)="saveBuildingCEE(tooldata.value)">
+        <!--<div class="form-group">
+          <label for="ceeid">ID</label>
+          <input type="number" class="form-control" id="ceeid" name="ceeid" aria-describedby="emailHelp" disabled="true" ngModel>
+        </div>-->
+
+        <div class="form-group">
+          <label for="ceeaddress">Address</label>
+          <input type="text" class="form-control" id="ceeaddress" name="ceeaddress" aria-describedby="emailHelp" [(ngModel)]="dataBuildingAddress">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeaddressmap">Map address</label>
+          <input type="text" class="form-control" id="ceeaddressmap" name="ceeaddressmap" aria-describedby="emailHelp" [(ngModel)]="dataBuildingAddress" placeholder="Map address">
+        </div>
+
+        <div class="form-group">
+          <label for="ceecr">Catastral reference</label>
+          <input type="text" class="form-control" id="ceecr" name="ceecr" aria-describedby="emailHelp" [(ngModel)]="dataCadastreReference" placeholder="Catastral reference">
+        </div>
+        
+        <div class="form-group">
+          <label for="ceetypology">Typology</label>
+          <input type="text" class="form-control" id="ceetypology" name="ceetypology" [(ngModel)]="dataTypology" placeholder="Typology">
+        </div>
+
+        <div class="form-group">
+          <label for="ceecase">Case</label>
+          <input type="text" class="form-control" id="ceecase" name="ceecase" [(ngModel)]="caseCertificate" placeholder="Case">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeyearconstruction">Year construction</label>
+          <input type="text" class="form-control" id="ceeyearconstruction" name="ceeyearconstruction" [(ngModel)]="dataBuildingYear" placeholder="Year construction">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeimage">Image</label>
+          <!--<input type="text" class="form-control" id="ceeimage" name="ceeimage" ngModel placeholder="Image">-->
+          <div>
+            <img class="img-thumbnail" id="ceeimage" width="150" height="auto" alt="Facade image" [src]='trustedUrl' />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ceeyearcertificate">Year certificate 1</label>
+          <input type="text" class="form-control" id="ceeyearcertificate" name="ceeyearcertificate" [(ngModel)]="dataNumberCertificate" placeholder="Year certificate 1">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeco21">Letter CO<sub>2</sub> 1</label>
+          <input type="text" class="form-control" id="ceeco21" name="ceeco21" [(ngModel)]="dataCalificationCEE" placeholder="Letter CO2">
+        </div>
+
+        <div class="form-group">
+          <label for="ceevalueemissions1">Value Emissions CO<sub>2</sub> 1</label>
+          <input type="text" class="form-control" id="ceevalueemissions1" name="ceevalueemissions1" [(ngModel)]="dataCo2Emissions" placeholder="Emissions CO2 1">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeepnr1">Letter Energy primary 1</label>
+          <input type="text" class="form-control" id="ceeepnr1" name="ceeepnr1" [(ngModel)]="dataCalificationEnergyPrimary" placeholder="Letter Energy primary 1">
+        </div>
+
+        <div class="form-group">
+          <label for="ceevalueepnr1">Value Energy primary 1</label>
+          <input type="text" class="form-control" id="ceevalueepnr1" name="ceevalueepnr1" [(ngModel)]="dataEnergyConsumed" placeholder="Value Energy primary 1">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeyearcertificate2">Year certificate 2</label>
+          <input type="text" class="form-control" id="ceeyearcertificate2" name="ceeyearcertificate2" [(ngModel)]="dataNumberCertificate2" placeholder="Year certificate 2">
+        </div>
+
+        <div class="form-group">
+            <label for="ceeco22">Letter CO<sub>2</sub> 2</label>
+            <input type="text" class="form-control" id="ceeco22" name="ceeco22" [(ngModel)]="dataCalificationCO2EmissionsCertificate2" placeholder="Letter CO2 2">
+          </div>
+  
+        <div class="form-group">
+          <label for="ceevalueco22">Value CO<sub>2</sub> 2</label>
+          <input type="text" class="form-control" id="ceevalueco22" name="ceevalueco22" [(ngModel)]="dataCo2EmissionsCertificate2" placeholder="Value CO2 2">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeepnr2">Letter Energy primary 2</label>
+          <input type="text" class="form-control" id="ceeepnr2" name="ceeepnr2" [(ngModel)]="dataCalificationEnergyPrimaryCertificate2" placeholder="Letter Energy primary 2">
+        </div>
+
+        <div class="form-group">
+         <label for="ceevalueepnr2">Value Energy primary 2</label>
+         <input type="text" class="form-control" id="ceevalueepnr2" name="ceevalueepnr2" [(ngModel)]="dataEnergyConsumedCertificate2" placeholder="Value Energy primary 2">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeco2saving">Saving CO<sub>2</sub> absolute</label>
+          <input type="text" class="form-control" id="ceeco2saving" name="ceeco2saving" [(ngModel)]="dataCO2Absolute" placeholder="Saving CO2 absolute">
+        </div>
+  
+        <div class="form-group">
+          <label for="ceeco2saving%">Saving CO<sub>2</sub> %</label>
+          <input type="text" class="form-control" id="ceeco2savingperc" name="ceeco2savingperc" [(ngModel)]="dataCO2Absolute/dataCo2Emissions" placeholder="Saving CO2 %">
+        </div>
+
+        <div class="form-group">
+          <label for="ceeepnrsaving">Saving Energy primary absolute</label>
+          <input type="text" class="form-control" id="ceeepnrsaving" name="ceeepnrsaving" [(ngModel)]="dataEnergyAbsolute" placeholder="Saving Energy primary absolute">
+        </div>
+    
+        <div class="form-group">
+          <label for="ceeepnrsaving%">Saving Energy primary %</label>
+          <input type="text" class="form-control" id="ceeepnrsavingperc" name="ceeepnrsavingperc" [(ngModel)]="dataEnergyAbsolute/dataEnergyConsumed" placeholder="Saving Energy primary %">
+        </div>
+
+        <div class="form-group" [hidden]="true">
+          <label for="ceeepnrsaving%">Lat</label>
+          <input type="text" class="form-control" id="ceecoordinatelong" name="ceecoordinatelong" [(ngModel)]="coordinateLong" placeholder="Saving Energy primary %">
+        </div>
+
+        <div class="form-group" [hidden]="true">
+          <label for="ceeepnrsaving%">Long</label>
+          <input type="text" class="form-control" id="ceecoordinatelat" name="ceecoordinatelat" [(ngModel)]="coordinateLat" placeholder="Saving Energy primary %">
+        </div>
+
+        <div class="form-group" [hidden]="true">
+          <label for="ceeepnrsaving%">X</label>
+          <input type="text" class="form-control" id="ceecoordinatex" name="ceecoordinatex" [(ngModel)]="coordinateX" placeholder="Saving Energy primary %">
+        </div>
+
+        <div class="form-group" [hidden]="true">
+          <label for="ceeepnrsaving%">Y</label>
+          <input type="text" class="form-control" id="ceecoordinatey" name="ceecoordinatey" [(ngModel)]="coordinateY" placeholder="Saving Energy primary %">
+        </div>
+
+        <div>
+          <div class="d-flex justify-content-around typologyInfo">
+            <button class="btn calculateTyp" (click)="goBack();">
+              <h4>
+                <span> <i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp; Back</span>
+              </h4>
+            </button>
+            <button role="button" class="btn calculateTyp">
+              <h4>
+                <span> Save &nbsp; <i class="fa fa-bookmark" aria-hidden="true"></i></span>
+              </h4>
+            </button>
+          </div>
+        </div>
+      </form>
+</div>

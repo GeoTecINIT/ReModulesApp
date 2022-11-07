@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {Tools} from '../../shared/models/tools';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {ToolsService} from '../../core/tools/tools.service';
 import {Router} from '@angular/router';
 import {ToolsModalComponent} from '../../components/tools-modal/tools-modal.component';
+import { Observable } from 'rxjs';
+import {User} from '../../shared/models/user';
+import {UserService} from '../../core/authentication/user.service';
 
 @Component({
   selector: 'app-tools',
@@ -20,17 +23,56 @@ export class ToolsComponent implements OnInit {
   solutionSelectd: string;
   stepSelectd: string;
   stopSelectd: string;
+  stopSelectd2: string;
   filterApplied: string[];
   tmpTools: Tools[] = [];
   countryOneClick: string;
   countriesOneClick: [{id, name}];
   modalRef: BsModalRef;
-  constructor(private toolsService: ToolsService, private router: Router, private modalService: BsModalService) { }
+  toolname: string;
+  toolurl: string;
+  toolcountry: string[];
+  toolmessage: string;
+  login_access = false;
+  toolimage = "";
+  toolwurl = false;
+  toolid: number;
+  isFavoriteTool: boolean;
+  updateTool: boolean;
+  searchText: any;
+  searchTextOnboarding = "assisted evaluation";
+  searchTextEvaluation = "evaluation";
+  searchTextDesign = "chc register";
+  searchTextValidation = "validation";
 
-  ngOnInit(): void {
+  nameTool = "DRIVE-0 autoevaluation";
+  urlImage = "<img src='./assets/img/tools/cropped-circular.png' height='150' width='auto' class='card-img-top'>";
+  @Input() tool: Tools;
+  constructor(private toolsService: ToolsService, private router: Router, private modalService: BsModalService, private userService: UserService) { }
+
+  ngOnInit() {
     this.filterApplied = [];
     this.getTools();
     this.getCountries();
+  }
+
+  ngOnChanges(){
+    try {
+        this.userService.isFavorite2(localStorage.getItem('auth-token'), this.tool.name).subscribe( data => {
+          if ( data && data['id'] ) {
+            this.isFavoriteTool = true;
+            this.toolChanged( data, this.tool);
+          }
+        });
+      } catch ( e ){
+
+      }
+  }
+
+  toolChanged(toolFromHistory: any, toolNew: Tools): void {
+    if ( toolFromHistory.name !== toolNew.name) {
+      this.updateTool = true;
+    }
   }
 
   getCountries() {
@@ -93,6 +135,7 @@ export class ToolsComponent implements OnInit {
         }
       });
       const info = new Tools(
+        tool.id,
         tool.name,
         tool.login_access,
         tool.url,
@@ -107,11 +150,14 @@ export class ToolsComponent implements OnInit {
         steps,
         stops
       );
+      
       this.tools.push(info);
     });
   }
+
   applyFilter(): void {
     let toolsTmp = [];
+    let toolsTmp2 = [];
     this.tools.forEach( tool => {
       toolsTmp.push(tool);
     });
@@ -130,6 +176,7 @@ export class ToolsComponent implements OnInit {
         });
         toolsTmp = this.removeElementsFromArray(toolsTmp, filterByCountry);
       }
+      
       if (filter === 'profiles') {
         const filterByProfiles  = [];
         this.tools.forEach( tool => {
@@ -144,6 +191,7 @@ export class ToolsComponent implements OnInit {
         });
         toolsTmp = this.removeElementsFromArray(toolsTmp, filterByProfiles);
       }
+
       if (filter === 'solutions') {
         const filterBySolutions  = [];
         this.tools.forEach( tool => {
@@ -204,6 +252,7 @@ export class ToolsComponent implements OnInit {
     });
     this.tmpTools = toolsTmp;
   }
+
   filter(type: string): void {
     if ( ( type === 'countries' && this.countrySelectd !== null ) ||
       ( type === 'profiles' && this.profileSelectd !== null ) ||
@@ -221,6 +270,7 @@ export class ToolsComponent implements OnInit {
     }
     this.applyFilter();
   }
+
   removeElementsFromArray(arrayInit, element) {
     const indexToRemove = [];
     arrayInit.forEach( filtered => {
@@ -234,12 +284,14 @@ export class ToolsComponent implements OnInit {
     }
     return arrayInit;
   }
+
   cleanFilter(type: string) {
     const indexFilterApplied = this.filterApplied.indexOf(type);
     if (indexFilterApplied > -1) {
       this.filterApplied.splice(indexFilterApplied, 1);
     }
   }
+
   goToOneClick(): void {
     this.router.navigate(['/oneclick'], {state: {country: this.countryOneClick}});
   }
@@ -252,4 +304,27 @@ export class ToolsComponent implements OnInit {
         initialState: { tool}});
     this.modalRef.content.closeBtnName = 'Close';
   }
+
+  saveTool(tool: Tools): void{
+    this.userService.addPropertyToolToHistory(tool, localStorage.getItem('auth-token')).subscribe( () => {
+      this.isFavoriteTool = true;
+    });
+    console.log(tool);
+  }
+
+  createTool(data){
+    console.log("The new tool is " + data.toolname + " " + data.toolurl + " " + data.toolcountry + " " + data.toolmessage)
+    const newTool = new Tools(data.toolid, data.toolname, false, data.toolurl, data.toolmessage, data.toolmessage, "", true, data.toolcountry, [], [], [], [], []);
+    console.log(newTool);
+    this.toolsService.create(newTool)
+      .subscribe(response => {
+        console.log(response);
+      },
+      error => {
+        console.log(error);
+      });
+  }
+
+  countries = ['Bulgaria', 'Spain', 'France', 'Greece', 'Italy', 'Netherlands', 'Slovenia'];
+
 }

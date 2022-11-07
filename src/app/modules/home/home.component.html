@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-1 options-panel">
       <!-- Login and User section -->
-      <!--div [ngClass]="optionSelected === 1 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
+      <!--<div [ngClass]="optionSelected === 1 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
         <a *ngIf="!isUserLogged" href="#" style="color: #3c4b64;" (click)=" optionSelected === 1 ? optionSelected = 0 : optionSelected = 1; stepSelected='';">
           <i class="fa fa-user-o fa-2x"></i>
         </a>
@@ -11,25 +11,54 @@
               <h2 *ngIf="currentUser.name">{{currentUser.name.substring(0, 1)}}</h2>
             </a>
         </div>
-      </div-->
+      </div>-->
+      <div class="title-oneclick">
+        <h3>
+          One click
+        </h3>
+      </div>
       <!-- Home Section -->
-      <div [ngClass]="optionSelected === 0 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
-        <a href="#/oneclick" (click)="optionSelected = 0; stepSelected='';" >
-          <i class="fa fa-home fa-2x" aria-hidden="true"></i>
+      <div [ngClass]="optionSelected === 0 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center icon">
+        <a href="#/oneclick" class="link-decoration" (click)="optionSelected = 0; stepSelected='';" >
+          <i class="fa fa-home fa-2x icon-slot" aria-hidden="true"></i>
+          <div class="a-option">
+            Home
+          </div>
         </a>
       </div>
+
       <!-- General Dashboard -->
-      <div [ngClass]="optionSelected === 3 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center">
-        <a href="#/oneclick" (click)="optionSelected === 3 ? optionSelected = 0 : optionSelected = 3; stepSelected='';" >
-          <i class="fa fa-sliders fa-2x" aria-hidden="true"></i>
+      <div [ngClass]="optionSelected === 3 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center icon">
+        <a href="#/oneclick" class="link-decoration" (click)="optionSelected === 3 ? optionSelected = 0 : optionSelected = 3; stepSelected='';" >
+          <i class="fa fa-sliders fa-2x icon-slot" aria-hidden="true"></i>
+          <div  class="a-option">
+            Dashboard
+          </div>
         </a>
       </div>
       <!-- User history-->
-      <div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center">
-        <a href="#/oneclick" (click)="optionSelected === 4 ? optionSelected = 0 : optionSelected = 4; stepSelected='';" >
-          <i class="fa fa-bookmark-o fa-2x" aria-hidden="true"></i>
+      <div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center icon">
+        <a href="#/oneclick" class="link-decoration" (click)="optionSelected === 4 ? optionSelected = 0 : optionSelected = 4; stepSelected='';" >
+          <i class="fa fa-bookmark-o fa-2x icon-slot" aria-hidden="true"></i>
+          <div  class="a-option">
+            Saved
+          </div>
         </a>
       </div>
+
+      <!-- General Dashboard -->
+      <div [ngClass]="optionSelected === 6 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged == false" class="d-flex align-items-center justify-content-center icon">
+        <a href="#/oneclick" class="link-decoration" (click)="optionSelected === 6 ? optionSelected = 0 : optionSelected = 6; stepSelected='';" >
+          <i class="fa fa-sliders fa-2x icon-slot" aria-hidden="true"></i>
+        </a>
+      </div>
+      <!-- User history-->
+      <div [ngClass]="optionSelected === 7 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged == false" class="d-flex align-items-center justify-content-center icon">
+        <a href="#/oneclick" class="link-decoration" (click)="optionSelected === 7 ? optionSelected = 0 : optionSelected = 7; stepSelected='';" >
+          <i class="fa fa-bookmark-o fa-2x icon-slot" aria-hidden="true"></i>
+        </a>
+      </div>
+
     </div>
     <!-- Login Section -->
     <!--div class="col-md-3 information" *ngIf="optionSelected === 1" >
@@ -72,8 +101,40 @@
       <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
       <app-user-account [currentUser]="currentUser" (logoutEmitter)="receiveLogOut($event);" ></app-user-account>
     </div>
-    <div [ngClass]="stepSelected === 'result' ? '' : ((optionSelected === 2 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( (optionSelected >= 3 && optionSelected <= 5) ? 'col-md-7' : 'col-md-11')))">
-      <app-map (buildingEmitter)="receiveBuilding($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
+
+    <!-- User logout -->
+    <div *ngIf="optionSelected===6" class="col-md-4 information">
+      <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+      <div class="text-login">
+        <h2>Please login to see this information.</h2>
+      </div><br>
+      <div class="text-login">
+        You can login by clicking on this button
+        <button class="col-md-6 login" (click)="openModal() ">
+            <h4>
+              Login
+            </h4>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="optionSelected===7" class="col-md-4 information">
+      <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+      <div class="text-login">
+        <h2>Please login to see this information.</h2>
+      </div><br>
+      <div class="text-login">
+        You can login by clicking on this button
+        <button class="col-md-6 login" (click)="openModal() ">
+          <h4>
+            Login
+          </h4>
+        </button>
+      </div>
+    </div>
+
+    <div [ngClass]="stepSelected === 'result' ? '' : ((optionSelected === 2 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( (optionSelected >= 3 && optionSelected <= 7) ? 'col-md-7' : 'col-md-11')))">
+      <app-map (buildingEmitter)="receiveBuilding($event)" (coordinatesEmitter)="receiveCoordinates($event)" (addressEmitter)="receiveValue($event)" [history]="history"
                [building]="building" [active]="active" [optionSelected]="optionSelected" [countryMap]="countryMap"></app-map>
     </div>
   </div>

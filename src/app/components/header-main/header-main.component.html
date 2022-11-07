@@ -10,7 +10,7 @@
         </h4>
       </div>
     </a>
-    <a class="col-md-1 menu-option">
+    <a class="col-md-1 menu-option" routerLink="/relab">
       <div>
         <h4>
           Re-LAB
@@ -42,17 +42,26 @@
 
     </div>
     <div class="col-md-4 user-menu row">
-      <div class="col-md-6 row">
-        <div class="col-md-6 country">
-
-        </div>
-        <div class="col-md-6 country">
-
-        </div>
+      <div class="col-md-6 row form-language">
+          <div class="col-md-6">Select Language &nbsp;</div> 
+          <form class="me-3">
+            <select class="form-control form-control-sm">
+              <option *ngFor="let country of countries" [value]="country.value"><img src="{{country.src}}" alt="{{country.label}}" width="50"/> {{country.value}}</option>
+            </select>
+          </form>
+          
+          <!--<div ngbDropdown>
+            <button type="button" class="btn btn-outline-primary boton-language" id="dropdownBasic1" ngbDropdownToggle>Select language</button>
+            <div class="" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+              <div *ngFor="let country of countries">
+                <button ngbDropdownItem class="boton-opcion"><img src="{{country.src}}" width="50">{{country.value}}</button>
+              </div>
+            </div>
+          </div>-->
       </div>
       <div class="col-md-7 row login-buttons" *ngIf="!isUserLogged">
         <div class="col-md-6 join">
-          <button class="rounded-button" >
+          <button type="button" class="rounded-button" (click)="openModalRegister()" >
             <h5><strong>Join now</strong></h5>
           </button>
         </div>
@@ -62,11 +71,48 @@
           </h4>
         </button>
       </div>
-      <div class="col-md-7 login" *ngIf="isUserLogged">
-        <h5>
-          {{currentUser.name}}
-        </h5>
+      
+      <div class="col-md-6 login" *ngIf="isUserLogged">
+        <div class="row usuario">
+          <div class="col">
+            <div ngbDropdown>
+              <button type="button" class="btn btn-outline-primary boton-user" id="dropdownBasic1" ngbDropdownToggle><img src="https://media.istockphoto.com/vectors/user-icon-flat-isolated-on-white-background-user-symbol-vector-vector-id1300845620?k=20&m=1300845620&s=612x612&w=0&h=f4XTZDAv7NPuZbG0habSpU0sNgECM0X7nbKzTUta3n8=" width="25" alt="UserPhoto" class="rounded-circle"> {{currentUser.name}}</button>
+              <div class="card-opciones" ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                <div class="card opciones">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <img src="https://media.istockphoto.com/vectors/user-icon-flat-isolated-on-white-background-user-symbol-vector-vector-id1300845620?k=20&m=1300845620&s=612x612&w=0&h=f4XTZDAv7NPuZbG0habSpU0sNgECM0X7nbKzTUta3n8=" width="50" alt="UserPhoto" class="rounded-circle">
+                    </div>
+                    <div class="col">
+                      <h3>{{currentUser.name}}</h3>
+                    </div>
+                  </div>
+                  <button ngbDropdownItem (click)="goToAccount()">My account</button>
+                  <button ngbDropdownItem>Settings</button>
+                  <button ngbDropdownItem>Documents</button>
+                  <button ngbDropdownItem>Messages</button>
+                  <button ngbDropdownItem (click)="logOut()">Logout</button>
+                  <hr>
+                  <div>
+                    You are a {{currentUser.role}} user
+                  </div>
+                  <div>
+                    <input type="range" class="form-range" min="0" max="12" id="customRange1">
+                  </div><br>
+                  <div>
+                    How is your progress in Remodulees
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  <script>
+    $(document).ready(function() {
+   $('.selectpicker').selectpicker();
+});
+  </script>
 </main>

@@ -1,76 +1,562 @@
 <div class="tools-main">
   <div class="info-section">
-    <div class="container row">
-      <div class="col-md-6 content-text-generator">
-        <h1>
+    <section class="container">
+      <div style="width: 50%; float: left;" class="col-md-6 content-text-generator text-justify">
+        <h1 class="tools-title">
           CJ Generator
         </h1>
-        <p>
+        <p style="color: #265F85;">
           Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
         </p>
       </div>
-      <div class="col-md-6">
-
+      </section>
+      <section>
+      <div style="width: 50%; float: right; background-color: #DADEE2 !important; overflow: auto;" class="col-md-6">
+        <img src="./assets/img/tools/camera-icon.jpeg" height="485" width="auto">
       </div>
-    </div>
-
+    </section>
   </div>
-  <hr>
-  <div class="tools-section">
-    <h2 class="tools-title">
-      Tools
-    </h2>
-    <div class="row justify-content-end" *ngIf="filters">
-      <div class="col-1 filters" >
-        <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelectd"
-                   (change)="filter('countries');" placeholder="Country">
-          <ng-option *ngFor="let country of filters.countries" [value]="country.id">{{country.name}}</ng-option>
-        </ng-select>
-      </div>
-      <div class="col-1 filters">
-        <ng-select id="filterProfiles" class="filter" [(ngModel)]="profileSelectd"
-                   (change)="filter('profiles');" placeholder="Profile">
-          <ng-option *ngFor="let profile of filters.profiles" [value]="profile.id">{{profile.profile}}</ng-option>
-        </ng-select>
-      </div>
-      <div class="col-1 filters">
-        <ng-select id="filterSolutions" class="filter" [(ngModel)]="solutionSelectd"
-                   (change)="filter('solutions');" placeholder="Solution">
-          <ng-option *ngFor="let solution of filters.solutions" [value]="solution.id">{{solution.solution}}</ng-option>
-        </ng-select>
-      </div>
-      <div class="col-2 filters">
-        <ng-select id="filterSteps" class="filter" [(ngModel)]="stepSelectd"
-                   (change)="filter('steps');" placeholder="Step">
-          <ng-option *ngFor="let step of filters.steps" [value]="step.id">{{step.step}}</ng-option>
-        </ng-select>
-      </div>
-      <div class="col-1 filters">
-        <ng-select id="filterStops" class="filter" [(ngModel)]="stopSelectd"
-                   (change)="filter('stops');" placeholder="Stop" >
-          <ng-option *ngFor="let stop of filters.stops" [value]="stop.id">{{stop.stop}}</ng-option>
-        </ng-select>
-      </div>
-      <div class="col-2 filters">
-        <ng-select id="filterTipologies" class="filter" [(ngModel)]="typologySelectd"
-                   (change)="filter('typologies');" placeholder="Typology" >
-          <ng-option *ngFor="let typology of filters.typologies" [value]="typology.id">{{typology.typology}}</ng-option>
-        </ng-select>
-      </div>
-    </div>
-    <div class="tools row">
-      <div class="card card-tool col-md-3 justify-content-center" *ngFor="let tool of tmpTools">
-        <img src="./assets/img/tools/camera-icon.jpeg" height="150" width="auto" class="card-img-top">
-        <div class="card-body">
-          <div>
-            <p>
-              {{tool.steps[0].step}}
-            </p>
+  
+  <div class="container">
+    <hr>
+  </div>
+  
+  <nav ngbNav #nav="ngbNav" class="nav-tabs">
+    <ng-container ngbNavItem class="me-2">
+      <h5>
+        <a href="#tools" ngbNavLink>Tools</a>
+      </h5>
+      <ng-template ngbNavContent>
+          <div class="tools-section">
+            <div class="container button-filter-tools">
+              <div class="input-group col-md-3 search-box">
+                <input class="form-control" type="search" [(ngModel)]="searchText" placeholder="Search tool..." id="example-search-input">
+                <!--<span class="input-group-append">
+                    <button class="btn btn-primary button-search" type="button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>-->&nbsp; &nbsp;
+                <button class="btn btn-primary boton-filtros" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                  <i class="fa fa-filter" aria-hidden="true"></i>&nbsp;Filters
+                </button>
+              </div>
+            </div>
+            <div class="collapse container" id="collapseExample">
+            <div class="row justify-content-end filters-block" *ngIf="filters">
+              <div class="col-1 filters" >
+                <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelectd"
+                           (change)="filter('countries');" placeholder="Country">
+                  <ng-option *ngFor="let country of filters.countries" [value]="country.id">{{country.name}}</ng-option>
+                </ng-select>
+              </div>
+              <div class="col-1 filters">
+                <ng-select id="filterProfiles" class="filter" [(ngModel)]="profileSelectd"
+                           (change)="filter('profiles');" placeholder="Profile">
+                  <ng-option *ngFor="let profile of filters.profiles" [value]="profile.id">{{profile.profile}}</ng-option>
+                </ng-select>
+              </div>
+              <div class="col-1 filters">
+                <ng-select id="filterSolutions" class="filter" [(ngModel)]="solutionSelectd"
+                           (change)="filter('solutions');" placeholder="Solution">
+                  <ng-option *ngFor="let solution of filters.solutions" [value]="solution.id">{{solution.solution}}</ng-option>
+                </ng-select>
+              </div>
+              <div class="col-1 filters">
+                <ng-select id="filterStops" class="filter" [(ngModel)]="stopSelectd"
+                           (change)="filter('stops');" placeholder="Stop" >
+                  <ng-option *ngFor="let stop of filters.stops" [value]="stop.id">{{stop.stop}}</ng-option>
+                </ng-select>
+              </div>
+              <div class="col-2 filters">
+                <ng-select id="filterSteps" class="filter" [(ngModel)]="stepSelectd"
+                           (change)="filter('steps');" placeholder="Step">
+                  <ng-option *ngFor="let step of filters.steps" [value]="step.id">{{step.step}}</ng-option>
+                </ng-select>
+              </div>
+              <div class="col-2 filters">
+                <ng-select id="filterTipologies" class="filter" [(ngModel)]="typologySelectd"
+                           (change)="filter('typologies');" placeholder="Typology" >
+                  <ng-option *ngFor="let typology of filters.typologies" [value]="typology.id">{{typology.typology}}</ng-option>
+                </ng-select>
+              </div>
+            </div>
+            </div>
+            <div class="tools row">
+              <div class="card card-tool col-md-2 justify-content-center" *ngFor="let tool of tmpTools | filter:searchText">
+                <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                  <div class="cosa">
+                    <button type="button"  class="btn btn-default row boton-guardar" (click)="saveTool(tool)">
+                        Save
+                        <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                    </button>
+                  </div>
+                </div>
+                <div *ngIf="tool.image !== ''" id="herramienta">
+                  <img src="{{tool.image}}" height="200" width="auto" class="card-img-top">
+                </div>
+                <div *ngIf="tool.image === ''" id="herramienta">
+                  <img src="./assets/img/tools/camera-icon.jpeg" height="200" width="auto" class="card-img-top">
+                </div>
+                <div class="card-body">
+                  <div>
+                    <p>
+                      {{tool.stops[0].stop}}
+                    </p>
+                  </div>
+                  <a href="#/tools" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+                  <p>{{tool.shortDescription}}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <a href="#tools" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
-          <p>{{tool.shortDescription}}</p>
+      </ng-template>
+    </ng-container>
+    <ng-container ngbNavItem class="me-2">
+      <h5>
+        <a href="#best-kits" ngbNavLink>Best kits</a>
+      </h5>
+      <ng-template ngbNavContent>
+        <div class="kits-section">
+          <div class="container">
+            <div class="row best-kits-title">
+              <div class="col title-kits">
+                Follow this step by step guide for
+              </div>
+              <div class="col first-step me-3">
+                <div class="arrow_box">
+                  <div class="text-box">
+                    1. Onboarding <i class="fa fa-handshake-o fa-lg" id="shake-hands-icon2" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col second-step me-3">
+                <div class="arrow_box2">
+                  <div class="text-box">
+                    2. Evaluation <i class="fa fa-file-text fa-lg" id="evaluation-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="third-step me-3">
+                <div class="arrow_box3">
+                  <div class="text-box">
+                    3. Elaboration <i class="fa fa-pencil-square fa-lg" id="pencil-design-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <!--<div class="fourth-step me-3">
+                <div class="arrow_box3">
+                  <div class="text-box">
+                    4. Realization <i class="fa fa-pencil-square fa-lg" id="pencil-design-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>-->
+              <!--<div class="fifth-step me-3">
+                <div class="arrow_box4">
+                  <div class="text-box">
+                    5. Validation <i class="fa fa-check-circle-o fa-lg" id="check-validation-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>-->
+            </div>
+            <div class="row">
+              <div class="col">
+                <h2 class="tools-title">
+                  <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                  <strong>Solar self-consumption in your single-family home</strong>
+                </h2>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                </p>
+              </div>
+              <div class="col first-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextOnboarding" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:'onboarding'">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-onboarding">Onboarding</div>
+                        <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col second-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextEvaluation" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:'evaluation'">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-evaluation">Evaluation</div>
+                        <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="third-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextDesign" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:'realization'">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-design">Elaboration</div>
+                        <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <!--<div class="fourth-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextDesign" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextDesign">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="badge badge-primary badge-design">Realization</div>
+                    <a href="https://registrochc.five.es/constructoras-rehabilitacion/" target="_blank"><h4>{{tool.name}}</h4></a>
+                  </div>
+                </div>
+              </div>
+              <div class="col fifth-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextOnboarding" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextOnboarding">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-onboarding">Validation</div>
+                        <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            -->
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
+        <div class="kits-section2">
+          <div class="container">
+            <div class="row best-kits-title">
+              <div class="col title-kits">
+                Follow this step by step guide for
+              </div>
+              <div class="col first-step me-3">
+                <div class="arrow_box">
+                  <div class="text-box">
+                    1. Onboarding <i class="fa fa-handshake-o fa-lg" id="shake-hands-icon2" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col second-step me-3">
+                <div class="arrow_box2">
+                  <div class="text-box">
+                    2. Evaluation <i class="fa fa-file-text fa-lg" id="evaluation-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="third-step me-3">
+                <div class="arrow_box3">
+                  <div class="text-box">
+                    3. Elaboration <i class="fa fa-pencil-square fa-lg" id="pencil-design-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>
+              <!--<div class="fourth-step me-3">
+                <div class="arrow_box3">
+                  <div class="text-box">
+                    4. Realization <i class="fa fa-pencil-square fa-lg" id="pencil-design-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>-->
+              <!--<div class="fifth-step me-3">
+                <div class="arrow_box4">
+                  <div class="text-box">
+                    5. Validation <i class="fa fa-check-circle-o fa-lg" id="check-validation-icon" aria-hidden="true"></i>
+                  </div>
+                </div>
+              </div>-->
+            </div>
+            <div class="row">
+              <div class="col">
+                <h2 class="tools-title">
+                  <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+                  <strong>Help with the energy renovation of your building</strong>
+                </h2>
+                <p>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
+                </p>
+              </div>
+              <div class="col first-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextOnboarding" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextOnboarding">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="auto" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-onboarding">Onboarding</div>
+                        <a href="https://renoveu.com/" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                    <div class="tool-comment">
+                      Did you know?
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col second-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextDesign" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextOnboarding">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="50" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-evaluation">Evaluation</div>
+                        <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                    <div class="tool-comment">
+                      Explore your options...
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="third-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextValidation" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextDesign">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-design">Elaboration</div>
+                        <a href="https://registrochc.five.es/especialistas-gestion-rehabilitacion/" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                    <div class="tool-comment">
+                      And find someone to help you.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--<div class="fourth-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextDesign" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextDesign">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-design">Realization</div>
+                        <a href="https://registrochc.five.es/constructoras-rehabilitacion/" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                    <div class="tool-comment">
+                      Specialized construction companies
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col fifth-step me-3">
+                <input class="form-control" type="search" hidden [(ngModel)]="searchTextOnboarding" placeholder="Search tool..." id="example-search-input">
+                <div class="card card-tool justify-content-center card-onboarding" *ngFor="let tool of tmpTools | filter:searchTextOnboarding">
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <div class="badge badge-primary badge-onboarding">Validation</div>
+                        <a href="{{tool.url}}" target="_blank"><h4>{{tool.name}}</h4></a>
+                      </div>
+                    </div>
+                    <div class="tool-comment">
+                      Will you tell us how it went?
+                    </div>
+                  </div>
+                </div>
+              </div>
+            -->
+            </div>
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+    <ng-container ngbNavItem class="me-2">
+      <h5>
+        <a href="#propose-tool" ngbNavLink>Propose tool</a>
+      </h5>
+      <ng-template ngbNavContent>
+          <div class="form-section">
+            <div class="container">
+              <div class="bloque-blanco-rounded">
+                <div class="form-izquierda col-md-5">
+                  <h2>Complete the form to propose a new tool</h2><br>
+                  <p>
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                  </p>
+                </div>
+                <div class="form-derecha">
+                  <form #tooldata="ngForm" (ngSubmit)="createTool(tooldata.value)">
+                    <div class="form-group">
+                      <label for="toolname">Tool name</label>
+                      <input type="text" class="form-control" id="toolname" name="toolname" aria-describedby="emailHelp" ngModel placeholder="Add tool name">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="toolurl">URL</label>
+                      <input type="url" class="form-control" id="toolurl" name="toolurl" ngModel placeholder="URL of the tool">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="toolcountry">Countries where the tool works</label>
+                      <ng-select
+                        [items]="countries"
+                        [multiple]="true"
+                        [closeOnSelect]="false"
+                        [searchable]="true"
+                        bindLabel="name"
+                        placeholder="Select country"
+                        [ngModel]
+                        id="toolcountry"
+                        name="toolcountry">
+                      </ng-select>
+                    </div>
+                    <div class="form-group">
+                      <label for="toolmessage">Message</label>
+                      <textarea class="form-control" id="toolmessage" name="toolmessage" rows="3" placeholder="Add a description and funcionalities of the tool..." ngModel></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary apply">Apply</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+      </ng-template>
+    </ng-container>
+  </nav>
+  
+  <div [ngbNavOutlet]="nav" class="mt-2"></div>
 </div>

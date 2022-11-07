@@ -1,11 +1,381 @@
-<div>
-  <div class="row">
-    <strong> <h5> <i class="fa fa-user-o"></i>  &nbsp; {{currentUser.name}}</h5></strong>
-  </div>
-  <div>
-
-  </div>
-  <div style="text-align: center;">
-    <button type="button" class="btn btn-primary" (click)="logout()">Logout</button>
-  </div>
+<div class="user-section">
+  <section class="container">
+    <div style="width: 50%; float: left;">
+      <div class="content-text-country">
+        <h1 class="profile-title">
+          Hi, {{currentUser.name}}
+        </h1>
+        <p class="parrafo">
+          This is your personal space
+        </p>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-primary boton-logout" (click)="logout()">Log out</button>
+          </div>
+          <div class="col">
+            <button class="btn btn-primary boton-edit">Edit profile</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="container">
+    <div style="width: 50%; float: right;">
+        <div class="card card-user justify-content-center" >
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3">
+                <img src="https://media.istockphoto.com/vectors/user-icon-flat-isolated-on-white-background-user-symbol-vector-vector-id1300845620?k=20&m=1300845620&s=612x612&w=0&h=f4XTZDAv7NPuZbG0habSpU0sNgECM0X7nbKzTUta3n8=" width="100" alt="UserPhoto" class="rounded-circle">
+              </div>
+              <div class="col">
+                <h4>Hi, {{currentUser.name}}</h4>
+                <p>Joined in 2022</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3"></div>
+              <div class="col-md-4">
+                <i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{currentUser.role}} user
+              </div>
+              <div class="col">
+                <i class="fa fa-map-marker" aria-hidden="true"></i>&nbsp;Lives in Valencia, Spain
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-3"></div>
+              <div class="col-md-4">
+                <i class="fa fa-envelope" aria-hidden="true"></i>&nbsp;{{currentUser.email}}
+              </div>
+              <div class="col">
+                <i class="fa fa-briefcase" aria-hidden="true"></i>&nbsp;Work in <!--{{currentUser.organizations}}--> Remodulees
+              </div>
+            </div>
+            <!--<p>Joined in {{currentUser.uid}}</p>-->
+          </div>
+        </div>
+    </div>
+  </section>
 </div>
+
+<nav ngbNav #nav="ngbNav" class="nav-tabs">
+  <ng-container ngbNavItem class="me-2">
+    <h5>
+      <a href="#accountuser" ngbNavLink>My account</a>
+    </h5>
+    <ng-template ngbNavContent>
+      <div class="fondo-gris">
+        <div class="container text-center">
+          <div class="row">
+            <div class="col">
+              <h3 class="profile-title2">
+                You are a {{currentUser.role}} user
+              </h3>
+            </div>
+            <div class="col">
+              <div class="range-section">
+                <form #toolsrange = "ngForm">
+                  <input type="range" class="form-range" min="0" max="12" name="tools" id="customRange1" ngModel>
+                </form>
+                <div><label for="customRange1" class="form-label label-info">You have visited {{toolsrange.value | json}} tools so far</label></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tools-stop-section">
+        <div class="container text-center2">
+          <div class="row">
+            <div class="col">
+              <h6 class="profile-title2">
+                Tap in any of the categories and see the tools that you have already visited
+              </h6>
+            </div>
+            <div class="col">
+
+            </div>
+          </div>
+          <div class="" *ngIf="filters">
+            <ng-select id="filterStops" class="filter" [(ngModel)]="stopSelectd"
+                        (change)="filter2('stops');" placeholder="Stop" >
+              <ng-option *ngFor="let stop of filters.stops" [value]="stop.id">{{stop.stop}}</ng-option>
+            </ng-select>
+              <!--<button id="filterStops" class="col boton-stop" *ngFor="let stop of filters.stops" [value]="stop.id" (change)="filter2('stops')">
+                <div class="card">
+                  <div class="card-body">
+                    {{stop.stop}}
+                  </div>
+                </div>
+              </button>-->
+          </div>
+          <div class="tools row">
+            <div class="card card-tool col-md-2 justify-content-center" *ngFor="let tool of tmpTools">
+              <div class="card-body">
+                <div class="row">
+                  <div *ngIf="tool.image !== ''" class="col">
+                    <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                  </div>
+                  <div *ngIf="tool.image === ''" class="col">
+                    <img src="./assets/img/tools/camera-icon.jpeg" height="50" width="150" class="card-img-top">
+                  </div>
+                  <div class="col">
+                    <p style="width: 75px; color: #004470;">
+                      {{tool.stops[0].stop}}
+                    </p>
+                  </div>
+                </div>
+                <a href="#/accountuser" id="link-tool-name" (click)="openModal(tool)"><h4>{{tool.name}}</h4></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ng-container>
+  <ng-container ngbNavItem class="me-2">
+    <h5>
+      <a href="#my-projects" ngbNavLink>My projects</a>
+    </h5>
+    <ng-template ngbNavContent>
+      <div class="container">No projects yet</div>
+    </ng-template>
+  </ng-container>
+  <ng-container ngbNavItem class="me-2">
+    <h5>
+      <a href="#saves-properties" ngbNavLink>Saved properties</a>
+    </h5>
+    <ng-template ngbNavContent>
+      <div class="container">
+        <div class="card list-properties">
+          <div class="card-header header-principal" id="propertiesSaved">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#properties" aria-expanded="false" aria-controls="properties">
+                <h3><i class="fa fa-home" aria-hidden="true"></i> &nbsp; Saved Properties</h3>
+              </button>
+            </h2>
+          </div>
+      
+          <div id="properties" class="collapse show" aria-labelledby="propertiesSaved">
+            <div class="card-body">
+              <div class="alert alert-success" role="alert" *ngIf="deletedBuilding">
+                Building deleted
+              </div>
+              <div>
+                <!--<input class="form-control" type="search" [(ngModel)]="searchText" placeholder="Search property..." id="example-search-input">&nbsp;&nbsp;-->
+                <button class="btn btn-primary button-filters" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                  Filters
+                </button>
+                <div class="collapse" id="collapseExample">
+                  <div class="card card-body form filter-section">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <label for="filterYearMin">Min Year: </label>
+                        <ng-select id="filterYearMin" class="filter" [(ngModel)]="yearSelectedMin"
+                                   (change)="filter('yearMin');">
+                          <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                        </ng-select>
+                      </div>
+                      <div class="col-md-6">
+                        <label for="filterYearMax">Max Year: </label>
+                        <ng-select id="filterYearMax" class="filter" [(ngModel)]="yearSelectedMax"
+                                   (change)="filter('yearMax');">
+                          <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                        </ng-select>
+                      </div>
+                    </div>
+                    <label for="filterCountry"> Country: </label>
+                    <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelected"
+                               (change)="filter('country');">
+                      <ng-option *ngFor="let country of filterCountries" [value]="country">{{country}}</ng-option>
+                    </ng-select>
+      
+                    <label for="buildingType"> Building Type: </label>
+                    <ng-select id="buildingType" class="filter" [(ngModel)]="typologySelected"
+                               (change)="filter('typology');">
+                      <ng-option *ngFor="let typo of filterTypologies" [value]="typo.code">{{typo.name}}</ng-option>
+                    </ng-select>
+      
+                  </div>
+                </div>
+              </div>
+
+              <div class="tools row">
+                <div class="card card-tool col-md-2 justify-content-center" *ngFor="let building of tmpUserHistory">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col">
+                        <div [hidden]="building.properties.length < 1">
+                          <img class="img-thumbnail" alt="Facade image" [src]='building.properties[0].image' *ngIf=" building.properties.length > 0 && building.properties[0].image" width="170" height="170"/>
+                        </div>
+                        <img src="./assets/img/tools/camera-icon.jpeg" height="50" width="150" class="card-img-top">
+                      </div>
+                      <div class="col">
+                        <button class="btn btn-light" (click)="removeBuildingFromUserHistory(building)">
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                    </div><br>
+                    <div class="row">
+                      <div class="col">
+                        <div style="width: 75px; color: #004470;">{{building.country}}</div>
+                      </div>
+                      <div class="col">
+                        <div style="width: 75px; color: #004470;">{{building.year}}</div>
+                      </div>
+                    </div><br>
+                    <a href="#/accountuser" id="link-tool-name" (click)="openBuildingModal(building)"><h4>{{building.address}}</h4></a>
+                  </div>
+                </div>
+              </div>
+
+              <!--<table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">Address</th>
+                    <th scope="col">Country</th>
+                    <th scope="col">Year</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let building of tmpUserHistory" >
+                  <th scope="row"><i class="fa fa-bookmark" aria-hidden="true"></i> &nbsp; <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}}</button> </th>
+                  <th scope="row"><i class="fa fa-flag" aria-hidden="true"></i> &nbsp; {{ building.country}} </th>
+                  <th scope="row"><i class="fa fa-calendar" aria-hidden="true"></i> &nbsp; {{ building.year}} </th>
+                  <td>
+                    <div class="row">
+                      <button class="btn btn-light" (click)="updateBuilding(building);">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                      </button>
+                      <button class="btn btn-light" (click)="removeBuildingFromUserHistory(building)">
+                        <i class="fa fa-trash" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                </tbody>
+              </table>-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+  </ng-container>
+  <ng-container ngbNavItem class="me-2">
+    <h5>
+      <a href="#saved-tools" ngbNavLink>Saved tools</a>
+    </h5>
+    <ng-template ngbNavContent>
+        <div class="container">
+          <div class="card">
+            <div class="card-header  header-principal" id="propertiesSaved">
+              <h2 class="mb-0">
+                <button class="btn btn-link btn-block align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#properties" aria-expanded="false" aria-controls="properties">
+                  <h3><i class="fa fa-wrench" aria-hidden="true"></i> &nbsp; Saved Tools</h3>
+                </button>
+              </h2>
+            </div>
+        
+            <div id="properties" class="collapse show" aria-labelledby="propertiesSaved">
+              <div class="card-body" style="background-color: #EFF2F6;">
+                <div class="alert alert-success" role="alert" *ngIf="deletedTool">
+                  Tool deleted
+                </div>
+                <!--<div>
+                  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    Filters
+                  </button>
+                  <div class="collapse " id="collapseExample">
+                    <div class="card card-body form">
+        
+                      <div class="row">
+                        <div class="col-md-6">
+                          <label for="filterYearMin">Min Year: </label>
+                          <ng-select id="filterYearMin" class="filter" [(ngModel)]="yearSelectedMin"
+                                     (change)="filter('yearMin');">
+                            <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                          </ng-select>
+                        </div>
+                        <div class="col-md-6">
+                          <label for="filterYearMax">Max Year: </label>
+                          <ng-select id="filterYearMax" class="filter" [(ngModel)]="yearSelectedMax"
+                                     (change)="filter('yearMax');">
+                            <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                          </ng-select>
+                        </div>
+                      </div>
+                      <label for="filterCountry"> Country: </label>
+                      <ng-select id="filterCountry" class="filter" [(ngModel)]="countrySelected"
+                                 (change)="filter('country');">
+                        <ng-option *ngFor="let country of filterCountries" [value]="country">{{country}}</ng-option>
+                      </ng-select>
+        
+                      <label for="buildingType"> Building Type: </label>
+                      <ng-select id="buildingType" class="filter" [(ngModel)]="typologySelected"
+                                 (change)="filter('typology');">
+                        <ng-option *ngFor="let typo of filterTypologies" [value]="typo.code">{{typo.name}}</ng-option>
+                      </ng-select>
+        
+                    </div>
+                  </div>
+                </div>-->
+                <div class="tools row">
+                  <div class="card card-tool col-md-2 justify-content-center" *ngFor="let tool of tmpUserTools">
+                    <div class="card-body">
+                      <div class="row">
+                        <div id="climateZone" class="contact-tool">
+                        </div>
+                        <div *ngIf="tool.image !== ''" class="col" id="data-image">
+                          <img src="{{tool.image}}" height="auto" width="150" class="card-img-top">
+                        </div>
+                        <div *ngIf="tool.image === ''" class="col" id="data-image">
+                          <img src="./assets/img/tools/camera-icon.jpeg" height="50" width="150" class="card-img-top">
+                        </div>
+                        <div class="col">
+                          <button class="btn btn-light" (click)="removeToolFromUserHistory(tool)">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <a href="#/accountuser" id="link-tool-name" (click)="openModal(tool)"><h4>{{tool.name}}</h4></a>
+                    </div>
+                  </div>
+                </div>
+              <!--
+                <table class="table tools-saved-section">
+                  <thead>
+                    <tr>
+                      <th scope="col">Tools</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let tool of tmpUserTools">
+                    <th scope="row"><i class="fa fa-bookmark" aria-hidden="true"></i> &nbsp; <button class="button-link" (click)="openModal(tool)">{{tool.name}}</button> </th>
+                    <td>
+                      <div class="row">
+                        <button class="btn btn-light" (click)="removeToolFromUserHistory(tool)">
+                          <i class="fa fa-trash" aria-hidden="true"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              -->
+              </div>
+            </div>
+          </div>
+        </div>
+    </ng-template>
+  </ng-container>
+  <ng-container ngbNavItem class="me-2">
+    <h5>
+      <a href="#reviews" ngbNavLink>Reviews</a>
+    </h5>
+    <ng-template ngbNavContent>
+        <div class="container">No reviews yet</div>
+    </ng-template>
+  </ng-container>
+</nav>
+
+<div [ngbNavOutlet]="nav" class="mt-2"></div>

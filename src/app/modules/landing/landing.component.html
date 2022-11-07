@@ -1,54 +1,275 @@
 <div class="landing">
-
-  <div class="country-section">
-    <!--div style="height: 100vh;">
-      <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-              src=" https://www.circularhomes.eu/es/herramienta-circularidad-vivienda/"></iframe>
-    </div-->
-
-    <div class="container row">
-      <div class="content-text-country col-md-10">
-        <h1>
-          Title
-        </h1>
-        <p>
-          Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-        </p>
-      </div>
-      <div class=" col-md-2">
+  <!--div style="height: 100vh;">
+        <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                src=" https://www.circularhomes.eu/es/herramienta-circularidad-vivienda/"></iframe>
+      </div-->
+    <div class="country-section">
+      <section class="container">
+          <div style="width: 50%; float: left; padding-right: 10px;">
+            <div class="content-text-country">
+              <h1 class="landing-title">
+                One click diagnosis
+              </h1>
+              <p>
+                To reach the 2050 decarbonisation targets, most European buildings require renovation. Yet, many supply- and demand-side barriers prevent building renovation from reaching the necessary scale in the residential sector. One click diagnosis makes deep renovations easier, faster and more attractive for stakeholders by providing a quick but reliable automated diagnosis on the building actual performance and the renovation options available to be engaged in the renovation process. From this starting point, users will be given access to other key results of relevant European projects to facilitate decision making on deep renovation.
+              </p>
+            </div>
+          </div>
+      </section>
+        <section>
+          <div style="width: 50%; float: right; background-color: #DADEE2 !important;">
+            <img src="https://www.five.es/wp-content/uploads/reMODULEES_logo_composicion.png" height="450" width="auto">
+          </div>
+        </section>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col form-address">
+          <h2 class="row tools-title3">
+            &nbsp;&nbsp;<span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
+            <strong class="title-form col-md-6" i18n>Improve your home's energy efficiency now</strong>
+          </h2><br>
+          <form class="form-address2" #addressForm="ngForm" (ngSubmit)="onClickSubmit(addressForm.value)">
+            <div>
+              <div class="title-input">
+                <label for="address">
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address*
+                </label>
+              </div>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="input-address" ngModel name="address" #address="ngModel" id="address" placeholder="Add your address" required type="text">
+              <button class="button boton-go" type="submit">Go</button>
+            </div>
+          </form>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class="boton-oneclick" (click)="goToOneClick2()">Go to One Click &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="col"></div>
       </div>
     </div>
-  </div>
-  <div class="tools-section">
-    <h2 class="tools-title">
-      <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
-      <strong>Most popular tools</strong>
-    </h2>
-    <p>
+  
+    <div class="tools-section">
+      <div class="container">
+      <h2 class="tools-title">
+        <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>&nbsp;
+        <strong>Most popular tools</strong>
+      </h2>
       Explore the tools that are most visited in your country
-    </p>
-    <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-      <div class="carousel-inner">
-        <div class=" carousel-item" *ngFor="let tool of tmpTools; let i = index" [ngClass]="i === 0 ? 'active' : ''">
-          <div class="card card-tool justify-content-center" >
-            <img src="./assets/img/tools/camera-icon.jpeg" height="150" width="auto" class="card-img-top">
-            <div class="card-body">
-              <a href="#" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
-              <p>{{tool.shortDescription}}</p>
+  
+      <button type="button" class="btn btn-light me-3 boton" (click)="goToTools()">
+        See all tools
+      </button>
+      <br/>
+      <br />
+      <div class="separador">
+        <h2 class="tools-title2">
+          <strong>Recently added</strong>
+        </h2>
+      </div>
+
+      <ngb-carousel [interval]="100000000000" [showNavigationIndicators]="false">
+        <ng-template ngbSlide>
+          <div class="carousel-inner">
+          <div class="carousel-item col-md-3" *ngFor="let tool of tmpTools; let i = index" [ngClass]="{'active': i == 0 }">
+            <div class="card card-tool justify-content-center" >
+              <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+              <div class="cosa">
+                <button type="button" class="btn btn-default row boton-guardar" (click)="saveTool(tool)">
+                    Save
+                    <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="tool.image != ''" id="tools-image">
+              <img src="{{tool.image}}" height="200" width="auto" class="card-img-top">
+            </div>
+            <div *ngIf="tool.image == ''" id="tools-image">
+              <img src="./assets/img/tools/camera-icon.jpeg" height="200" width="auto" class="card-img-top">
+            </div>
+              <div class="card-body">
+                <p style="width: 75px; color: #004470;">{{tool.stops[0].stop}}</p>
+                <a href="#/home" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+                <p>{{tool.shortDescription}}</p>
+              </div>
             </div>
           </div>
         </div>
-
+        </ng-template>
+        <ng-template ngbSlide>
+            <div class="carousel-inner">
+              <div class=" carousel-item col-md-3" *ngFor="let tool of tmpTools; let i = index;" [ngClass]="{'active': i == 4 }">
+                <div class="card card-tool justify-content-center" >
+                  <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                    <div class="cosa">
+                      <button type="button"  class="btn btn-default row boton-guardar">
+                        <div>
+                          Save
+                          <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                  <div *ngIf="tool.image != ''" id="tools-image">
+                    <img src="{{tool.image}}" height="200" width="auto" class="card-img-top">
+                  </div>
+                  <div *ngIf="tool.image == ''" id="tools-image">
+                    <img src="./assets/img/tools/camera-icon.jpeg" height="200" width="auto" class="card-img-top">
+                  </div>
+                  <div class="card-body">
+                    <p style="width: 75px; color: #004470;">{{tool.stops[0].stop}}</p>
+                    <a href="#/home" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+                    <p>{{tool.shortDescription}}</p>
+                  </div>
+                </div>
+              </div>
+              </div>
+        </ng-template>
+      </ngb-carousel>
+      
+      <div class="prueba">
+        <h2 class="tools-title2">
+          <strong>Most visited</strong>
+        </h2>
       </div>
-      <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
+      <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+          <div class=" carousel-item col-md-3" *ngFor="let tool of tmpTools; let i = index" [ngClass]="{'active': i == 0 }">
+            <div class="card card-tool justify-content-center" >
+              <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                <div class="cosa">
+                  <button type="button"  class="btn btn-default row boton-guardar">
+                    <div>
+                      Save
+                      <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="tool.image != ''" id="tools-image">
+                <img src="{{tool.image}}" height="200" width="auto" class="card-img-top">
+              </div>
+              <div *ngIf="tool.image == ''" id="tools-image">
+                <img src="./assets/img/tools/camera-icon.jpeg" height="200" width="auto" class="card-img-top">
+              </div>
+              <div class="card-body">
+                <p style="width: 75px; color: #004470;">{{tool.stops[0].stop}}</p>
+                <a href="#/home" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+                <p>{{tool.shortDescription}}</p>
+              </div>
+            </div>
+          </div>
+  
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+  
+      <h2 class="tools-title2">
+        <strong>Popular in Spain</strong>
+      </h2>
+      <div id="carouselExampleControls3" class="carousel slide segundo" data-ride="carousel">
+        <div class="carousel-inner">
+          <div class=" carousel-item col-md-3" *ngFor="let tool of tmpTools; let i = index" [ngClass]="{'active': i == 0 }">
+            <div class="card card-tool justify-content-center" >
+              <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                <div class="cosa">
+                  <button type="button"  class="btn btn-default row boton-guardar">
+                    <div>
+                      Save
+                      <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="tool.image != ''" id="tools-image">
+                <img src="{{tool.image}}" height="200" width="auto" class="card-img-top">
+              </div>
+              <div *ngIf="tool.image == ''" id="tools-image">
+                <img src="./assets/img/tools/camera-icon.jpeg" height="200" width="auto" class="card-img-top">
+              </div>
+              <div class="card-body">
+                <p style="width: 75px; color: #004470;">{{tool.stops[0].stop}}</p>
+                <a href="#/home" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+                <p>{{tool.shortDescription}}</p>
+              </div>
+            </div>
+          </div>
+  
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleControls3" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls3" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+  
+      <h2 class="tools-title2">
+        <strong>Popular in Europe</strong>
+      </h2>
+      <div id="carouselExampleControls4" class="carousel slide segundo" data-ride="carousel">
+        <div class="carousel-inner">
+          <div class=" carousel-item col-md-3" *ngFor="let tool of tmpTools; let i = index" [ngClass]="{'active': i == 0 }">
+            <div class="card card-tool justify-content-center" >
+              <div class="card-header"><ngb-rating class="estrellas" [max]="5" [readonly]="false"></ngb-rating>
+                <div class="cosa">
+                  <button type="button" class="btn btn-default row boton-guardar">
+                    <div>
+                      Save
+                      <span><i class="fa fa-bookmark" aria-hidden="true"></i></span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <div *ngIf="tool.image !== ''" id="tools-image">
+                <img src="{{tool.image}}" height="200" width="auto" class="card-img-top">
+              </div>
+              <div *ngIf="tool.image === ''" id="tools-image">
+                <img src="./assets/img/tools/camera-icon.jpeg" height="200" width="auto" class="card-img-top">
+              </div>
+              <div class="card-body">
+                <p style="width: 75px; color: #004470;">{{tool.stops[0].stop}}</p>
+                <a href="#/home" (click)="openModal(tool);"><h4>{{tool.name}}</h4></a>
+                <p>{{tool.shortDescription}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleControls4" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls4" role="button" data-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
     </div>
-
   </div>
-</div>
+  <div class="section-best-practices">
+    <section class="container">
+        <div style="width: 50%; float: left; padding-right: 10px;">
+          <h2 class="title-best-practices">
+            <span style="color: #ac1e12"><i class="fa fa-caret-right" aria-hidden="true"></i></span>&nbsp;
+            <strong>Best practices</strong>
+          </h2>
+          <div class="button-section-bp">
+            <button type="button" class="btn btn-light me-3 boton-bp" (click)="goToBestPractices()">
+              See map
+            </button>
+          </div>
+        </div>
+    </section>
+      <section>
+        <div style="width: 50%; float: right; background-color: #DADEE2 !important;">
+          <img src="./assets/img/tools/camera-icon.jpeg" height="450" width="auto">
+        </div>
+      </section>
+  </div>
+  

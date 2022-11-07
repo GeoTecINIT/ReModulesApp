@@ -2,10 +2,10 @@
   overflow: auto;
 }
 .country-section{
-  padding-top: 20px;
   background-color: #acbdd5;
   height: 60vh;
   color: #00213d;
+  justify-content: center;
 }
 .tools-section{
   background-color: white;
@@ -15,9 +15,22 @@
 .tools-title{
   color: #004470;
 }
+.tools-title2{
+  color: #004470;
+  margin-left: -250px;
+  margin-bottom: -350px;
+  margin-top: 300px;
+}
 .tools-title-white{
   color: white;
 }
+
+.landing-title{
+  color: #004470;
+  margin-bottom: 10%;
+  margin-top: 10%;
+}
+
 .card-tool {
   margin: 20px;
   background-color: #acbdd5;
@@ -30,7 +43,7 @@
   padding-left: 8px;
 }
 .content-text-country {
-  padding-left: 150px;
+  text-align: justify;
 }
 .country-selection{
   margin-left: 150px;
@@ -48,6 +61,51 @@
   padding: 10px;
   margin-top: 20px;
 }
+
+.boton{
+  float: right;
+  background-color: #004470;
+  color: white;
+  border: none;
+  width: 120px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.content2{
+  background-color: #DADEE2 !important;
+}
+
+.cosa{
+  float: right;
+  color: white;
+}
+
+.estrellas{
+  color: #004470 !important;
+  font-size: 20px;
+}
+
+.card-header{
+  background-color: #ACBDD5 !important;
+  border: none !important;
+}
+
+.boton-guardar{
+  color: white;
+  border: none !important;
+}
+
+a{
+  text-decoration: none;
+  color: #004470 !important;
+}
+
+.separador{
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
 @media (min-width: 768px) {
   .carousel-inner {
     display: flex;
@@ -57,4 +115,86 @@
     flex: 0 0 33.333333%;
     display: block;
   }
+}
+
+.form-address{
+  margin-top: -250px;
+  padding-top: -500px;
+  margin-right: -200px;
+  background-color: #19446d !important;
+  overflow: auto;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.tools-title3{
+  color: white;
+  margin-top: 10px;
+}
+
+.title-input{
+  color: white;
+  font-weight: bold;
+}
+
+.boton-go{
+  color: white;
+  background-color: #133b61 !important;
+  border: none;
+  border-radius: 10px;
+  width: 50px;
+  height: 50px;
+}
+
+.input-address{
+  border: none;
+  border-radius: 10px;
+  height: 50px;
+  width: auto;
+  margin-right: 10px;
+  width: 500px;
+}
+
+.form-address2{
+  margin-bottom: 10px;
+}
+
+.boton-oneclick{
+  color: white;
+  border: none;
+  background-color: #19446d;
+}
+
+.carousel-control-prev-icon{
+  margin-left: -150px !important;
+  filter: invert(100%);
+}
+
+.carousel-control-next-icon{
+  margin-right: -150px !important;
+  filter: invert(100%);
+}
+
+.title-best-practices{
+  color: white;
+}
+
+.section-best-practices{
+  background-color: #47698a;
+  height: 60vh;
+  color: #00213d;
+  justify-content: center;
+}
+
+.boton-bp{
+  background-color: #004470;
+  color: white;
+  border: none;
+  width: 120px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.last-carousel{
+  background-color: #f2f4f7;
 }

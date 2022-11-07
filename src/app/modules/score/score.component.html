@@ -1,4 +1,4 @@
-<div>
+<div class="score-section" id="contenido">
   <div class="alert alert-success" role="alert" *ngIf="updated">
     Building updated
   </div>
@@ -6,14 +6,18 @@
     <div class=" row" *ngIf="isUserLogged" >
       <div class="col-md-1">
         <button (click)="goBack()" class="p-2 rounded-button" [hidden]="isFavoriteBuilding">
-          <span> <i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp; Back</span>
+          <span class="button-back"> <i class="fa fa-arrow-left" aria-hidden="true"></i> &nbsp; Back</span>
         </button>
       </div>
-      <div class="col-md-9">
+      <div class="col-md-8">
 
       </div>
-      <div class="col-md-2 row" style="text-align: right;">
-
+      <div class="col-md-3 row" style="text-align: right;">
+        <div *ngIf="isFavoriteBuilding && !updateBuilding">
+          <button (click)="SavePDF()" class="p-2 rounded-button">
+            <i class="fa fa-download" aria-hidden="true"></i> Print
+          </button>&nbsp;
+        </div>
         <div *ngIf="isFavoriteBuilding && !updateBuilding">
           <button (click)="goBackToupdateBuildingInformation()" class="p-2 rounded-button">
             <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Update
@@ -52,29 +56,31 @@
     </div-->
   <div class="d-flex bd-highlight">
     <div class="p-2 flex-fill bd-highlight" [hidden]="building.properties.length < 1">
-        <img class="img-thumbnail" alt="Facade image" [src]='building.properties[0].image' *ngIf=" building.properties.length > 0 && building.properties[0].image" width="130" height="auto"/>
+      <div [hidden]="building.properties.length < 1">
+        <img class="img-thumbnail" alt="Facade image" [src]='building.properties[0].image' *ngIf=" building.properties.length > 0 && building.properties[0].image" width="170" height="170"/>
+      </div>
     </div>
-    <div  class="p-2 flex-fill bd-highlight " >
+    <div  class="p-2 flex-fill bd-highlight title-information" >
       <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
-      <p> <i class="fa fa-map-marker" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
+      <p> <i class="fa fa-map-marker title-information" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
       </p>
-      <div class="d-flex bd-highlight">
+      <div class="d-flex bd-highlight title-information">
         <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
-          <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; &#13217; </span>
+          <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important; color: #2c6488;">&nbsp;{{building.surface}}&nbsp; m<sup>2</sup> </span>
         </div>
-        <div class="p-2 flex-fill bd-highlight">
-          <p>Climate Region: <strong>{{building.climateZone}}</strong></p>
-          <span><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
+        <div class="p-2 flex-fill bd-highlight title-information">
+          <span><i class="fa fa-clock-o title-information" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
         </div>
         </div>
-    </div>
-    <div  class="p-2 flex-fill bd-highlight " >
+      </div>
+    <div  class="p-2 flex-fill bd-highlight title-information" >
+      <p>Climate Region: <strong>{{building.climateZone}}</strong></p>
       <p [hidden]="!building.rc">Cadastral reference: <strong>{{building.rc}}</strong></p>
       <p [hidden]="!building.use">Primary use: <strong>{{building.use}}</strong></p>
     </div>
 
-    <div  class="p-2 flex-fill bd-highlight" >
-      <span> <i class="fa fa-battery-empty" aria-hidden="true"></i> ACTUAL FINAL ENERGY CONSUMED VS REFURBISHMENT</span>
+    <div  class="p-2 flex-fill bd-highlight title-information" >
+      <span> Actual energy cost / Refurbishment</span>
       <div class="row">
         <div class="col-md-7" *ngIf="chartOptionsSummary" style="margin-right: 20px;">
           <highcharts-chart
@@ -82,14 +88,15 @@
             [options]="chartOptionsSummary" ></highcharts-chart>
         </div>
         <div class="col-md-4">
+          <span><i class="fa fa-battery-empty" aria-hidden="true"></i> Totals</span>
           <div style="margin-top: 20px; color: white">
-            <div class="rounded-section"  style="background-color: #f5a9a9">
+            <div class="rounded-section"  style="background-color: #fd9c6a">
               <h5>{{finalEnergyData.total | number: '1.2-2'}} Total Today</h5>
             </div>
-            <div class="rounded-section" style="background-color: #ffbd04">
+            <div class="rounded-section" style="background-color: #fac57b">
               <h5>{{finalEnergyDataStd.total | number: '1.2-2'}} {{textTotalStd}}</h5>
             </div>
-            <div class="rounded-section" style="background-color: #bce39e">
+            <div class="rounded-section" style="background-color: #aee279">
               <h5>{{finalEnergyDataAdv.total | number: '1.2-2'}} {{textTotalAdv}}</h5>
             </div>
           </div>
@@ -99,88 +106,594 @@
   </div>
   <!-- Refurbishment section-->
   <div>
-    <div class="row" style="margin: 0;">
-      <div class="col-md-4 ">
-        <div class="titleSectionToday" style="margin-right: 10px;">
-          <h2>
-            Today
-          </h2>
-        </div>
-      </div>
-      <div class="col-md-4 ">
-        <div class="titleSectionStandard" style="margin-right: 10px;">
-          <h2>Standard</h2>
-        </div>
-      </div>
-      <div class="col-md-4 ">
-        <div class="titleSectionAdvanced">
-          <h2>
-            Advanced
-          </h2>
-        </div>
-      </div>
-    </div>
     <div class="accordion" id="today">
-      <div class="card ">
-        <div class="card-header header-principal" id="buildingData">
+      <div class="card">
+        <div class="card-header header-principal" id="energyEfficiency">
           <h2 class="mb-0">
-            <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#components" aria-expanded="false" aria-controls="components">
-              <h3>Building Data</h3>
+            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed button-title" type="button" data-toggle="collapse" data-target="#energySection" aria-expanded="true" aria-controls="energySection">
+              <h3>Energy Efficiency</h3>&nbsp;
             </button>
           </h2>
         </div>
 
-        <div id="components" class="collapse" aria-labelledby="buildingData">
-          <div class="card-body">
-            <div class="accordion" id="enveloped">
-              <div class="card" >
-                <div class="card-header" id="floorHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block collapsed text-left" type="button" data-toggle="collapse" data-target="#floorData" aria-expanded="false" aria-controls="floorData">
-                      Floor
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="floorData" class="collapse" aria-labelledby="floorHeader">
-                  <div class="card-body row"  style="margin-left: 0;">
+        <div id="energySection" class="collapse show" [ngClass]="" aria-labelledby="energyEfficiency" >
+          <nav ngbNav #nav="ngbNav" class="nav-tabs">
+          <ng-container ngbNavItem class="me-2">
+            <h5>
+              <a href="#accountuser" ngbNavLink>Demand per year</a>
+            </h5>
+            <ng-template ngbNavContent>
+                  <div class="row" style="margin: 0;">
                     <div class="col-md-4 ">
-                      <div *ngIf="envelopedToday.floor">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.floor.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedToday.floor.typeConstruction}}
-                        </p>
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body row">
+                    <div class="card-body row">
+                      <div class="col-md-4 row">
+                        <div class="col-md-7" *ngIf="chartOptionsDemandActual">
+                          <highcharts-chart
+                            [Highcharts]="DemandChartActual"
+                            [options]="chartOptionsDemandActual" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #f5a9a9">
+                              <h5>{{demandData.total | number: '1.2-2'}} Total Demand</h5>
+                            </div>
+                            <div class="rounded-section"  style="background-color: #7cb5ec">
+                              <h5>{{demandData.other | number: '1.2-2'}}% Other system demand</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: black">
+                              <h5>{{demandData.heating | number: '1.2-2'}}% Heating demand</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: #90ed7d">
+                              <h5>{{demandData.recovered | number: '1.2-2'}}% Recovered Heating</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div class="col-md-7"  *ngIf="chartOptionsDemandStd">
+                          <highcharts-chart
+                            [Highcharts]="DemandChartStd"
+                            [options]="chartOptionsDemandStd" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #ffbd04">
+                              <h5>{{demandDataStd.total | number: '1.2-2'}} {{textTotalDemandStd}}</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: #7cb5ec">
+                              <h5>{{demandDataStd.other | number: '1.2-2'}} {{textOtherDemandStd}}</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: black">
+                              <h5>{{demandDataStd.heating | number: '1.2-2'}} {{textHeatingDemandStd}} </h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: #90ed7d">
+                              <h5>{{demandDataStd.recovered | number: '1.2-2'}} {{textRecoveredDemandStd}}</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 row">
+                        <div class="col-md-7"  *ngIf="chartOptionsDemandAdv">
+                          <highcharts-chart
+                            [Highcharts]="DemandChartAdv"
+                            [options]="chartOptionsDemandAdv" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #bce39e">
+                              <h5>{{demandDataAdv.total | number: '1.2-2'}} {{textTotalDemandAdv}}</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: #7cb5ec">
+                              <h5>{{demandDataAdv.other | number: '1.2-2'}} {{textOtherDemandAdv}}</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: black">
+                              <h5>{{demandDataAdv.heating | number: '1.2-2'}} {{textHeatingDemandAdv}}</h5>
+                            </div>
+                            <div class="rounded-section" style="background-color: #90ed7d">
+                              <h5>{{demandDataAdv.recovered | number: '1.2-2'}}{{textRecoveredDemandAdv}}</h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem class="me-2">
+            <h5>
+              <a href="#my-projects" ngbNavLink>Final energy consumed</a>
+            </h5>
+            <ng-template ngbNavContent>
+                <div id="energyData" class="collapse show" aria-labelledby="energy" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body row">
+                    <div class="col-md-4 row">
+                      <div class="col-md-7" *ngIf="chartOptionsFinalEnergyActual">
+                        <highcharts-chart
+                          [Highcharts]="FinalEnergyChartActual"
+                          [options]="chartOptionsFinalEnergyActual" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white">
+                          <div class="rounded-section"  style="background-color: #f5a9a9">
+                            <h5>{{finalEnergyData.total | number: '1.2-2'}} Total</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7cb5ec">
+                            <h5>{{finalEnergyData.fossils | number: '1.2-2'}}% Fossils</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: black">
+                            <h5>{{finalEnergyData.biomass | number: '1.2-2'}}% Biomass</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #90ed7d">
+                            <h5>{{finalEnergyData.electricity | number: '1.2-2'}}% Electricity</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f6a35b">
+                            <h5>{{finalEnergyData.district | number: '1.2-2'}}% District Heating</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7f85e9">
+                            <h5>{{finalEnergyData.other | number: '1.2-2'}}% Other</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f15c80">
+                            <h5>{{finalEnergyData.produced | number: '1.2-2'}}% Produced electricity</h5>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                      <div class="col-md-7" *ngIf="chartOptionsFinalEnergyStd">
+                        <highcharts-chart
+                          [Highcharts]="FinalEnergyChartStd"
+                          [options]="chartOptionsFinalEnergyStd" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #ffbd04">
+                            <h5>{{finalEnergyDataStd.total | number: '1.2-2'}} {{textTotalStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7cb5ec">
+                            <h5>{{finalEnergyDataStd.fossils | number: '1.2-2'}} {{textFossilStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: black">
+                            <h5>{{finalEnergyDataStd.biomass | number: '1.2-2'}} {{textBiomassStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #90ed7d">
+                            <h5>{{finalEnergyDataStd.electricity | number: '1.2-2'}} {{textElectricityStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f6a35b">
+                            <h5>{{finalEnergyDataStd.district | number: '1.2-2'}} {{textDistrictStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7f85e9">
+                            <h5>{{finalEnergyDataStd.other | number: '1.2-2'}} {{textOtherStd}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f15c80">
+                            <h5>{{finalEnergyDataStd.produced | number: '1.2-2'}} {{textProducedStd}}</h5>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 row">
+                      <div class="col-md-7" *ngIf="chartOptionsFinalEnergyAdv">
+                        <highcharts-chart
+                          [Highcharts]="FinalEnergyChartAdv"
+                        [options]="chartOptionsFinalEnergyAdv" ></highcharts-chart>
+                      </div>
+                      <div class="col-md-5">
+                        <div style="margin-top: 20px; color: white;">
+                          <div class="rounded-section" style="background-color: #bce39e">
+                            <h5>{{finalEnergyDataAdv.total | number: '1.2-2'}} {{textTotalAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7cb5ec">
+                            <h5>{{finalEnergyDataAdv.fossils | number: '1.2-2'}}{{textFossilAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: black">
+                            <h5>{{finalEnergyDataAdv.biomass | number: '1.2-2'}} {{textBiomassAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #90ed7d">
+                            <h5>{{finalEnergyDataAdv.electricity | number: '1.2-2'}} {{textElectricityAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f6a35b">
+                            <h5>{{finalEnergyDataAdv.district | number: '1.2-2'}} {{textDistrictAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #7f85e9">
+                            <h5>{{finalEnergyDataAdv.other | number: '1.2-2'}} {{textOtherAdv}}</h5>
+                          </div>
+                          <div class="rounded-section" style="background-color: #f15c80">
+                            <h5>{{finalEnergyDataAdv.produced | number: '1.2-2'}} {{textProducedAdv}}</h5>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  </div>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem class="me-2">
+            <h5>
+              <a href="#saves-properties" ngbNavLink>CO<sub>2</sub> emissions per year nRE PE</a>
+            </h5>
+            <ng-template ngbNavContent>
+                <div id="emissionsData" class="collapse show" aria-labelledby="emissions" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body row">
+                    <div class="col-md-4 ">
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3" style="background-color: grey;">
+                          <h3>
+                            {{co2EmissionsActual.co2.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9"  style="background-color: #f5a9a9;">
+                          <h3>
+                            {{co2EmissionsActual.co2.text}}
+                          </h3>
+                        </div>
+                      </div>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: #e7e7e7; color: grey;">
+                          <h3>
+                            {{co2EmissionsActual.nre.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9"  style="background-color: #f5a9a9;">
+                          <h3>
+                            {{co2EmissionsActual.nre.text}}
+                          </h3>
+                        </div>
                       </div>
                     </div>
                     <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="envelopedStandard.floor">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.floor.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedStandard.floor.typeConstruction}}
-                        </p>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: grey;">
+                          <h3>
+                            {{co2EmissionsStd.co2.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9"  style="background-color: #ffbd04;">
+                          <h3>
+                            % {{co2EmissionsStd.co2.text}}
+                          </h3>
+                        </div>
+                      </div>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: #e7e7e7; color: grey;">
+                          <h3>
+                            {{co2EmissionsStd.nre.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9" style="background-color: #ffbd04;">
+                          <h3>
+                            % {{co2EmissionsStd.nre.text}}
+                          </h3>
+                        </div>
                       </div>
                     </div>
                     <div class="col-md-4 ">
-                      <div *ngIf="envelopedAdvanced.floor">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.floor.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedAdvanced.floor.typeConstruction}}
-                        </p>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: grey;">
+                          <h3>
+                            {{co2EmissionsAdv.co2.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9" style="background-color: #bce39e;">
+                          <h3>
+                            % {{co2EmissionsAdv.co2.text}}
+                          </h3>
+                        </div>
+                      </div>
+                      <div class="row rounded-section co2-section">
+                        <div class="col-md-3"  style="background-color: #e7e7e7; color: grey;">
+                          <h3>
+                            {{co2EmissionsAdv.nre.value | number: '1.2-2'}}
+                          </h3>
+                        </div>
+                        <div class="col-md-9" style="background-color: #bce39e;">
+                          <h3>
+                            % {{co2EmissionsAdv.nre.text}}
+                          </h3>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="roofHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed " type="button" data-toggle="collapse" data-target="#roofData" aria-expanded="false" aria-controls="roofData">
-                      Roof
-                    </button>
-                  </h2>
-                </div>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem class="me-2">
+            <h5>
+              <a href="#saved-tools" ngbNavLink>%RES</a>
+            </h5>
+            <ng-template ngbNavContent>
+                  <div id="resData" class="collapse show" aria-labelledby="res" >
+                    <div class="row" style="margin: 0;">
+                      <div class="col-md-4 ">
+                        <div class="titleSectionToday" style="margin-right: 10px;">
+                          <h2>
+                            Today
+                          </h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionStandard" style="margin-right: 10px;">
+                          <h2>Standard</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionAdvanced">
+                          <h2>
+                            Advanced
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body row">
+                      <div class="col-md-4 row">
+                        <div class="col-md-7" *ngIf="chartOptionsResActual">
+                          <highcharts-chart
+                            [Highcharts]="ResChartActual"
+                            [options]="chartOptionsResActual" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #f5a9a9">
+                              <h3>{{textResActual.res}}</h3>
+                            </div>
+                            <div class="rounded-section">
+                              <h3>{{textResActual.other}}</h3>
+                            </div>
+                          </div>
+                        </div>
+  
+                      </div>
+                      <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div class="col-md-7" *ngIf="chartOptionsResStd">
+                          <highcharts-chart
+                            [Highcharts]="ResChartStd"
+                            [options]="chartOptionsResStd" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #ffbd04">
+                              <h3>{{textResStd}}</h3>
+                            </div>
+                          </div>
+                        </div>
+  
+                      </div>
+                      <div class="col-md-4 row">
+                        <div class="col-md-7" *ngIf="chartOptionsResAdv">
+                          <highcharts-chart
+                            [Highcharts]="ResChartAdv"
+                            [options]="chartOptionsResAdv" ></highcharts-chart>
+                        </div>
+                        <div class="col-md-5">
+                          <div style="margin-top: 20px; color: white;">
+                            <div class="rounded-section" style="background-color: #bce39e">
+                              <h3>{{textResAdv}}</h3>
+                            </div>
+                          </div>
+                        </div>
+  
+                      </div>
+                    </div>
+                  </div>
+            </ng-template>
+          </ng-container>
+          <ng-container ngbNavItem class="me-2">
+            <h5>
+              <a href="#reviews" ngbNavLink>Energy cost</a>
+            </h5>
+            <ng-template ngbNavContent>
+                  <div id="costData" class="collapse show" aria-labelledby="cost" >
+                    <div class="row" style="margin: 0;">
+                      <div class="col-md-4 ">
+                        <div class="titleSectionToday" style="margin-right: 10px;">
+                          <h2>
+                            Today
+                          </h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionStandard" style="margin-right: 10px;">
+                          <h2>Standard</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionAdvanced">
+                          <h2>
+                            Advanced
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body row">
+                      <div class="col-md-4 ">
+                        <div class="rounded-container" style="background-color: #f5a9a9;">
+                          <h2>{{energyCost | number: '1.2-2'}}<i class="fa fa-eur " aria-hidden="true"></i></h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 row" style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div class="col-md-6">
+                          <div class="rounded-container" style="background-color: #ffbd04;">
+                            <h2>{{energyCostStd.value | number: '1.2-2'}}<i class="fa fa-eur " aria-hidden="true"></i></h2>
+  
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="rounded-section" style="background-color: #b3b0b0;">
+                            <h3>{{energyCostStd.text}}</h3>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 row">
+                        <div class="col-md-6">
+                          <div class="rounded-container  col-md-6" style="background-color: #bce39e;">
+                            <h2>{{energyCostAdv.value | number: '1.2-2'}}<i class="fa fa-eur " aria-hidden="true"></i></h2>
+                          </div>
+                        </div>
+                        <div class="col-md-6" >
+                          <div class="rounded-section" style="background-color: #b3b0b0;">
+                            <h3>{{energyCostAdv.text}}</h3>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </ng-template>
+          </ng-container>
+        </nav>
+        <div [ngbNavOutlet]="nav" class="mt-2"></div>
+      </div>
 
-                <div id="roofData" class="collapse" aria-labelledby="roofHeader">
+        <div class="card ">
+          <div class="card-header header-principal" id="buildingData">
+            <h2 class="mb-0">
+              <button class="btn btn-link btn-block collapsed align-items-center d-flex justify-content-center button-title" type="button" data-toggle="collapse" data-target="#components" aria-expanded="false" aria-controls="components">
+                <h3>Building Data</h3>&nbsp;
+              </button>
+            </h2>
+          </div>
+  
+          <div id="components" class="collapse" aria-labelledby="buildingData">
+            <nav ngbNav #nav2="ngbNav" class="nav-tabs">
+              <ng-container ngbNavItem class="me-2">
+                      <h5 class="mb-0">
+                        <a href="#my-projects" ngbNavLink>Floor</a>
+                      </h5>
+                      <ng-template ngbNavContent>
+                        <div class="row" style="margin: 0;">
+                          <div class="col-md-4 ">
+                            <div class="titleSectionToday" style="margin-right: 10px;">
+                              <h2>
+                                Today
+                              </h2>
+                            </div>
+                          </div>
+                          <div class="col-md-4 ">
+                            <div class="titleSectionStandard" style="margin-right: 10px;">
+                              <h2>Standard</h2>
+                            </div>
+                          </div>
+                          <div class="col-md-4 ">
+                            <div class="titleSectionAdvanced">
+                              <h2>
+                                Advanced
+                              </h2>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card-body row"  style="margin-left: 0;">
+                          <div class="col-md-4 ">
+                            <div *ngIf="envelopedToday.floor">
+                              <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.floor.picture}}" width="240" height="170"/>
+                              <p>
+                                {{envelopedToday.floor.typeConstruction}}
+                              </p>
+                            </div>
+                          </div>
+                          <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                            <div *ngIf="envelopedStandard.floor">
+                              <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.floor.picture}}" width="240" height="170"/>
+                              <p>
+                                {{envelopedStandard.floor.typeConstruction}}
+                              </p>
+                            </div>
+                          </div>
+                          <div class="col-md-4 ">
+                            <div *ngIf="envelopedAdvanced.floor">
+                              <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.floor.picture}}" width="240" height="170"/>
+                              <p>
+                                {{envelopedAdvanced.floor.typeConstruction}}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                </ng-template>
+              </ng-container>
+              <ng-container ngbNavItem class="me-2">
+                <h5 class="mb-0">
+                  <a href="#my-projects" ngbNavLink>Roof</a>
+                </h5>
+                <ng-template ngbNavContent>
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body row" style="margin-left: 0;">
                     <div class="col-md-4 ">
                       <div *ngIf="envelopedToday.roof">
@@ -207,346 +720,463 @@
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="wallHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#wallData" aria-expanded="false" aria-controls="wallData">
-                      Wall
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="wallData" class="collapse" aria-labelledby="wallHeader">
-                  <div class="card-body row" style="margin-left: 0;">
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedToday.wall">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.wall.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedToday.wall.typeConstruction}}
-                        </p>
+                </ng-template>
+              </ng-container>
+              <ng-container ngbNavItem class="me-2">
+                <h5 class="mb-0">
+                  <a href="#my-projects" ngbNavLink>Wall</a>
+                </h5>
+                <ng-template ngbNavContent>
+                    <div class="row" style="margin: 0;">
+                      <div class="col-md-4 ">
+                        <div class="titleSectionToday" style="margin-right: 10px;">
+                          <h2>
+                            Today
+                          </h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionStandard" style="margin-right: 10px;">
+                          <h2>Standard</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionAdvanced">
+                          <h2>
+                            Advanced
+                          </h2>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="envelopedStandard.wall">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.wall.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedStandard.wall.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedAdvanced.wall">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.wall.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedAdvanced.wall.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="windowHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#windowData" aria-expanded="false" aria-controls="windowData">
-                      Window
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="windowData" class="collapse" aria-labelledby="windowHeader">
-                  <div class="card-body row" style="margin-left: 0;">
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedToday.window">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.window.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedToday.window.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="envelopedStandard.window">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.window.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedStandard.window.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedAdvanced.window">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.window.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedAdvanced.window.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="doorHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#doorData" aria-expanded="false" aria-controls="doorData">
-                      Door
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="doorData" class="collapse" aria-labelledby="doorHeader">
-                  <div class="card-body row" style="margin-left: 0;">
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedToday.door">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.door.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedToday.door.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="envelopedStandard.door">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.door.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedStandard.door.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedAdvanced.door">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.door.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedAdvanced.door.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="cellingHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#cellingData" aria-expanded="false" aria-controls="cellingData">
-                      Celling
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="cellingData" class="collapse" aria-labelledby="cellingHeader">
-                  <div class="card-body row" style="margin-left: 0;">
-                    <div class="col-md-4 " >
-                      <div *ngIf="envelopedToday.celling">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.celling.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedToday.celling.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="envelopedStandard.celling">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.celling.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedStandard.celling.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="envelopedAdvanced.celling">
-                        <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.celling.picture}}" width="240" height="170"/>
-                        <p>
-                          {{envelopedAdvanced.celling.typeConstruction}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header  header-principal" id="systemData">
-          <h2 class="mb-0">
-            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="false" aria-controls="systems">
-              <h3>System Data</h3>
-            </button>
-          </h2>
-        </div>
-
-        <div id="systems" class="collapse" aria-labelledby="systemData">
-          <div class="card-body">
-            <div class="accordion" id="system">
-              <div class="card">
-                <div class="card-header" id="heatingHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#heatingData" aria-expanded="false" aria-controls="heatingData">
-                      Heating
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="heatingData" class="collapse" aria-labelledby="heatingHeader" >
-                  <div class="card-body row">
                     <div class="card-body row" style="margin-left: 0;">
                       <div class="col-md-4 ">
-                        <div *ngIf="systemsToday.heating">
-                          <img src="./assets/img/system/{{building.country}}/{{systemsToday.heating.picture}}" width="240" height="170"/>
+                        <div *ngIf="envelopedToday.wall">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.wall.picture}}" width="240" height="170"/>
                           <p>
-                            {{systemsToday.heating.description}}
+                            {{envelopedToday.wall.typeConstruction}}
                           </p>
                         </div>
                       </div>
                       <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                        <div *ngIf="systemsStandard.heating">
-                          <img src="./assets/img/system/{{building.country}}/{{systemsStandard.heating.picture}}" width="240" height="170"/>
+                        <div *ngIf="envelopedStandard.wall">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.wall.picture}}" width="240" height="170"/>
                           <p>
-                            {{systemsStandard.heating.description}}
+                            {{envelopedStandard.wall.typeConstruction}}
                           </p>
                         </div>
                       </div>
                       <div class="col-md-4 ">
-                        <div *ngIf="systemsAdvanced.heating">
-                          <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.heating.picture}}" width="240" height="170"/>
+                        <div *ngIf="envelopedAdvanced.wall">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.wall.picture}}" width="240" height="170"/>
                           <p>
-                            {{systemsAdvanced.heating.description}}
+                            {{envelopedAdvanced.wall.typeConstruction}}
                           </p>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="waterHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#waterData" aria-expanded="false" aria-controls="waterData">
-                      Water
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="waterData" class="collapse" aria-labelledby="waterHeader" >
-                  <div class="card-body row"  style="margin-left: 0;">
-                    <div class="col-md-4 ">
-                      <div *ngIf="systemsToday.water">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsToday.water.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsToday.water.description}}
-                        </p>
+                </ng-template>
+              </ng-container>
+              <ng-container ngbNavItem class="me-2">
+                <h5 class="mb-0">
+                  <a href="#my-projects" ngbNavLink>Window</a>
+                </h5>
+                <ng-template ngbNavContent>
+                    <div class="row" style="margin: 0;">
+                      <div class="col-md-4 ">
+                        <div class="titleSectionToday" style="margin-right: 10px;">
+                          <h2>
+                            Today
+                          </h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionStandard" style="margin-right: 10px;">
+                          <h2>Standard</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionAdvanced">
+                          <h2>
+                            Advanced
+                          </h2>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="systemsStandard.water">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsStandard.water.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsStandard.water.description}}
-                        </p>
+                    <div class="card-body row" style="margin-left: 0;">
+                      <div class="col-md-4 ">
+                        <div *ngIf="envelopedToday.window">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.window.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedToday.window.typeConstruction}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div *ngIf="envelopedStandard.window">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.window.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedStandard.window.typeConstruction}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div *ngIf="envelopedAdvanced.window">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.window.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedAdvanced.window.typeConstruction}}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="systemsAdvanced.water">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.water.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsAdvanced.water.description}}
-                        </p>
+                </ng-template>
+              </ng-container>
+              <ng-container ngbNavItem class="me-2">
+                <h5 class="mb-0">
+                  <a href="#my-projects" ngbNavLink>Door</a>
+                </h5>
+                <ng-template ngbNavContent>
+                    <div class="row" style="margin: 0;">
+                      <div class="col-md-4 ">
+                        <div class="titleSectionToday" style="margin-right: 10px;">
+                          <h2>
+                            Today
+                          </h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionStandard" style="margin-right: 10px;">
+                          <h2>Standard</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionAdvanced">
+                          <h2>
+                            Advanced
+                          </h2>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="ventilationHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#ventilationData" aria-expanded="false" aria-controls="ventilationData">
-                      Ventilation
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="ventilationData" class="collapse" aria-labelledby="ventilationHeader">
-                  <div class="card-body row" style="margin-left: 0;">
-                    <div class="col-md-4 ">
-                      <div *ngIf="systemsToday.ventilation">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsToday.ventilation.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsToday.ventilation.description}}
-                        </p>
+                    <div class="card-body row" style="margin-left: 0;">
+                      <div class="col-md-4 ">
+                        <div *ngIf="envelopedToday.door">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.door.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedToday.door.typeConstruction}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div *ngIf="envelopedStandard.door">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.door.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedStandard.door.typeConstruction}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div *ngIf="envelopedAdvanced.door">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.door.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedAdvanced.door.typeConstruction}}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="systemsStandard.ventilation">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsStandard.ventilation.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsStandard.ventilation.description}}
-                        </p>
+                </ng-template>
+              </ng-container>
+              <ng-container ngbNavItem class="me-2">
+                <h5 class="mb-0">
+                  <a href="#my-projects" ngbNavLink>Celling</a>
+                </h5>
+                <ng-template ngbNavContent>
+                    <div class="row" style="margin: 0;">
+                      <div class="col-md-4 ">
+                        <div class="titleSectionToday" style="margin-right: 10px;">
+                          <h2>
+                            Today
+                          </h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionStandard" style="margin-right: 10px;">
+                          <h2>Standard</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div class="titleSectionAdvanced">
+                          <h2>
+                            Advanced
+                          </h2>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="systemsAdvanced.ventilation">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.ventilation.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsAdvanced.ventilation.description}}
-                        </p>
+                    <div class="card-body row" style="margin-left: 0;">
+                      <div class="col-md-4 " >
+                        <div *ngIf="envelopedToday.celling">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedToday.celling.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedToday.celling.typeConstruction}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                        <div *ngIf="envelopedStandard.celling">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedStandard.celling.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedStandard.celling.typeConstruction}}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-md-4 ">
+                        <div *ngIf="envelopedAdvanced.celling">
+                          <img src="./assets/img/envelope/{{building.country}}/{{envelopedAdvanced.celling.picture}}" width="240" height="170"/>
+                          <p>
+                            {{envelopedAdvanced.celling.typeConstruction}}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header" id="pvHeader">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#pvData" aria-expanded="false" aria-controls="pvData">
-                      PV
-                    </button>
-                  </h2>
-                </div>
-
-                <div id="pvData" class="collapse" aria-labelledby="pvHeader" >
-                  <div class="card-body row" style="margin-left: 0;">
-                    <div class="col-md-4 " >
-                      <div *ngIf="systemsToday.pv">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsToday.pv.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsToday.pv.description}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
-                      <div *ngIf="systemsStandard.pv">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsStandard.pv.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsStandard.pv.description}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="col-md-4 ">
-                      <div *ngIf="systemsAdvanced.pv">
-                        <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.pv.picture}}" width="240" height="170"/>
-                        <p>
-                          {{systemsAdvanced.pv.description}}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                </ng-template>
+              </ng-container>
+            </nav>
+            <div [ngbNavOutlet]="nav2" class="mt-2"></div>
           </div>
-        </div>
-      </div>
 
-      <div class="card">
-        <div class="card-header header-principal" id="energyEfficiency">
-          <h2 class="mb-0">
-            <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed" type="button" data-toggle="collapse" data-target="#energySection" aria-expanded="false" aria-controls="energySection">
-              <h3>Energy Efficiency</h3>
-            </button>
-          </h2>
-        </div>
+          <div class="card">
+            <div class="card-header  header-principal" id="systemData">
+              <h2 class="mb-0">
+                <button class="btn btn-link btn-block align-items-center d-flex justify-content-center collapsed button-title" type="button" data-toggle="collapse" data-target="#systems" aria-expanded="false" aria-controls="systems">
+                  <h3>System Data</h3>&nbsp;
+                </button>
+              </h2>
+            </div>
+    
+            <div id="systems" class="collapse" aria-labelledby="systemData">
+                      <nav ngbNav #nav3="ngbNav" class="nav-tabs">
+                        <ng-container ngbNavItem class="me-2">
+                          <h5 class="mb-0">
+                            <a href="#my-projects" ngbNavLink>Heating</a>
+                          </h5>
+                          <ng-template ngbNavContent>
+                            <div class="row" style="margin: 0;">
+                              <div class="col-md-4 ">
+                                <div class="titleSectionToday" style="margin-right: 10px;">
+                                  <h2>
+                                    Today
+                                  </h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionStandard" style="margin-right: 10px;">
+                                  <h2>Standard</h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionAdvanced">
+                                  <h2>
+                                    Advanced
+                                  </h2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="card-body row">
+                              <div class="card-body row" style="margin-left: 0;">
+                                <div class="col-md-4 ">
+                                  <div *ngIf="systemsToday.heating">
+                                    <img src="./assets/img/system/{{building.country}}/{{systemsToday.heating.picture}}" width="240" height="170"/>
+                                    <p>
+                                      {{systemsToday.heating.description}}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                                  <div *ngIf="systemsStandard.heating">
+                                    <img src="./assets/img/system/{{building.country}}/{{systemsStandard.heating.picture}}" width="240" height="170"/>
+                                    <p>
+                                      {{systemsStandard.heating.description}}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div class="col-md-4 ">
+                                  <div *ngIf="systemsAdvanced.heating">
+                                    <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.heating.picture}}" width="240" height="170"/>
+                                    <p>
+                                      {{systemsAdvanced.heating.description}}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </ng-container>
+                        <ng-container ngbNavItem class="me-2">
+                          <h5 class="mb-0">
+                            <a href="#my-projects" ngbNavLink>Water</a>
+                          </h5>
+                          <ng-template ngbNavContent>
+                            <div class="row" style="margin: 0;">
+                              <div class="col-md-4 ">
+                                <div class="titleSectionToday" style="margin-right: 10px;">
+                                  <h2>
+                                    Today
+                                  </h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionStandard" style="margin-right: 10px;">
+                                  <h2>Standard</h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionAdvanced">
+                                  <h2>
+                                    Advanced
+                                  </h2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="card-body row"  style="margin-left: 0;">
+                              <div class="col-md-4 ">
+                                <div *ngIf="systemsToday.water">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsToday.water.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsToday.water.description}}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                                <div *ngIf="systemsStandard.water">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsStandard.water.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsStandard.water.description}}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div *ngIf="systemsAdvanced.water">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.water.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsAdvanced.water.description}}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </ng-container>
+                        <ng-container ngbNavItem class="me-2">
+                          <h5 class="mb-0">
+                            <a href="#my-projects" ngbNavLink>Ventilation</a>
+                          </h5>
+                          <ng-template ngbNavContent>
+                            <div class="row" style="margin: 0;">
+                              <div class="col-md-4 ">
+                                <div class="titleSectionToday" style="margin-right: 10px;">
+                                  <h2>
+                                    Today
+                                  </h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionStandard" style="margin-right: 10px;">
+                                  <h2>Standard</h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionAdvanced">
+                                  <h2>
+                                    Advanced
+                                  </h2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="card-body row" style="margin-left: 0;">
+                              <div class="col-md-4 ">
+                                <div *ngIf="systemsToday.ventilation">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsToday.ventilation.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsToday.ventilation.description}}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                                <div *ngIf="systemsStandard.ventilation">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsStandard.ventilation.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsStandard.ventilation.description}}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div *ngIf="systemsAdvanced.ventilation">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.ventilation.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsAdvanced.ventilation.description}}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </ng-container>
+                        <ng-container ngbNavItem class="me-2">
+                          <h5 class="mb-0">
+                            <a href="#my-projects" ngbNavLink>PV</a>
+                          </h5>
+                          <ng-template ngbNavContent>
+                            <div class="row" style="margin: 0;">
+                              <div class="col-md-4 ">
+                                <div class="titleSectionToday" style="margin-right: 10px;">
+                                  <h2>
+                                    Today
+                                  </h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionStandard" style="margin-right: 10px;">
+                                  <h2>Standard</h2>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div class="titleSectionAdvanced">
+                                  <h2>
+                                    Advanced
+                                  </h2>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="card-body row" style="margin-left: 0;">
+                              <div class="col-md-4 " >
+                                <div *ngIf="systemsToday.pv">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsToday.pv.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsToday.pv.description}}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-md-4 " style="border-left: 1px solid #616060; border-right: 1px solid #616060;">
+                                <div *ngIf="systemsStandard.pv">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsStandard.pv.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsStandard.pv.description}}
+                                  </p>
+                                </div>
+                              </div>
+                              <div class="col-md-4 ">
+                                <div *ngIf="systemsAdvanced.pv">
+                                  <img src="./assets/img/system/{{building.country}}/{{systemsAdvanced.pv.picture}}" width="240" height="170"/>
+                                  <p>
+                                    {{systemsAdvanced.pv.description}}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </ng-template>
+                        </ng-container>
+                      </nav>
+                      <div [ngbNavOutlet]="nav3" class="mt-2"></div>
+              </div>
+          </div>
 
-        <div id="energySection" class="collapse" aria-labelledby="energyEfficiency">
+        <!--<div id="energySection" class="collapse show" aria-labelledby="energyEfficiency">
           <div class="card-body">
             <div class="accordion" id="charts">
               <div class="card">
@@ -558,7 +1188,28 @@
                   </h2>
                 </div>
 
-                <div id="demandData" class="collapse" [ngClass]="" aria-labelledby="demand" >
+                <div id="demandData" class="collapse show" [ngClass]="" aria-labelledby="demand" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body row">
                     <div class="card-body row">
                       <div class="col-md-4 row">
@@ -643,7 +1294,28 @@
                   </h2>
                 </div>
 
-                <div id="energyData" class="collapse" aria-labelledby="energy" >
+                <div id="energyData" class="collapse show" aria-labelledby="energy" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body row">
                     <div class="col-md-4 row">
                       <div class="col-md-7" *ngIf="chartOptionsFinalEnergyActual">
@@ -748,12 +1420,33 @@
                 <div class="card-header" id="emissions">
                   <h2 class="mb-0">
                     <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#emissionsData" aria-expanded="false" aria-controls="emissionsData">
-                      CO2 Emissions per year nRE PE
+                      CO<sub>2</sub> Emissions per year nRE PE
                     </button>
                   </h2>
                 </div>
 
-                <div id="emissionsData" class="collapse" aria-labelledby="emissions" >
+                <div id="emissionsData" class="collapse show" aria-labelledby="emissions" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body row">
                     <div class="col-md-4 ">
                       <div class="row rounded-section co2-section">
@@ -845,7 +1538,28 @@
                   </h2>
                 </div>
 
-                <div id="resData" class="collapse" aria-labelledby="res" >
+                <div id="resData" class="collapse show" aria-labelledby="res" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body row">
                     <div class="col-md-4 row">
                       <div class="col-md-7" *ngIf="chartOptionsResActual">
@@ -907,7 +1621,28 @@
                   </h2>
                 </div>
 
-                <div id="costData" class="collapse" aria-labelledby="cost" >
+                <div id="costData" class="collapse show" aria-labelledby="cost" >
+                  <div class="row" style="margin: 0;">
+                    <div class="col-md-4 ">
+                      <div class="titleSectionToday" style="margin-right: 10px;">
+                        <h2>
+                          Today
+                        </h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionStandard" style="margin-right: 10px;">
+                        <h2>Standard</h2>
+                      </div>
+                    </div>
+                    <div class="col-md-4 ">
+                      <div class="titleSectionAdvanced">
+                        <h2>
+                          Advanced
+                        </h2>
+                      </div>
+                    </div>
+                  </div>
                   <div class="card-body row">
                     <div class="col-md-4 ">
                       <div class="rounded-container" style="background-color: #f5a9a9;">
@@ -944,9 +1679,6 @@
               </div>
             </div>
           </div>
-        </div>
+        </div>-->
       </div>
     </div>
-  </div>
-
-</div>

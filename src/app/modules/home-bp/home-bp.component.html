@@ -1,0 +1,167 @@
+<main>
+    <div class="row">
+      <div class="col-md-1 options-panel">
+        <!-- Login and User section -->
+        <!--<div [ngClass]="optionSelected === 1 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center">
+          <a *ngIf="!isUserLogged" href="#" style="color: #3c4b64;" (click)=" optionSelected === 1 ? optionSelected = 0 : optionSelected = 1; stepSelected='';">
+            <i class="fa fa-user-o fa-2x"></i>
+          </a>
+          <div *ngIf="isUserLogged" class="row userLogged" >
+              <a href="#" style="color: white; text-decoration: none;" (click)=" optionSelected === 5 ? optionSelected = 0 : optionSelected = 5; stepSelected='';" class="square-container">
+                <h2 *ngIf="currentUser.name">{{currentUser.name.substring(0, 1)}}</h2>
+              </a>
+          </div>
+        </div>-->
+        <div class="title-oneclick">
+          <h3>
+            Best practices
+          </h3>
+        </div>
+        <!-- Home Section -->
+        <div [ngClass]="optionSelected === 0 ? 'buttons-panel active' : 'buttons-panel'"  class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="optionSelected = 0; stepSelected='';" >
+            <i class="fa fa-home fa-2x icon-slot" aria-hidden="true"></i>
+            <div class="a-option">
+              Home
+            </div>
+          </a>
+        </div>
+  
+        <!-- General Dashboard -->
+        <!--<div [ngClass]="optionSelected === 3 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="optionSelected === 3 ? optionSelected = 0 : optionSelected = 3; stepSelected='';" >
+            <i class="fa fa-sliders fa-2x icon-slot" aria-hidden="true"></i>
+            <div  class="a-option">
+              Dashboard
+            </div>
+          </a>
+        </div>-->
+        <!-- User history-->
+        <div [ngClass]="optionSelected === 4 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="optionSelected === 4 ? optionSelected = 0 : optionSelected = 4; stepSelected='';" >
+            <i class="fa fa-bookmark-o fa-2x icon-slot" aria-hidden="true"></i>
+            <div  class="a-option">
+              Saved
+            </div>
+          </a>
+        </div>
+
+        <!-- Form CEE history-->
+        <!--<div [ngClass]="optionSelected === 8 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged" class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="optionSelected === 8 ? optionSelected = 0 : optionSelected = 8; stepSelected='';" >
+            <i class="fa fa-wpforms fa-2x icon-slot" aria-hidden="true"></i>
+            <div  class="a-option">
+              Form CEE
+            </div>
+          </a>
+        </div>-->
+  
+        <!-- General Dashboard -->
+        <!--<div [ngClass]="optionSelected === 6 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged == false" class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="optionSelected === 6 ? optionSelected = 0 : optionSelected = 6; stepSelected='';" >
+            <i class="fa fa-sliders fa-2x icon-slot" aria-hidden="true"></i>
+          </a>
+        </div>-->
+        <!-- User history-->
+        <!--<div [ngClass]="optionSelected === 7 ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged == false" class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="optionSelected === 7 ? optionSelected = 0 : optionSelected = 7; stepSelected='';" >
+            <i class="fa fa-bookmark-o fa-2x icon-slot" aria-hidden="true"></i>
+          </a>
+        </div>-->
+
+        <!-- Form CEE history-->
+        <div [ngClass]="stepSelected === 'formcee' ? 'buttons-panel active' : 'buttons-panel'" *ngIf="isUserLogged == false" class="d-flex align-items-center justify-content-center icon">
+          <a href="#/bestpractices" class="link-decoration" (click)="stepSelected === 'formcee' ? optionSelected = 0 : optionSelected = 8; stepSelected='';" >
+            <i class="fa fa-bookmark-o fa-2x icon-slot" aria-hidden="true"></i>
+          </a>
+        </div>
+  
+      </div>
+      <!-- Login Section -->
+      <!--div class="col-md-3 information" *ngIf="optionSelected === 1" >
+        <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+        <div *ngIf="isUserLogged">
+          <app-user-panel  [optionSelected]="optionSelected"></app-user-panel>
+        </div>
+        <div *ngIf="!isUserLogged">
+          <app-login (loginEndedEmitter)="receiveLogin($event)" [optionSelected]="optionSelected"></app-login>
+        </div>
+      </div-->
+      <!-- Building information Section -->
+      <div *ngIf="optionSelected === 2" [ngClass]="(stepSelected==='infoBuilding' || stepSelected==='typology' || stepSelected==='formcee')  ? 'col-md-6' : 'col-md-11 energySection'">
+        <div  *ngIf="stepSelected==='infoBuilding' || stepSelected==='typology' || stepSelected==='formcee'"  class="information" >
+          <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+          <div *ngIf="stepSelected==='infoBuilding'">
+            <app-cee-cadastre-info [properties]="properties"  [active]="active" [building]="building" (calculateTypologyEmitter)="calculateTypology($event)" (showMapEmitter)="showMapControl($event);" (optionEmitter)="receiveOption($event)"></app-cee-cadastre-info>
+          </div>
+          <div *ngIf="stepSelected==='typology'" class="buildInfoSection">
+            <app-typology [typologies]="typologies" [subcategoriesTypo]="subcategoriesTypo" [building]="building" (calculateEnergyEmitter)="receiveCalculateEnergy($event)" (errorEmitter)="receiveErrorFromTypology($event)" (optionEmitter)="receiveOption($event)"> </app-typology>
+          </div>
+          <div *ngIf="stepSelected==='formcee'" class="buildInfoSection">
+            <app-form-cee (optionEmitter)="receiveOption($event)"></app-form-cee>
+          </div>
+        </div>
+        <div *ngIf="stepSelected==='result'" class="energySection information">
+          <img src="./assets/img/logos/Main-logo.png" width="150" height="auto">
+          <app-score [building]="building" [updateBuilding]="updateBuilding" (optionEmitter)="receiveOption($event)" ></app-score>
+        </div>
+      </div>
+      <!-- General Dashboard -->
+      <div *ngIf="optionSelected===3"  class="col-md-4 information" >
+        <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+        <app-data-map [optionSelected]="optionSelected" (historyEmitter)="receiveHistory($event);" ></app-data-map>
+      </div>
+      <!-- User CEE history-->
+      <div *ngIf="optionSelected===4" class="col-md-4 information">
+        <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+        <app-user-cee-history [optionSelected]="optionSelected" (historyEmitter2)="receiveHistory($event);"></app-user-cee-history>
+      </div>
+      <!-- User information Section -->
+      <div *ngIf="optionSelected===5" class="col-md-4 information">
+        <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+        <app-user-account [currentUser]="currentUser" (logoutEmitter)="receiveLogOut($event);" ></app-user-account>
+      </div>
+  
+      <!-- User logout -->
+      <div *ngIf="optionSelected===6" class="col-md-4 information">
+        <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+        <div class="text-login">
+          <h2>Please login to see this information.</h2>
+        </div><br>
+        <div class="text-login">
+          You can login by clicking on this button
+          <button class="col-md-6 login" (click)="openModal() ">
+              <h4>
+                Login
+              </h4>
+          </button>
+        </div>
+      </div>
+  
+      <div *ngIf="optionSelected===7" class="col-md-4 information">
+        <img src="./assets/img/logos/Main-logo.png" width="280" height="160">
+        <div class="text-login">
+          <h2>Please login to see this information.</h2>
+        </div><br>
+        <div class="text-login">
+          You can login by clicking on this button
+          <button class="col-md-6 login" (click)="openModal() ">
+            <h4>
+              Login
+            </h4>
+          </button>
+        </div>
+      </div>
+
+      <!--Form CEE section-->
+      
+  
+      <div [ngClass]="stepSelected === 'result' ? '' : ((optionSelected === 2 ) ? 'col-md-5' : ( optionSelected === 1 ? 'col-md-8' : ( (optionSelected >= 3 && optionSelected <= 8) ? 'col-md-7' : 'col-md-11')))">
+        <app-best-practices (buildingEmitter)="receiveBuilding($event)" (coordinatesEmitter)="receiveCoordinates($event)" [history]="history"
+                 [building]="building" [active]="active" [optionSelected]="optionSelected"></app-best-practices><!--[countryMap]="countryMap"-->
+      </div>
+    </div>
+  
+  </main>
+  
+  

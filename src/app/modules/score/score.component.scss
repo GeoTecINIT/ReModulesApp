@@ -1,23 +1,37 @@
+.score-section{
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+.score-section::-webkit-scrollbar{
+  display: none;
+}
+
+.accordion > .card > .card-header {
+  border-radius: 0;
+  margin-bottom: 10px !important;
+}
+
 .titleSectionToday {
   border-radius: 10px 10px 0 0;
-  background-color: #f5a9a9;
+  background-color: #fd9c6a;
   color: white;
   text-align: center;
 }
 .titleSectionStandard {
   border-radius: 10px 10px 0 0;
-  background-color: #ffbd04;
+  background-color: #fac57b;
   color: white;
   text-align: center;
 }
 .titleSectionAdvanced {
   border-radius: 10px 10px 0 0;
-  background-color: #bce39e;
+  background-color: #aee279;
   color: white;
   text-align: center;
 }
 .header-principal {
-  background-color: #e5e5e5;
+  background-color: #acbdd5;
 }
 .rounded-section {
   border: none;
@@ -50,10 +64,10 @@
   margin-right: 60px;
 }
 .rounded-button {
-  color: white;
-  background-color: #1980b5;
+  color: white !important;
+  background-color: #004470;
   border-radius: 20px;
-  border-color: #1980b5;
+  border-color: #004470;
   margin-top: 40px;
   padding: 15px;
   border-style: none;
@@ -71,4 +85,60 @@
   font-size: 17px;
   width: 120px;
   text-align: center;
+}
+
+.nav-tabs{
+  justify-content: center !important;
+  border: 0px solid transparent !important;
+  background-color: transparent !important;
+}
+
+.nav-link{
+  border: 0px solid transparent !important;
+  color: #93AFC2 !important;
+  background-color: transparent !important;
+}
+
+.nav-link.active{
+  color: #004470 !important;
+  background-color: transparent !important;
+}
+
+span{
+  color: #366b8e !important;
+}
+
+.button-back{
+  color: white !important;
+}
+
+.title-information{
+  color: #2c6488;
+}
+
+.button-title{
+  color: white !important;
+  text-decoration: none;
+}
+
+.button-title:after {
+  font-family: 'FontAwesome';
+  content: "\f078";    
+  float: right;
+}
+.button-title[aria-expanded="true"]::after {    
+  content: "\f077";    
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid #d8dbe0;
+  border-radius: 0.25rem;
+  margin-top: 10px !important;
 }

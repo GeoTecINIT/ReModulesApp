@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import * as L from 'leaflet';
 import * as esri from 'esri-leaflet';
 import 'proj4leaflet';
@@ -11,6 +11,8 @@ import {Property} from '../../shared/models/property';
 import {Building} from '../../shared/models/building';
 import {GlobalConstants} from '../../shared/GlobalConstants';
 import {Crs} from '../../shared/models/crs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { LandingComponent } from '../landing/landing.component';
 
 @Component({
   selector: 'app-map',
@@ -36,16 +38,20 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   emissionsMarkers: any[];
   yearsMarkers: any[];
   zoomCountry: any;
+  msgFromChild1: any;
+  child1: LandingComponent;
 
   @Output() buildingEmitter = new EventEmitter<any>();
   @Output() coordinatesEmitter = new EventEmitter<any>();
+  @Output() addressEmitter = new EventEmitter<any>();
   @Input() properties: Property[];
   @Input() history: Building[];
   @Input() building: Building;
   @Input() active: number;
   @Input() optionSelected: number;
   @Input() countryMap: string;
-  WMS_CADASTRE = 'http://ovc.catastro.meh.es/cartografia/WMS/ServidorWMS.aspx?';
+  @ViewChild(LandingComponent)
+  WMS_CADASTRE = 'https://www.sedecatastro.gob.es/cartografia/WMS/ServidorWMS.aspx?';
   CENTER_POINT = [ 45.7098955, 11.1355771 ]; // center of european Union
   CENTER_POINT_HALF_SCREEN = [ 45.7098955, 24.1246012 ];
   ZOOM = 5.22;
@@ -113,7 +119,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
   private initMap(): void {
     L.Marker.prototype.options.icon = L.AwesomeMarkers.icon({
       prefix: 'fa',
-      markerColor: 'blue',
+      markerColor: 'darkblue',
       icon: 'circle',
       iconColor: 'white'
     });
@@ -215,6 +221,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
         if ( this.building && this.building.rc ) this.building.rc = '';
         let address = '';
         address = data.results[i].text;
+        this.addressEmitter.emit({data});
         this.coordinatesEmitter.emit({latlng: data.results[i].latlng,
           x: this.point.ESPG25830.x, y: this.point.ESPG25830.y, address, point: this.point, region: ''});
         //this.getInfoFromCadastre(this.point.x, this.point.y, data.results[i].latlng, data.results[i].text );
@@ -366,7 +373,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnChanges {
       let cont = 1;
       listProperties.forEach( propHistory => {
         const idPopup = 'marker-popup' + +cont;
-        const markerHistory = this.createMarker('blue', propHistory, showOnlyPopup, idPopup);
+        const markerHistory = this.createMarker('darkblue', propHistory, showOnlyPopup, idPopup);
        if (!fromFilters && showCluster) this.markerClusterGroup.addLayer(markerHistory);
         markerGroup.push(markerHistory);
 

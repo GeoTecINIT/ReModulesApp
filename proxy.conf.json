@@ -1,17 +1,17 @@
 {
   "/ovcservweb/*": {
     "target": "https://ovc.catastro.meh.es",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true
   },
   "/INSPIRE/*": {
     "target": "https://ovc.catastro.meh.es",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true
   },
   "/v1/*": {
     "target": "https://api.opentopodata.org",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true
   },
   "/bag/*": {

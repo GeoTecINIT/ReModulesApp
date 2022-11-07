@@ -1,0 +1,69 @@
+<div>
+    <div class="card">
+      <div class="card-header  header-principal" id="propertiesSaved">
+        <h2 class="mb-0">
+          <button class="btn btn-link btn-block align-items-center d-flex justify-content-center" type="button" data-toggle="collapse" data-target="#properties" aria-expanded="false" aria-controls="properties">
+            <h3><i class="fa fa-home" aria-hidden="true"></i> &nbsp; Saved Properties</h3>
+          </button>
+        </h2>
+      </div>
+  
+      <div id="properties" class="collapse show" aria-labelledby="propertiesSaved">
+        <div class="card-body">
+          <div class="alert alert-success" role="alert" *ngIf="deletedBuilding">
+            Building deleted
+          </div>
+          <div>
+            <button class="btn btn-primary filter-button" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+              Filters
+            </button>
+            <div class="collapse " id="collapseExample">
+              <div class="card card-body form">
+  
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="filterYearMin">Min Year: </label>
+                    <ng-select id="filterYearMin" class="filter" [(ngModel)]="yearSelectedMin"
+                               (change)="filter('yearMin');">
+                      <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                    </ng-select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="filterYearMax">Max Year: </label>
+                    <ng-select id="filterYearMax" class="filter" [(ngModel)]="yearSelectedMax"
+                               (change)="filter('yearMax');">
+                      <ng-option *ngFor="let year of filterYears" [value]="year">{{year}}</ng-option>
+                    </ng-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Address</th>
+                <!--<th scope="col">Actions</th>-->
+              </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let building of tmpUserCEEHistory" >
+              <th scope="row"><i class="fa fa-bookmark" aria-hidden="true"></i> &nbsp; <button class="button-link" (click)="showBuildingResults(building);" >{{building.address}} - {{building.year}}</button> </th>
+              <td>
+                <div class="row">
+                  <!--<button class="btn btn-light" (click)="updateBuilding(building);">
+                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-light" (click)="removeBuildingFromUserHistory(building)">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                  </button>-->
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  

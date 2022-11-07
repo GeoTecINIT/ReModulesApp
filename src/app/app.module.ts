@@ -19,7 +19,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { HomeComponent } from './modules/home/home.component';
 import {ModalModule} from 'ngx-bootstrap/modal';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import {HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
+import {HttpClient, HttpClientJsonpModule, HttpClientModule} from '@angular/common/http';
 import { CadastreInfoComponent } from './modules/cadastre-info/cadastre-info.component';
 import { HistoryComponent } from './modules/history/history.component';
 import {NgSelectModule} from '@ng-select/ng-select';
@@ -38,8 +38,10 @@ import { ScoreComponent } from './modules/score/score.component';
 import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {BrowserAnimationsModule, NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {NgxSpinnerModule} from 'ngx-spinner';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 import {HighchartsChartModule} from 'highcharts-angular';
+import { Ng2SearchPipeModule } from 'ng2-search-filter';
 import {
   FacebookLoginProvider,
   GoogleLoginProvider,
@@ -57,6 +59,14 @@ import { LandingComponent } from './modules/landing/landing.component';
 import { SignupComponent } from './modules/signup/signup.component';
 import { ToolsModalComponent } from './components/tools-modal/tools-modal.component';
 import { ToolsComponent } from './modules/tools/tools.component';
+import { RelabComponent } from './modules/relab/relab.component';
+import { UserModalComponent } from './components/user-modal/user-modal.component';
+import { BestPracticesComponent } from './modules/best-practices/best-practices.component';
+import { HomeBpComponent } from './modules/home-bp/home-bp.component';
+import { CeeCadastreInfoComponent } from './modules/cee-cadastre-info/cee-cadastre-info.component';
+import { FormCeeComponent } from './modules/form-cee/form-cee.component';
+import { BuildingModalComponent } from './components/building-modal/building-modal.component';
+import { UserCeeHistoryComponent } from './modules/user-cee-history/user-cee-history.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +89,15 @@ import { ToolsComponent } from './modules/tools/tools.component';
     LandingComponent,
     SignupComponent,
     ToolsModalComponent,
-    ToolsComponent
+    ToolsComponent,
+    RelabComponent,
+    UserModalComponent,
+    BestPracticesComponent,
+    HomeBpComponent,
+    CeeCadastreInfoComponent,
+    FormCeeComponent,
+    BuildingModalComponent,
+    UserCeeHistoryComponent
   ],
     imports: [
         BrowserModule,
@@ -96,12 +114,18 @@ import { ToolsComponent } from './modules/tools/tools.component';
         BrowserAnimationsModule,
         NoopAnimationsModule,
         NgxSpinnerModule,
-        TranslateModule.forRoot(),
+        TranslateModule.forRoot({
+          loader: {
+              provide: TranslateLoader,
+              useFactory: HttpLoaderFactory,
+              deps: [HttpClient]
+          }
+        }),
         HighchartsChartModule,
         AngularFireModule.initializeApp(environment.firebase),
         AngularFirestoreModule,
         AngularFireAuthModule,
-
+        Ng2SearchPipeModule
     ],
   providers: [
     { provide: LocationStrategy, useClass: HashLocationStrategy },
@@ -116,3 +140,7 @@ import { ToolsComponent } from './modules/tools/tools.component';
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http);
+}

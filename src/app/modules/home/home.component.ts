@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {AngularFireAuth} from '@angular/fire/auth';
 import {Property} from '../../shared/models/property';
 import {User} from '../../shared/models/user';
@@ -20,6 +20,7 @@ import {LoginComponent} from '../login/login.component';
 import {BsModalRef, BsModalService} from 'ngx-bootstrap/modal';
 import {Refurbishment} from '../../shared/models/refurbishment';
 import { Location } from '@angular/common';
+import { LandingComponent } from '../landing/landing.component';
 
 @Component({
   selector: 'app-home',
@@ -27,12 +28,14 @@ import { Location } from '@angular/common';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-
+  
+  @Input() addressEmitter = new EventEmitter<any>();
   // general variables
   history: Building[];
   totalHistory: Building[];
   building: Building;
   error: string;
+  modalRef: BsModalRef;
 
   // map variables
   historyFilteredFromList: any;
@@ -65,7 +68,8 @@ export class HomeComponent implements OnInit {
                private geodataService: GeodataService,
                private opendataService: OpendataService,
                private router: Router,
-               private location: Location) {
+               private location: Location,
+               private modalService: BsModalService) {
     this.totalHistory = [];
 
     this.building =  new Building('', '', '',  null, '', '', '', '',
@@ -300,5 +304,13 @@ export class HomeComponent implements OnInit {
   }
   receiveOption($event): void {
     this.stepSelected = $event;
+  }
+
+  receiveValue($event): void {
+    this.addressEmitter = $event;
+  }
+
+  openModal() {
+    this.modalRef = this.modalService.show(LoginComponent, { class: 'modal-lg' });
   }
 }

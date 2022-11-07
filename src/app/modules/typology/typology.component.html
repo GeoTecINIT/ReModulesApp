@@ -20,7 +20,7 @@
         </p>
         <div class="d-flex bd-highlight">
           <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
-            <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; &#13217; </span>
+            <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; m<sup>2</sup> </span>
           </div>
           <div class="p-2 flex-fill bd-highlight">
             <p>Climate Region: <strong>Mediterranean</strong></p>
@@ -35,7 +35,7 @@
 
   <div class="accordion customData" id="accordionExample">
     <div class="card">
-      <div class="card-header" id="typologySelectSection">
+      <div class="card-header color-card-header" id="typologySelectSection">
         <div class="row">
           <div class="col-md-6">
             <h4>
@@ -48,7 +48,7 @@
           </div>
           <div class="col-md-1">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-              <i class="fa fa-angle-down" aria-hidden="true"></i>
+              <i class="fa fa-angle-down down-arrow" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -57,15 +57,15 @@
       <div id="collapseOne" class="collapse show " aria-labelledby="typologySelectSection" data-parent="#accordionExample">
         <div class="d-flex bd-highlight" *ngIf="!hasSubCategories">
           <div *ngFor="let typ of typologies" class="d-flex bd-highlight">
-            <a href="#" (click)="calculateEnvelopedSystems(typ);" >
+            <a (click)="calculateEnvelopedSystems(typ);" >
               <img class="card-img-top typologyIcon p-2 flex-fill bd-highlight" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{typ.picName}}" >
-            </a>
             <h6 class="p-2 flex-fill bd-highlight">{{typ.categoryName}}</h6>
+          </a>
           </div>
         </div>
         <div class="d-flex bd-highlight" *ngIf="hasSubCategories">
           <div *ngFor="let typ of typologies" class="d-flex bd-highlight">
-            <a href="#" (click)="selectTypo(typ);" >
+            <a (click)="selectTypo(typ);" >
               <img class="card-img-top typologyIcon p-2 flex-fill bd-highlight" alt="Building image"  src="./assets/img/typology/{{building.country}}/{{typ.picName}}" >
             </a>
             <h6 class="p-2 flex-fill bd-highlight">{{typ.categoryName}}</h6>
@@ -87,7 +87,7 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-header" id="buildingDataSection">
+      <div class="card-header color-card-header" id="buildingDataSection">
         <div class="d-flex bd-highlight">
           <div class="col-md-6">
            <h4>2. Building Data </h4>
@@ -97,7 +97,7 @@
           </div>
           <div class="col-md-1">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-              <i class="fa fa-angle-down" aria-hidden="true"></i>
+              <i class="fa fa-angle-down down-arrow" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -106,7 +106,7 @@
       <div id="collapseTwo" class="collapse" aria-labelledby="buildingDataSection" data-parent="#accordionExample" [ngClass]="building.typology && building.typology.categoryCode ? 'show' : ''">
         <div class="d-flex bd-highlight" >
           <div *ngFor="let env of buildingSelection | keyvalue" class="p-2 flex-fill bd-highlight" [hidden]="!showTypoSelect" >
-              <a class="componentEnv" [ngClass]="componentSelected.component === env.key ? 'env-selected' : ''" href="#" (click)="selectComponent(env.key, env.value);" *ngIf="env.value > 0" id="{{env.key}}">
+              <a class="componentEnv" [ngClass]="componentSelected.component === env.key ? 'env-selected' : ''" (click)="selectComponent(env.key, env.value);" *ngIf="env.value > 0" id="{{env.key}}">
                 <i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
                 <span> {{env.key}}</span>
               </a>
@@ -127,39 +127,44 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-header" id="systemTypeSection">
+      <div class="card-header color-card-header" id="systemTypeSection">
         <div class="d-flex bd-highlight">
           <div class="col-md-5">
             <h4>
               3. System Type
             </h4>
           </div>
-          <div class="col-md-6">
-            <ng-select [(ngModel)]="codeSystemMeasureSelected" appendTo="body" (change)="selectSystem(1); enableCalculate=true;" [searchable]="true" [clearable]="true">
-              <ng-option *ngFor="let sys of systems" [value]="sys.codeSystemMeasure">{{sys.description}}</ng-option>
-            </ng-select>
-          </div>
           <div class="col-md-1">
             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-              <i class="fa fa-angle-down" aria-hidden="true"></i>
+              <i class="fa fa-angle-down down-arrow" aria-hidden="true"></i>
             </button>
           </div>
         </div>
       </div>
 
       <div id="collapseThree" class="collapse show" aria-labelledby="systemTypeSection" data-parent="#accordionExample">
+        <div class="d-flex bd-highlight">
+        <div class="col-md-5">
+          <div>Choose your system data</div>
+        </div>
+        <div class="col-md-6">
+          <ng-select [(ngModel)]="codeSystemMeasureSelected" appendTo="body" (change)="selectSystem(1); enableCalculate=true;" [searchable]="true" [clearable]="true">
+            <ng-option *ngFor="let sys of systems" [value]="sys.codeSystemMeasure">{{sys.description}}</ng-option>
+          </ng-select>
+        </div>
+      </div>
         <div class="d-flex bd-highlight" [hidden]="!categorySystem">
           <div class="p-2 flex-fill bd-highlight">
-            <a  class="componentSys" href="#" (click)="selectSystem(1);"  id="heating"><i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
+            <a  class="componentSys" (click)="selectSystem(1);"  id="heating"><i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
             Heating</a>
           </div>
           <div class="p-2 flex-fill bd-highlight">
-            <a class="componentSys" href="#" (click)="selectSystem(2);"  id="water"><i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
-            Water
+            <a class="componentSys" (click)="selectSystem(2);"  id="water"><i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
+            Domestic Hot Water
             </a>
           </div>
           <div class="p-2 flex-fill bd-highlight">
-            <a class="componentSys" href="#" (click)="selectSystem(3);" id="ventilation"><i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
+            <a class="componentSys" (click)="selectSystem(3);" id="ventilation"><i class="fa fa-home fa-2x col-md-6" aria-hidden="true" ></i>
               Ventilation
             </a>
           </div>

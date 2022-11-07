@@ -2,11 +2,12 @@
   height: 100px;
   background-color: #00203d;
   color: white;
-  padding-left:20px ;
+  padding-left: 20px;
 }
 .main-content {
   overflow: scroll;
 }
+
 .logo {
   max-width: 100%;
   max-height: 100%;
@@ -49,6 +50,12 @@
   padding-right: 15px;
   padding-top: 10px;
 }
+
+.rounded-button:hover{
+  background-color: #004470;
+  color: white;
+}
+
 .login-buttons {
   padding-right: 0;
 }
@@ -56,4 +63,53 @@
   background-color: #00203d;
   color: white;
   border-style: none;
+}
+
+.form-control {
+  color: #004470;
+  float: right;
+  background-color: white;
+  border-radius: 22px;
+  border-style: none;
+  justify-content: center;
+}
+
+.form-language{
+  top: 30%;
+  position: relative;
+}
+
+.usuario{
+  top: 30%;
+  position: relative;
+}
+
+.boton-user{
+  background-color: #00203D !important;
+  border: none !important;
+  color: white !important;
+}
+
+.boton-user:hover{
+  overflow: auto;
+  background-color: #004470 !important;
+}
+
+.opciones{
+  border: none !important;
+}
+
+.card-opciones{
+  margin-top: 10%;
+  margin-left: -90px;
+}
+
+.boton-language{
+  background-color: #ffffff;
+  color: #00203D !important;
+  border: none;
+}
+
+.boton-opcion{
+  color: #00203D !important;
 }

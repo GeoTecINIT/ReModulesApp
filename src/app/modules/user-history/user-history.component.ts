@@ -189,6 +189,7 @@ export class UserHistoryComponent implements OnInit {
     let systemType: SystemType = null;
     const efficiency: Efficiency[] = [];
     const dataBuilding = history.data_building;
+    console.log(dataBuilding)
     history.envelope.forEach( env => {
       enveloped.push(new Envelope(env.enveloped.enveloped_code, env.enveloped.type_construction,
         env.enveloped.description, env.u_value, env.enveloped.picture, env.component_type.name));

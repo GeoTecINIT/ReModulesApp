@@ -1,0 +1,229 @@
+.relab-main {
+    overflow: auto;
+  }
+  .info-section {
+    height: 49vh;
+    color: #00213d;
+  }
+  .relab-section{
+    background-color: white;
+    color: #535353;
+    padding: 30px 60px 30px 90px;
+  }
+  .content-text-generator{
+    overflow: auto;
+    justify-content: center;
+  }
+  .relab-title{
+    color: #004470;
+    margin-bottom: 10%;
+    margin-top: 10%;
+  }
+  .tools-title-white{
+    color: white;
+  }
+  .card-tool {
+    margin-top: 20px;
+    margin-left: 40px;
+    margin-right: 40px;
+    background-color: #f4f6f8;
+    color: black;
+    border-radius: 10px;
+    padding-top: 5px;
+  }
+  .filters {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+  .content-text-country {
+    padding-left: 150px;
+  }
+  .country-selection{
+    margin-left: 150px;
+    background-color: #19446d;
+    border-radius: 40px     40px      0           0;
+    height: 100%;
+    margin-right: 400px;
+    padding: 50px;
+  }
+  .button-blue {
+    background-color: #00213d;
+    color: white;
+    border-radius: 10px;
+    border-style: none;
+    padding: 10px;
+    margin-top: 20px;
+  }
+  .tools {
+    padding-left: 100px;
+  }
+  
+  .nav-tabs{
+    justify-content: center !important;
+    border: 0px solid transparent !important;
+  }
+  
+  .nav-link{
+    border: 0px solid transparent !important;
+    color: #93AFC2 !important;
+  }
+  
+  .nav-link.active{
+    color: #004470 !important;
+  }
+  
+  a{
+    font-weight: bold;
+    text-decoration: none;
+    color: #004470 !important;
+  }
+  
+  .card-header{
+    background-color: #f4f6f8 !important;
+    border: none !important;
+  }
+  
+  .boton-guardar{
+    color: white;
+    border: none !important;
+  }
+  
+  .cosa{
+    float: right;
+    color: white;
+  }
+  
+  .estrellas{
+    color: #004470 !important;
+  }
+  
+  .form-izquierda{
+    width: 50%; 
+    float: left;
+    color: #004470 !important;
+    justify-content: center;
+  }
+  
+  .form-derecha{
+    width: 50%;
+    float: right;
+    justify-content: center;
+  }
+  
+  .apply{
+    float: right;
+  }
+  
+  .bloque-formulario{
+    background-color: #C6D2E1 !important;
+  }
+  
+  label{
+    color: #0B4C76 !important;
+    font-weight: bold;
+  }
+  
+  #toolname{
+    background-color: #F8F9FB !important;
+  }
+  
+  #toolurl{
+    background-color: #F2F4F7 !important;
+  }
+  
+  #toolcountry{
+    background-color: #F8F9FB !important;
+  }
+  
+  #toolmessage{
+    background-color: #F2F4F7 !important;
+  }
+  
+  hr {
+    margin-top: 0rem;
+    margin-bottom: 0rem;
+    border: 0;
+    border-top: 1px solid #2D6489;
+  }
+  
+  .justify-content-end{
+    background-color: #F2F4F7 !important;
+  }
+
+  .badge-england{
+    background-color: #FD9C6A !important;
+    color: white !important;
+  }
+
+  .badge-france{
+    background-color: #27278F !important;
+    color: white;
+  }
+
+  .badge-valencia{
+    background-color: #5A1981 !important;
+    color: white;
+  }
+
+  .report-parrafo{
+    color: #2F678A !important;
+    padding-top: 20px;
+  }
+
+  .report-title{
+    color: #004470 !important;
+    font-weight: bold;
+  }
+
+  hr{
+    margin-top: 10px;
+  }
+
+  .badge-italy{
+    background-color: #1C8972 !important;
+    color: white;
+  }
+
+  .author-article{
+    color: #658EA8 !important;
+  }
+
+  .text-justify{
+    text-align: justify;
+  }
+  
+  .search-box{
+    margin-left: 950px;
+    margin-right: 700px;
+  }
+
+  .filter-button-alph{
+    margin-right: 800px;
+    margin-left: -950px;
+  }
+
+  #example-search-input{
+    border-radius: 22px;
+  }
+
+  .boton-filtros{
+    background-color: white;
+    color: #004470;
+    border: none;
+    border-radius: 22px;
+  }
+
+  .button-filter-suppliers{
+    background-color: #f2f4f7;
+    border-radius: 15px;
+    padding-right: 8px;
+    padding-left: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    width: auto;
+  }
+
+  .card-footer{
+    background-color: #f4f6f8;
+    border: none;
+  }

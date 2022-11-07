@@ -13,49 +13,59 @@
         </a>
       </div-->
       <div class="container">
-        <div class="row align-items-center">
-          <div class="col">
-            <div [hidden]="properties.length < 1">
-              <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' *ngIf=" properties.length > 0 && properties[0].image" />
+        <div class="card card-info">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col">
+                <div class="location">
+                  Your current location
+                </div>
+                <div [hidden]="properties.length < 1">
+                  <img class="img-thumbnail" alt="Facade image" [src]='properties[0].image' *ngIf=" properties.length > 0 && properties[0].image" />
+                </div>
+              </div>
+              <div class="col text-ident">
+                <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
+                <p> <i class="fa fa-map-marker" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
+                </p>
+              </div>
             </div>
           </div>
-          <div class="col">
-            <h5 [hidden]="!building.region"> Province: {{ building.region }} </h5>
-            <p> <i class="fa fa-map-marker" aria-hidden="true"></i> <strong>&nbsp;{{building.address}}</strong>
-            </p>
+          <div class="container cadastreInfo">
+            <div class="d-flex bd-highlight">
+              <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
+                <span class="text-bold"><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; m<sup>2</sup> </span>
+              </div>
+              <div class="p-2 flex-fill bd-highlight" *ngIf="building.year">
+                <span class="text-bold"><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
+              </div>
+            </div>
+            <div class="d-flex bd-highlight">
+              <div class="p-2 flex-fill bd-highlight" *ngIf="building.rc">
+                <p> Cadastre Reference:</p>
+                <p><strong> {{building.rc}}</strong></p>
+              </div>
+              <div class="p-2 flex-fill bd-highlight" *ngIf="building.use">
+                <p>Primary use:</p>
+                <p><strong> {{building.use}}</strong></p>
+              </div>
+            </div>
+            <div class="col-md-6" [hidden]="!selectYear">
+              <label for="selectYear">Select year</label>
+              <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();" [bindValue]="selectedYear"></ng-select>
+            </div>
+          </div>
+          <div class="container calculating">
+              <h5 class="title-calc">Calculating energy expenditure</h5>
+              <p class="paragraph-calc">Complete the next form with the characteristics of your property by clicking on the button Calculate energy cost</p>
+          </div>
+          <div class="d-flex flex-row bd-highlight">
+            <button class="calculateEnergy btn btn-large"  role="button" (click)="calculateTypology();" [disabled]="!selectBuilding">
+              <i class="fa fa-battery-full fa-4x" aria-hidden="true" style="width: 70px; height: 40px;"></i>&nbsp;&nbsp; <span  class="align-middle"><strong> CALCULATE THE ENERGY COST  &#62;</strong></span>
+            </button>
+          </div>
           </div>
         </div>
-      </div>
-      <div class="container cadastreInfo">
-        <div class="d-flex bd-highlight">
-          <div class="p-2 flex-fill bd-highlight" *ngIf="building.surface">
-            <span><img src="./assets/img/icons/square_foot_black_24dp.svg" alt="Surface" style="width: 16px!important;">&nbsp;{{building.surface}}&nbsp; &#13217; </span>
-          </div>
-          <div class="p-2 flex-fill bd-highlight" *ngIf="building.year">
-            <span><i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;{{building.year}}</span>
-          </div>
-        </div>
-        <div class="d-flex bd-highlight">
-          <div class="p-2 flex-fill bd-highlight" *ngIf="building.rc">
-            <p> Cadastre Reference:</p>
-            <p><strong> {{building.rc}}</strong></p>
-          </div>
-          <div class="p-2 flex-fill bd-highlight" *ngIf="building.use">
-            <p>Primary use:</p>
-            <p><strong> {{building.use}}</strong></p>
-          </div>
-        </div>
-        <div class="col-md-6" [hidden]="!selectYear">
-          <label for="selectYear">Select year</label>
-          <ng-select id="selectYear" [(ngModel)]="selectedYear" [items]="years" (change)="selectYearOption();" [bindValue]="selectedYear"></ng-select>
-        </div>
-      </div>
-      <div class="d-flex flex-row bd-highlight">
-        <button class="calculateEnergy btn btn-large"  role="button" (click)="calculateTypology();" [disabled]="!selectBuilding">
-          <i class="fa fa-battery-full fa-4x" aria-hidden="true" style="width: 70px;"></i> <span  class="align-middle"><strong> CALCULATE THE ENERGY COST  &#62;</strong></span>
-        </button>
-      </div>
-
 
       <!--div [hidden]="properties.length < 1" class="seeMore">
         <div  class="cursor-pointer flex justify-center items-center h-16" role="button" data-toggle="collapse" data-target="#propertiesInfo">

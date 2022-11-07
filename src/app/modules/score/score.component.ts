@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {Building} from '../../shared/models/building';
 import * as Highcharts from 'highcharts';
 import {GlobalConstants} from '../../shared/GlobalConstants';
@@ -10,6 +10,8 @@ import {SystemType} from '../../shared/models/systemType';
 import {TypologyService} from '../../core/typology/typology.service';
 import {System} from '../../shared/models/system';
 import {Efficiency} from '../../shared/models/eficiency';
+import * as jsPDF from "jspdf";
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-score',
@@ -101,6 +103,7 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() building: Building;
   @Input() updateBuilding: boolean;
   @Output() optionEmitter = new EventEmitter<string>();
+  //@ViewChild('content') content:ElementRef;
   constructor(public afAuth: AngularFireAuth, private userService: UserService, private typologyService: TypologyService) {
     this.afAuth.onAuthStateChanged(user => {
       if (user) {
@@ -617,6 +620,9 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       title: {
         text: ' '
       },
+      credits: {
+        enabled: false
+      },
       xAxis: {
         categories: [label]
       },
@@ -662,6 +668,9 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       title: {
         text: 'Total Final Energy'
       },
+      credits: {
+        enabled: false
+      },
       xAxis: {
         type: 'category'
       },
@@ -691,17 +700,17 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
             {
               name: 'Today',
               y: this.totalFinalEnergy.today,
-              color: '#f5a9a9'
+              color: '#fd9c6a'
             },
             {
               name: 'Standard',
               y: this.totalFinalEnergy.standard,
-              color: '#ffbd04'
+              color: '#fac57b'
             },
             {
               name: 'Advanced',
               y: this.totalFinalEnergy.advanced,
-              color: '#bce39e'
+              color: '#aee279'
             }
           ]
         }
@@ -720,6 +729,9 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
       },
       title: {
         text: ' '
+      },
+      credits: {
+        enabled: false
       },
       tooltip: {
         pointFormat: '{point.name}: <b>{point.y:.1f}</b>'
@@ -763,5 +775,25 @@ export class ScoreComponent implements OnInit, AfterViewInit, OnChanges {
   }
   goBack() {
     this.optionEmitter.emit('typology');
+  }
+  
+  //@ViewChild("contenido") contenido: ElementRef; 
+  public SavePDF(): void {  
+    //let content = document.body;
+    let data = document.getElementById("contenido");
+
+    this.generatePDF(data);
+  }  
+
+  generatePDF(htmlContent){
+    html2canvas(htmlContent).then(canvas => {
+      let imgWidth = 155;
+      let imgHeigth = (canvas.height * imgWidth / canvas.width)
+      const contentDataURL = canvas.toDataURL("image/png")
+      let pdf = new jsPDF('p','mm','a4');
+      var position = 10;
+      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeigth);
+      pdf.save('ScoreBuilding.pdf')
+    })
   }
 }

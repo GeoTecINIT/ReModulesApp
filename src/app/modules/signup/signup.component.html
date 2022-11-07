@@ -1,1 +1,41 @@
-<p>signup works!</p>
+<div #modalLogin class="modal-dialog modal-lg" style="text-align: center">
+    <div class="modal-content">
+      <div class="modal-body">
+        <section class="sign-in" *ngIf="!isRegistering">
+            <div class="container">
+                <div class="signup-content row">
+                  <div class="signup-form col-md-6">
+                    <h2 class="form-title">Sign up</h2>
+                    <form  #signUpForm="ngForm" (ngSubmit)="register()">
+                      <div class="form-group">
+                        <input type="text" placeholder="Your Name" [(ngModel)]="newUser.name" name="name"  #name="ngModel" required/>
+                      </div>
+                      <div class="form-group">
+                        <input type="email" placeholder="Your Email" [(ngModel)]="newUser.email" name="email"  #email="ngModel" required/>
+                      </div>
+                      <div class="form-group">
+                        <input type="password" placeholder="Password" [(ngModel)]="newUser.pwd" name="pwd"  #pwd="ngModel" required/>
+                      </div>
+                      <div class="form-group">
+                        <input type="password" placeholder="Repeat Password" [(ngModel)]="newUser.repPwd" name="repPwd"  #repPwd="ngModel" required>
+                      </div>
+                      <div class="form-group">
+                        <p class="text-center text-danger mt-4" [innerText]="errorRegister" [hidden]="!errorRegister">
+                        </p>
+                      </div>
+                      <button type="submit" class="btn btn-primary active px-4" >Register</button>
+                    </form>
+                  </div>
+                  <div class="signup-image col-md-6">
+                    <figure><img src="./assets/img/logos/signup-image.jpg" alt="sing up image"></figure>
+                  </div>
+                </div>
+              </div>
+        </section>
+  
+        <section class="signup " *ngIf="isRegistering">
+          
+        </section>
+      </div>
+    </div>
+  </div>

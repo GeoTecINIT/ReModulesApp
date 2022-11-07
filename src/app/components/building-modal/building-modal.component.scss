@@ -1,0 +1,160 @@
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+  .tool-actions {
+    border-color: transparent;
+    color: #014470;
+  }
+  .content-info {
+    color: #005481;
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+  .web-tool {
+    background-color: #99b4c6;
+    color: white;
+    border-radius: 10px;
+    border-style: none;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .modal-lg {
+    width: 500px;
+  }
+  .tab-content{
+    width: 100%!important;
+    height: 500px!important;
+    padding-top: 20px!important;
+  }
+  .content-description {
+    margin-top: 20px;
+  }
+  
+  .nav-tabs{
+    color: #004470 !important;
+    justify-content: center;
+    border: none !important;
+  }
+  
+  .nav-link{
+    border: 0px solid transparent !important;
+    color: #93AFC2 !important;
+  }
+  
+  .nav-link.active{
+    color: #004470 !important;
+  }
+  
+  button{
+    border: none !important;
+  }
+  
+  .fondo-gris{
+    background-color: #f5f7f9 !important;
+    border-radius: 10px;
+    border-style: none;
+    justify-content: center;
+  }
+  
+  .logo-tool{
+    background-color: #ACBDD5 !important;
+    border-radius: 50%;
+  }
+  
+  .title-information{
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .estrellas{
+    font-size: x-large;
+  }
+  
+  .bandera-spain{
+    border-radius: 10px !important;
+  }
+  
+  .bandera-france{
+    border-radius: 10px !important;
+  }
+  
+  .france{
+    margin-top: 10px;
+  }
+  
+  .bandera-slovenia{
+    border-radius: 10px !important;
+  }
+  
+  .slovenia{
+    margin-top: 10px;
+  }
+  
+  .owner-tool{
+    margin-top: 5px;
+    color: #005481 !important;
+  }
+  
+  .contact-tool{
+    margin-top: 5px;
+    color: #005481 !important;
+  }
+  
+  .available{
+    padding-top: 10px;
+    color: #c0cdde;
+  }
+  
+  .available-text{
+    color: #005481 !important;
+  }
+  
+  .contact{
+    padding-top: 10px;
+    color: #c0cdde;
+  }
+  
+  .owner-title{
+    color: #c0cdde;
+  }
+  
+  .boton{
+    float: right;
+    background-color: #004470;
+    color: white;
+    border: none;
+    border-radius: 15px;
+  }
+  
+  .comment-separator{
+    border-color: #004470;
+  }
+  
+  .comments-box{
+    border-radius: 5px;
+  }
+  
+  .like-button{
+    background-color: transparent;
+    color: #004470;
+  }
+  
+  .dislike-button{
+    background-color: transparent;
+    color: #004470;
+  }
+  
+  .reply-button{
+    background-color: transparent;
+    color: #004470;
+  }

@@ -1,10 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import {ToolsService} from '../../core/tools/tools.service';
 import {Tools} from '../../shared/models/tools';
 import {Router} from '@angular/router';
 import {LoginComponent} from '../login/login.component';
 import {BsModalRef, BsModalService, ModalOptions} from 'ngx-bootstrap/modal';
 import {ToolsModalComponent} from '../../components/tools-modal/tools-modal.component';
+import {UserService} from '../../core/authentication/user.service';
+import { Building } from 'src/app/shared/models/building';
+import { User } from 'src/app/shared/models/user';
+
+export interface Tile {
+  color: string;
+  cols: number;
+  rows: number;
+  text: string;
+  image: string;
+  contenido: string;
+}
 
 @Component({
   selector: 'app-landing',
@@ -12,7 +24,7 @@ import {ToolsModalComponent} from '../../components/tools-modal/tools-modal.comp
   styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent implements OnInit {
-
+  starRating = 3;
   tools: Tools[] = [];
   filters = {countries: [], typologies: [], profiles: [], solutions: [], steps: [], stops: []};
   countrySelectd: string;
@@ -25,8 +37,14 @@ export class LandingComponent implements OnInit {
   tmpTools: Tools[] = [];
   countryOneClick: string;
   countriesOneClick: [{id, name}];
+  confirmAddress = [];
+  isFavoriteTool: boolean;
   modalRef: BsModalRef;
-  constructor( private toolsService: ToolsService, private router: Router, private modalService: BsModalService) {
+  currentMsgToParent="";
+  msgFromChild1 = [];
+  @Input() tool: Tools;
+  @Input() addressEmitter = new EventEmitter<any>();
+  constructor( private toolsService: ToolsService, private router: Router, private modalService: BsModalService, private userService: UserService) {
   }
 
   ngOnInit(): void {
@@ -47,6 +65,14 @@ export class LandingComponent implements OnInit {
       this.tools.forEach( tool => {
         this.tmpTools.push(tool);
       });
+
+      /*if(this.tmpTools[2].name === 'DRIVE-0 autoevaluation'){
+        let elem = (document.getElementById("tool-image"));
+        elem.innerHTML += "<img src='./assets/img/tools/circular-homes.png' height='200' width='auto' class='card-img-top'>";
+      }else{
+        let elem = (document.getElementById("tool-image"));
+        elem.innerHTML += "<img src='./assets/img/tools/camera-icon.jpeg' height='200' width='auto' class='card-img-top'>";
+      }*/
     });
   }
 
@@ -95,6 +121,7 @@ export class LandingComponent implements OnInit {
         }
       });
       const info = new Tools(
+        tool.id,
         tool.name,
         tool.login_access,
         tool.url,
@@ -242,7 +269,13 @@ export class LandingComponent implements OnInit {
       this.filterApplied.splice(indexFilterApplied, 1);
     }
   }
-  goToOneClick(): void {
+  goToOneClick(building: string): void {
+    //this.buildingSelectedEmitter.emit(this.address);
+    this.router.navigate(['/oneclick'], {state: {building: this.addressEmitter.emit(building)}});
+    
+  }
+
+  goToOneClick2(): void {
     this.router.navigate(['/oneclick'], {state: {country: this.countryOneClick}});
   }
 
@@ -253,5 +286,26 @@ export class LandingComponent implements OnInit {
         ignoreBackdropClick: true,
         initialState: { tool}});
     this.modalRef.content.closeBtnName = 'Close';
+  }
+
+  goToTools(){
+    this.router.navigate(['/', 'tools'])
+  }
+
+  goToBestPractices(){
+    this.router.navigate(['/', 'bestpractices'])
+  }
+
+  onClickSubmit(data:any){
+    this.addressEmitter.emit({data});
+    localStorage.setItem('address', data.address);
+    this.router.navigate(['/oneclick'], { state: data})
+    console.log(data)
+   }
+
+   saveTool(tool: Tools): void{
+    this.userService.addPropertyToolToHistory(tool, localStorage.getItem('auth-token')).subscribe( () => {
+      this.isFavoriteTool = true;
+    });
   }
 }

@@ -24,17 +24,63 @@
   width: fit-content;
   height: 12.5%;
 }
+
 .information {
   height: 100vh;
   overflow: auto;
 }
 .buildInfoSection {
-  background-color: #797979;
+  background-color: #bbc8dc;
   border-radius: 30px;
-  margin-top: 80px;
+  margin-top: 50px;
   padding: 30px;
   color: white;
 }
 .energySection {
   padding: 10px;
+}
+
+.energySection::-webkit-scrollbar{
+  display: none;
+}
+
+.title-oneclick{
+  color: #065884;
+}
+
+.icon{
+  align-items: center;
+  color: #005481 !important;
+}
+
+.icon:hover div{
+  opacity: 1;
+  visibility: visible;
+}
+
+.login {
+  background-color: #00203d;
+  color: white;
+  border-style: none;
+  border-radius: 22px;
+  width: auto;
+}
+
+.a-option{
+  text-align: center;
+  opacity: 0;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.text-login{
+  color: #004470;
+}
+
+.icon-slot{
+  color: #065884;
+}
+
+.link-decoration{
+  text-decoration: none;
 }
